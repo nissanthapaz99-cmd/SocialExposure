@@ -1,26 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "/Users/ciferlupus/SocialExposure/SocialExposure.csproj": {}
+    "/Users/namunashakya/SocialExposure/SocialExposure/SocialExposure.csproj": {}
   },
   "projects": {
-    "/Users/ciferlupus/SocialExposure/SocialExposure.csproj": {
+    "/Users/namunashakya/SocialExposure/SocialExposure/SocialExposure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/ciferlupus/SocialExposure/SocialExposure.csproj",
+        "projectUniqueName": "/Users/namunashakya/SocialExposure/SocialExposure/SocialExposure.csproj",
         "projectName": "SocialExposure",
-        "projectPath": "/Users/ciferlupus/SocialExposure/SocialExposure.csproj",
-        "packagesPath": "/Users/ciferlupus/.nuget/packages/",
-        "outputPath": "/Users/ciferlupus/SocialExposure/obj/",
+        "projectPath": "/Users/namunashakya/SocialExposure/SocialExposure/SocialExposure.csproj",
+        "packagesPath": "/Users/namunashakya/.nuget/packages/",
+        "outputPath": "/Users/namunashakya/SocialExposure/SocialExposure/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/ciferlupus/.nuget/NuGet/NuGet.Config"
+          "/Users/namunashakya/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -63,7 +62,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.200/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
