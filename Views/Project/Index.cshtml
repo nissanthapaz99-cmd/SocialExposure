@@ -1,0 +1,97 @@
+@model IEnumerable<SocialExposure.Models.Project>
+
+@{
+    ViewData["Title"] = "Projects";
+    var clients = ViewBag.Clients as List<SocialExposure.Models.User>;
+}
+
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+
+        <div>
+            <h1 class="fw-bold">Projects</h1>
+
+            <p class="text-secondary fs-5">
+                Manage Social Exposure client projects.
+            </p>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-danger btn-lg">
+            + Create Project
+        </a>
+
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No projects have been created yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var project in Model)
+            {
+                var client = clients?
+                    .FirstOrDefault(x => x.Id == project.ClientId);
+
+                <div class="col-md-6">
+
+                    <div class="card shadow-sm h-100">
+
+                        <div class="card-body p-4">
+
+                            <h2 class="fw-bold mb-3">
+                                @project.ProjectName
+                            </h2>
+
+                            <p class="text-secondary fs-5 mb-4">
+                                @project.Description
+                            </p>
+
+                            <div class="mb-2">
+                                <strong>Status:</strong>
+                                <span class="badge bg-success">
+                                    @project.Status
+                                </span>
+                            </div>
+
+                            <div class="mb-2">
+                                <strong>Client:</strong>
+
+                                @if (client != null)
+                                {
+                                    <span>
+                                        @client.FullName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">
+                                        Client not found
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="text-secondary">
+                                <strong>Created:</strong>
+                                @project.CreatedDate.ToString("dd/MM/yyyy")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

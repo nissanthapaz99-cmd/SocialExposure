@@ -1,0 +1,44 @@
+@model SocialExposure.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Client Sign Up";
+}
+
+<div class="container mt-5">
+
+    <h2>Client Sign Up</h2>
+
+    <form asp-action="Register" method="post">
+
+        <div class="mb-3">
+            <label>Full Name</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="AcceptTerms" class="form-check-input" />
+            <label asp-for="AcceptTerms" class="form-check-label">
+                I agree to the Terms & Conditions
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Send Verification Code
+        </button>
+
+    </form>
+
+</div>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

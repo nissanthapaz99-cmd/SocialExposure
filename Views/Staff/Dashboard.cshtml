@@ -1,0 +1,95 @@
+@{
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">
+        Staff Dashboard
+    </h1>
+
+    <p class="lead text-secondary">
+        Welcome to the Social Exposure Design Platform
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Projects -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-4 h-100">
+
+            <h2>Projects</h2>
+
+            <p>
+                Create and manage client projects.
+            </p>
+
+            <a asp-controller="Project"
+               asp-action="Index"
+               class="btn btn-danger">
+                Manage Projects
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- Designs -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-4 h-100">
+
+            <h2>Designs</h2>
+
+            <p>
+                Upload designs and assign them to clients.
+            </p>
+
+         <a asp-controller="Design"
+   asp-action="Index"
+   class="btn btn-danger">
+    Manage Designs
+</a>   
+
+        </div>
+    </div>
+
+
+    <!-- Clients -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-4 h-100">
+
+            <h2>Clients</h2>
+
+            <p>
+                View and manage registered clients.
+            </p>
+
+            <a href="#"
+               class="btn btn-danger">
+                Manage Clients
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- Approvals -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-4 h-100">
+
+            <h2>Approvals</h2>
+
+            <p>
+                Monitor design feedback and approval status.
+            </p>
+
+            <a href="#"
+               class="btn btn-danger">
+                View Approvals
+            </a>
+
+        </div>
+    </div>
+
+</div>

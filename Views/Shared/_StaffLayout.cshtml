@@ -1,0 +1,500 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Social Exposure</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <style>
+
+        /* =========================
+           BODY
+        ========================== */
+
+        body {
+            margin: 0;
+            background-color: #f8f5f3;
+            font-family: Arial, sans-serif;
+        }
+
+
+        /* =========================
+           STAFF SIDEBAR
+        ========================== */
+
+        .staff-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 320px;
+            height: 100vh;
+
+            background-color: #991b1b;
+            color: white;
+
+            padding: 25px 14px;
+
+            overflow-y: auto;
+
+            z-index: 1000;
+        }
+
+
+        /* =========================
+           LOGO
+        ========================== */
+
+        .staff-logo {
+            padding: 0 15px 25px;
+
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+
+            margin-bottom: 18px;
+        }
+
+        .staff-logo h2 {
+            margin: 0;
+
+            font-family: Georgia, serif;
+
+            font-weight: bold;
+
+            font-size: 28px;
+        }
+
+        .staff-logo p {
+            margin: 4px 0 0;
+
+            letter-spacing: 4px;
+
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           STAFF USER
+        ========================== */
+
+        .staff-user {
+            background-color: rgba(255,255,255,0.12);
+
+            border-radius: 18px;
+
+            padding: 18px;
+
+            margin-bottom: 25px;
+        }
+
+        .staff-user-circle {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 50%;
+
+            background-color: #b85b5b;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+
+            margin-right: 10px;
+
+            vertical-align: middle;
+        }
+
+        .staff-user-name {
+            font-weight: bold;
+        }
+
+        .staff-user-role {
+            font-size: 14px;
+
+            opacity: 0.8;
+        }
+
+
+        /* =========================
+           NAVIGATION
+        ========================== */
+
+        .staff-nav {
+            margin: 0;
+            padding: 0;
+        }
+
+        .staff-nav a {
+            display: block;
+
+            color: white;
+
+            text-decoration: none;
+
+            padding: 16px 20px;
+
+            margin: 5px 0;
+
+            border-radius: 12px;
+
+            font-size: 18px;
+
+            font-weight: 600;
+
+            transition: background-color 0.2s ease;
+        }
+
+        .staff-nav a:hover {
+            background-color: rgba(255,255,255,0.18);
+
+            color: white;
+        }
+
+        .staff-nav a.active {
+            background-color: rgba(255,255,255,0.18);
+
+            color: white;
+        }
+
+
+        /* =========================
+           LOGOUT
+        ========================== */
+
+        .staff-logout {
+            position: absolute;
+
+            bottom: 25px;
+
+            left: 14px;
+
+            right: 14px;
+        }
+
+        .staff-logout a {
+            display: block;
+
+            color: white;
+
+            text-decoration: none;
+
+            padding: 16px 20px;
+
+            border-radius: 12px;
+
+            font-size: 18px;
+
+            font-weight: 600;
+        }
+
+        .staff-logout a:hover {
+            background-color: rgba(255,255,255,0.18);
+
+            color: white;
+        }
+
+
+        /* =========================
+           MAIN AREA
+        ========================== */
+
+        .staff-main {
+            margin-left: 320px;
+
+            min-height: 100vh;
+        }
+
+
+        /* =========================
+           TOP BAR
+        ========================== */
+
+        .staff-topbar {
+            height: 82px;
+
+            background-color: white;
+
+            border-bottom: 1px solid #ddd;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0 30px;
+        }
+
+        .staff-topbar h1 {
+            margin: 0;
+
+            color: #991b1b;
+
+            font-family: Georgia, serif;
+
+            font-size: 32px;
+        }
+
+
+        /* =========================
+           PAGE CONTENT
+        ========================== */
+
+        .staff-content {
+            padding: 40px;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @@media (max-width: 992px) {
+
+            .staff-sidebar {
+                width: 250px;
+            }
+
+            .staff-main {
+                margin-left: 250px;
+            }
+
+            .staff-nav a {
+                font-size: 16px;
+            }
+
+        }
+
+
+        @@media (max-width: 768px) {
+
+            .staff-sidebar {
+                width: 220px;
+            }
+
+            .staff-main {
+                margin-left: 220px;
+            }
+
+            .staff-content {
+                padding: 25px;
+            }
+
+            .staff-topbar {
+                padding: 0 20px;
+            }
+
+            .staff-topbar h1 {
+                font-size: 26px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         STAFF SIDEBAR
+    =========================================== -->
+
+    <aside class="staff-sidebar">
+
+
+        <!-- LOGO -->
+
+        <div class="staff-logo">
+
+            <h2>
+                Social Exposure
+            </h2>
+
+            <p>
+                DESIGN
+            </p>
+
+        </div>
+
+
+        <!-- USER INFORMATION -->
+
+        <div class="staff-user">
+
+            <div>
+
+                <span class="staff-user-circle">
+                    N
+                </span>
+
+                <span>
+
+                    <span class="staff-user-name">
+                        Nissanthapaz99
+                    </span>
+
+                    <br />
+
+                    <span class="staff-user-role">
+                        Staff Member
+                    </span>
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             NAVIGATION
+        =========================================== -->
+
+        <nav class="staff-nav">
+
+
+            <!-- DASHBOARD -->
+
+            <a asp-controller="Staff"
+               asp-action="Dashboard"
+               class="@(currentController == "Staff" ? "active" : "")">
+
+                ▦ &nbsp; Dashboard
+
+            </a>
+
+
+            <!-- EVENTS -->
+
+            <a asp-controller="Events"
+               asp-action="Index"
+               class="@(currentController == "Events" ? "active" : "")">
+
+                ▣ &nbsp; Events
+
+            </a>
+
+
+            <!-- DESIGNS -->
+
+            <a asp-controller="Design"
+               asp-action="Index"
+               class="@(currentController == "Design" ? "active" : "")">
+
+                ⇧ &nbsp; Designs
+
+            </a>
+
+
+            <!-- NOTIFICATIONS -->
+
+            <!--
+                This module has not been created yet.
+                We will connect it later.
+            -->
+
+            <a href="#">
+
+                ♧ &nbsp; Notifications
+
+            </a>
+
+
+            <!-- MESSAGES -->
+
+            <!--
+                This module has not been created yet.
+                We will connect it later.
+            -->
+
+            <a href="#">
+
+                ▢ &nbsp; Messages
+
+            </a>
+
+
+            <!-- PROFILE -->
+
+            <!--
+                This module has not been created yet.
+                We will connect it later.
+            -->
+
+            <a href="#">
+
+                ♙ &nbsp; Profile
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- ==========================================
+             LOGOUT
+        =========================================== -->
+
+        <div class="staff-logout">
+
+            <a href="#">
+
+                ⇥ &nbsp; Logout
+
+            </a>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- ==========================================
+         MAIN CONTENT AREA
+    =========================================== -->
+
+    <main class="staff-main">
+
+
+        <!-- TOP BAR -->
+
+        <header class="staff-topbar">
+
+            <h1>
+                @ViewData["Title"]
+            </h1>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+
+        <section class="staff-content">
+
+            @RenderBody()
+
+        </section>
+
+
+    </main>
+
+
+</body>
+
+</html>

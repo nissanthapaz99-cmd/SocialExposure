@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Staff / Admin Login";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow p-4">
+
+                <div class="text-center mb-4">
+
+                    <h1>Staff / Admin Login</h1>
+
+                    <p class="text-secondary">
+                        Enter your credentials to access the system
+                    </p>
+
+                </div>
+
+                <form asp-action="StaffLogin" method="post">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Username or Email
+                        </label>
+
+                        <input type="text"
+                               name="email"
+                               class="form-control"
+                               placeholder="admin@company.com"
+                               required />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Password"
+                               required />
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-danger w-100">
+                        Login
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

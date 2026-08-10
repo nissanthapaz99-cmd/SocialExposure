@@ -1,0 +1,31 @@
+@model SocialExposure.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Client Login";
+}
+
+<div class="container mt-5">
+
+    <h2>Client Login</h2>
+
+    <form asp-action="Login" method="post">
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <button class="btn btn-success">
+            Send OTP
+        </button>
+
+    </form>
+
+</div>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
