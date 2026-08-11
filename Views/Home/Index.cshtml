@@ -1,8 +1,96 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+
+    <!-- Logo -->
+    <div class="text-center mb-4">
+        <img src="~/images/logo.png" class="logo" alt="Social Exposure Logo" />
+    </div>
+
+    <!-- Heading -->
+    <div class="text-center mb-5">
+        <h1 class="main-title">
+            Social Exposure Design Platform
+        </h1>
+
+        <p class="sub-title">
+            Built for Social Exposure teams and clients to manage design approvals in one place.
+        </p>
+    </div>
+
+    <!-- Access Cards -->
+    <div class="row justify-content-center">
+
+        <!-- Client -->
+        <div class="col-lg-5 col-md-6 mb-4">
+
+            <div class="access-card">
+
+                <h2 class="access-title">
+                    Client Access
+                </h2>
+
+                <p class="access-text">
+                    Review your assigned designs, provide feedback,
+                    approve designs, and communicate with the design team.
+                </p>
+
+                <div class="button-group">
+
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="btn client-btn">
+                        Login
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="btn client-outline">
+                        Sign Up
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Staff -->
+        <div class="col-lg-5 col-md-6 mb-4">
+
+            <div class="access-card staff-card">
+
+                <h2 class="access-title">
+                    Staff / Admin Access
+                </h2>
+
+                <p class="access-text">
+                    Upload designs, manage projects, collaborate with clients,
+                    and monitor approvals.
+                </p>
+
+                <div class="button-group">
+
+                    <a asp-controller="Account"
+                       asp-action="StaffLogin"
+                       class="btn staff-btn">
+                        Login
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="RequestAccess"
+                       class="btn staff-outline">
+                        Request Access
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
