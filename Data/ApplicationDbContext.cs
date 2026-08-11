@@ -13,4 +13,5 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<OTP> OTPs { get; set; }
     public DbSet<Project> Projects { get; set; }
+    
 }

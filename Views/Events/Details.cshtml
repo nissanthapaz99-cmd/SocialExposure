@@ -1,0 +1,192 @@
+@model SocialExposure.Models.Event
+
+@{
+    ViewData["Title"] = "View Details";
+    Layout = "_StaffLayout";
+}
+
+<link rel="stylesheet" href="~/css/details.css" />
+
+<div class="details-container">
+
+    <!-- Back Link -->
+    <a asp-controller="Events"
+       asp-action="ViewStaff"
+       class="back-link">
+        ← Back to View Event
+    </a>
+
+    <!-- Page Title -->
+    <h1 class="details-title">
+        View Details of Event
+    </h1>
+
+    <!-- Event Summary Card -->
+    <div class="event-summary-card">
+
+        <!-- Event Name -->
+        <div class="summary-item">
+
+            <div class="summary-label">
+                EVENT NAME
+            </div>
+
+            <div class="summary-value">
+
+                <span class="summary-icon">
+                    ▣
+                </span>
+
+                @(Model?.EventName ?? "Event Name")
+
+            </div>
+
+        </div>
+
+        <!-- Client Name -->
+        <div class="summary-item">
+
+            <div class="summary-label">
+                CLIENT NAME
+            </div>
+
+            <div class="summary-value">
+
+                <span class="summary-icon client-icon">
+                    ♙
+                </span>
+
+                @(Model?.ClientName ?? "Client Name")
+
+            </div>
+
+        </div>
+
+        <!-- Status -->
+        <div class="summary-item">
+
+            <div class="summary-label">
+                STATUS
+            </div>
+
+            <div class="summary-value">
+
+                @if (Model?.Status == "Completed")
+                {
+                    <span class="status-badge completed">
+                        Completed
+                    </span>
+                }
+                else if (Model?.Status == "Active")
+                {
+                    <span class="status-badge active">
+                        Active
+                    </span>
+                }
+                else
+                {
+                    <span class="status-badge pending">
+                        @(Model?.Status ?? "Pending")
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Details Heading -->
+    <h2 class="section-heading">
+        Details
+    </h2>
+
+    <!-- Details Card -->
+    <div class="details-card">
+
+        <!-- Description -->
+        <div class="detail-row">
+
+            <div class="detail-label">
+
+                <span class="detail-icon">
+                    ▤
+                </span>
+
+                Description
+
+            </div>
+
+            <div class="detail-value">
+                @(Model?.Description ?? "No description available.")
+            </div>
+
+        </div>
+
+        <!-- Start Date -->
+        <div class="detail-row">
+
+            <div class="detail-label">
+
+                <span class="detail-icon">
+                    □
+                </span>
+
+                Start Date
+
+            </div>
+
+            <div class="detail-value">
+                @(Model != null
+                    ? Model.StartDate.ToString("MMMM d, yyyy")
+                    : "Not available")
+            </div>
+
+        </div>
+
+        <!-- Deadline -->
+        <div class="detail-row">
+
+            <div class="detail-label">
+
+                <span class="detail-icon">
+                    ◷
+                </span>
+
+                Deadline
+
+            </div>
+
+            <div class="detail-value">
+                @(Model != null
+                    ? Model.Deadline.ToString("MMMM d, yyyy")
+                    : "Not available")
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Designs Section -->
+    <h2 class="section-heading designs-heading">
+        Designs in Event
+    </h2>
+
+    <!-- Designs Card -->
+    <div class="designs-card">
+
+        <div class="empty-designs">
+
+            <div class="empty-icon">
+                ◉
+            </div>
+
+            <p>
+                No designs have been uploaded for this event yet.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>

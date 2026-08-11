@@ -1,0 +1,351 @@
+/* =========================================
+   EVENTS DASHBOARD PAGE
+========================================= */
+
+body {
+    margin: 0;
+    background: #F8F5F2;
+    font-family: "Segoe UI", sans-serif;
+    color: #222;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.content {
+    padding: 45px 55px 70px 55px;
+}
+
+/* =========================================
+   PAGE TITLE
+========================================= */
+
+.page-title {
+    font-size: 62px;
+    font-weight: 700;
+    color: #991B1B;
+    margin: 0 0 35px 0;
+    line-height: 1.1;
+}
+
+/* =========================================
+   TOP BUTTONS
+========================================= */
+
+.btn-create,
+.btn-view {
+    display: inline-block;
+    padding: 15px 38px;
+    border-radius: 15px;
+    text-decoration: none !important;
+    font-size: 20px;
+    font-weight: 700;
+    color: white !important;
+    border: none;
+    transition: 0.2s ease;
+    margin-right: 14px;
+}
+
+/* CREATE EVENT BUTTON */
+
+.btn-create {
+    background: #9E1B1B;
+}
+
+.btn-create:hover {
+    background: #7F1515;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+/* VIEW EVENTS BUTTON */
+
+.btn-view {
+    background: #F39A63;
+}
+
+.btn-view:hover {
+    background: #DF844E;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   SECTION TITLES
+========================================= */
+
+.section-title {
+    font-size: 45px;
+    font-weight: 700;
+    color: #222;
+    margin: 45px 0 25px 0;
+}
+
+/* =========================================
+   SUMMARY CARDS
+========================================= */
+
+.summary-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid #EEE3DC;
+    padding: 28px 28px 22px 28px;
+    min-height: 195px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    transition: 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================
+   SUMMARY ICON
+========================================= */
+
+.summary-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 17px;
+    background: #FDE3D4;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 29px;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   SUMMARY NUMBER
+========================================= */
+
+.summary-card h2 {
+    margin: 0 0 5px 0;
+    font-size: 38px;
+    font-weight: 500;
+    color: #222;
+}
+
+/* =========================================
+   SUMMARY LABEL
+========================================= */
+
+.summary-card p {
+    margin: 0;
+    font-size: 18px;
+    color: #686868;
+    font-weight: 400;
+}
+
+/* =========================================
+   TABLE CARD
+========================================= */
+
+.table-card {
+    background: #FFFFFF;
+    border: 1px solid #EEE3DC;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    background: #FFFFFF;
+}
+
+.table thead {
+    background: #FFFFFF;
+}
+
+.table thead th {
+    padding: 22px 24px;
+    color: #666666;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    border: none;
+}
+
+.table tbody td {
+    padding: 22px 24px;
+    font-size: 16px;
+    color: #222;
+    border-top: 1px solid #EEE8E4;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: #FCFAF8;
+}
+
+/* =========================================
+   STATUS BADGES
+========================================= */
+
+.badge {
+    display: inline-block;
+    padding: 7px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Pending */
+
+.bg-warning {
+    background: #FFE0B8 !important;
+    color: #C56A00 !important;
+}
+
+/* Active */
+
+.bg-success {
+    background: #FDE2E2 !important;
+    color: #A51F1F !important;
+}
+
+/* Completed */
+
+.bg-secondary {
+    background: #E4F3E8 !important;
+    color: #287A3E !important;
+}
+
+/* =========================================
+   NO EVENTS
+========================================= */
+
+.text-center {
+    text-align: center;
+}
+
+.p-5 {
+    padding: 45px !important;
+}
+
+/* =========================================
+   BOOTSTRAP SPACING SUPPORT
+========================================= */
+
+.mb-5 {
+    margin-bottom: 45px !important;
+}
+
+.mb-4 {
+    margin-bottom: 24px !important;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 992px) {
+
+    .content {
+        padding: 35px 30px 60px 30px;
+    }
+
+    .page-title {
+        font-size: 50px;
+    }
+
+    .section-title {
+        font-size: 38px;
+    }
+
+    .summary-card {
+        min-height: 175px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+    .content {
+        padding: 25px 18px 50px 18px;
+    }
+
+    .page-title {
+        font-size: 42px;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-size: 32px;
+        margin-top: 35px;
+    }
+
+    .btn-create,
+    .btn-view {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+    }
+
+    .summary-card {
+        min-height: auto;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 700px;
+    }
+}
+
+/* =========================================
+   VERY SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+
+    .content {
+        padding: 20px 14px 40px 14px;
+    }
+
+    .page-title {
+        font-size: 36px;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+
+    .summary-card {
+        padding: 22px;
+    }
+
+    .summary-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 25px;
+    }
+
+    .summary-card h2 {
+        font-size: 32px;
+    }
+
+    .summary-card p {
+        font-size: 16px;
+    }
+}

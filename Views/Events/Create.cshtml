@@ -1,0 +1,127 @@
+@model SocialExposure.Models.Event
+
+@{
+    ViewData["Title"] = "Create Event";
+    
+}
+
+<link rel="stylesheet" href="~/css/create.css" />
+
+<div class="container mt-4">
+
+    <div class="create-card">
+
+        <h1 class="page-title">Create Event</h1>
+
+        <form asp-action="Create" method="post">
+
+            <!-- Event Name -->
+            <div class="mb-4">
+                <label asp-for="EventName" class="form-label">
+                    Event Name
+                </label>
+
+                <input asp-for="EventName"
+                       class="form-control"
+                       placeholder="Enter event name" />
+
+                <span asp-validation-for="EventName"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- Client Name -->
+            <div class="mb-4">
+                <label asp-for="ClientName" class="form-label">
+                    Client Name
+                </label>
+
+                <input asp-for="ClientName"
+                       class="form-control"
+                       placeholder="Enter client name" />
+
+                <span asp-validation-for="ClientName"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- Client Email -->
+            <div class="mb-4">
+                <label asp-for="ClientEmail" class="form-label">
+                    Client Email
+                </label>
+
+                <input asp-for="ClientEmail"
+                       class="form-control"
+                       placeholder="client@company.com" />
+
+                <span asp-validation-for="ClientEmail"
+                      class="text-danger"></span>
+
+                <small class="form-text">
+                    This email will be used to show events to the client when they log in.
+                </small>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label asp-for="Description" class="form-label">
+                    Description
+                </label>
+
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="5"></textarea>
+
+                <span asp-validation-for="Description"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- Dates -->
+            <div class="row">
+
+                <div class="col-md-6 mb-4">
+                    <label asp-for="StartDate" class="form-label">
+                        Start Date
+                    </label>
+
+                    <input asp-for="StartDate"
+                           type="date"
+                           class="form-control" />
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label asp-for="Deadline" class="form-label">
+                        Deadline
+                    </label>
+
+                    <input asp-for="Deadline"
+                           type="date"
+                           class="form-control" />
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+
+                <button type="submit"
+                        class="btn-save">
+                    Create Event
+                </button>
+
+                <a asp-controller="Events"
+                   asp-action="Index"
+                   class="btn-cancel">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
