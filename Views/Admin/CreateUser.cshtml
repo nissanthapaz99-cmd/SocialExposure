@@ -1,0 +1,12 @@
+@{ ViewData["Title"] = "Add User"; var selectedRole = ViewBag.SelectedRole as string ?? UserRoles.Client; }
+<div class="form-card">
+    <div class="form-card-header"><h2>Add User</h2><p>Create a client, staff, or administrator account.</p></div>
+    <form asp-action="CreateUser" method="post">@Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="field-error"></div>
+        <div class="field"><label for="fullName">Full Name</label><input id="fullName" name="fullName" value="@ViewBag.FullName" placeholder="Enter full name" /></div>
+        <div class="field"><label for="email">Email Address</label><input id="email" name="email" type="email" value="@ViewBag.Email" placeholder="name@company.com" /></div>
+        <div class="field"><label for="role">Role</label><select id="role" name="role"><option value="Client" selected="@(selectedRole=="Client")">Client</option><option value="Staff" selected="@(selectedRole=="Staff")">Staff</option><option value="Admin" selected="@(selectedRole=="Admin")">Admin</option></select></div>
+        <div class="field"><label for="temporaryPassword">Temporary Password</label><input id="temporaryPassword" name="temporaryPassword" type="password" placeholder="Required for staff and admins" /><small class="field-note">Client accounts use email verification and do not need a password.</small></div>
+        <div class="form-actions"><button class="action-button" type="submit">Create User</button><a class="action-button secondary" asp-action="UserManagement">Cancel</a></div>
+    </form>
+</div>

@@ -1,85 +1,32 @@
-@{
-    ViewData["Title"] = "Admin Dashboard";
-}
-
-<div class="container py-5">
-
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">Admin Dashboard</h1>
-
-        <p class="lead text-muted">
-            Welcome to the Social Exposure Administration Portal
-        </p>
+@{ ViewData["Title"] = "Dashboard"; }
+<section class="dashboard-page">
+    <div class="stat-grid six">
+        <article><span class="stat-delta">+12%</span><i>♙</i><b>@ViewBag.TotalUsers</b><span>Total Users</span></article>
+        <article><span class="stat-delta">+5%</span><i>♧</i><b>@ViewBag.ActiveStaff</b><span>Active Staff</span></article>
+        <article><span class="stat-delta">+18%</span><i>♙</i><b>@ViewBag.ActiveClients</b><span>Active Clients</span></article>
+        <article><span class="stat-delta down">-8%</span><i>✉</i><b>@ViewBag.PendingUsers</b><span>Pending Invitations</span></article>
+        <article><span class="stat-delta">+15%</span><i>◇</i><b>@ViewBag.ActiveProjects</b><span>Active Projects</span></article>
+        <article><span class="stat-delta down">+2</span><i>⊘</i><b>@ViewBag.SuspendedUsers</b><span>Suspended Accounts</span></article>
     </div>
-
-    <div class="row g-4">
-
-        <!-- User Management -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 p-4">
-                <h2>Users</h2>
-
-                <p class="text-muted">
-                    Manage staff and client accounts, roles and
-                    account status.
-                </p>
-
-                <a href="#" class="btn btn-danger">
-                    Manage Users
-                </a>
+    <div class="dashboard-columns">
+        <section class="panel">
+            <div class="panel-heading"><h3>Recent Activity</h3><a asp-action="ActivityLogs">View All →</a></div>
+            <div class="activity-list">
+                <div><i>◉</i><p><b>Logged in successfully</b><span>@User.Identity?.Name • Just now</span></p></div>
+                <div><i>♢</i><p><b>User management is ready</b><span>Admin • Roles and access can be managed</span></p></div>
+                <div><i>□</i><p><b>Client projects available</b><span>Open Projects to review active work</span></p></div>
+                <div><i>✓</i><p><b>Design approval workflow active</b><span>Staff and clients can collaborate</span></p></div>
+                <div><i>⇧</i><p><b>Messaging and notifications enabled</b><span>All authenticated roles are connected</span></p></div>
             </div>
-        </div>
-
-        <!-- Projects -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 p-4">
-                <h2>Projects</h2>
-
-                <p class="text-muted">
-                    View and manage all projects within
-                    Social Exposure.
-                </p>
-
-                <a asp-controller="Project"
-                   asp-action="Index"
-                   class="btn btn-danger">
-                    Manage Projects
-                </a>
-            </div>
-        </div>
-
-        <!-- Designs -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 p-4">
-                <h2>Designs</h2>
-
-                <p class="text-muted">
-                    Manage uploaded designs and their
-                    assigned clients.
-                </p>
-
-                <a href="#" class="btn btn-danger">
-                    Manage Designs
-                </a>
-            </div>
-        </div>
-
-        <!-- Approvals -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 p-4">
-                <h2>Approvals</h2>
-
-                <p class="text-muted">
-                    Monitor client feedback and design
-                    approval status.
-                </p>
-
-                <a href="#" class="btn btn-danger">
-                    View Approvals
-                </a>
-            </div>
-        </div>
-
+        </section>
+        <aside>
+            <section class="panel">
+                <div class="panel-heading"><h3>Pending Approvals</h3><span class="account-state">3</span></div>
+                <div class="approval-card"><h4>Lisa Smith</h4><p>New Staff Account<br/>Today</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
+                <div class="approval-card"><h4>John Anderson</h4><p>Password Reset Request<br/>Today</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
+                <div class="approval-card"><h4>Maria Garcia</h4><p>Client Invitation<br/>Yesterday</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
+            </section>
+            <section class="panel" style="margin-top:16px"><div class="panel-heading"><h3>System Alerts</h3></div><div class="task-list"><a href="#"><b>Account review required</b><span>Check suspended and pending users</span></a></div></section>
+        </aside>
     </div>
-
-</div>
+</section>

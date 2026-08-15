@@ -1,6 +1,9 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var displayName = User.Identity?.Name ?? "Staff member";
+    var initials = string.Join("", displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Take(2).Select(x => char.ToUpperInvariant(x[0])));
 }
 
 <!DOCTYPE html>
@@ -186,8 +189,12 @@
             right: 14px;
         }
 
-        .staff-logout a {
+        .staff-logout button {
             display: block;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            text-align: left;
 
             color: white;
 
@@ -202,7 +209,7 @@
             font-weight: 600;
         }
 
-        .staff-logout a:hover {
+        .staff-logout button:hover {
             background-color: rgba(255,255,255,0.18);
 
             color: white;
@@ -340,13 +347,13 @@
             <div>
 
                 <span class="staff-user-circle">
-                    N
+                        @initials
                 </span>
 
                 <span>
 
                     <span class="staff-user-name">
-                        Nissanthapaz99
+                        @displayName
                     </span>
 
                     <br />
@@ -409,7 +416,9 @@
                 We will connect it later.
             -->
 
-            <a href="#">
+            <a asp-controller="Notification"
+               asp-action="Index"
+               class="@(currentController == "Notification" ? "active" : "")">
 
                 ♧ &nbsp; Notifications
 
@@ -423,7 +432,9 @@
                 We will connect it later.
             -->
 
-            <a href="#">
+            <a asp-controller="Message"
+               asp-action="Index"
+               class="@(currentController == "Message" ? "active" : "")">
 
                 ▢ &nbsp; Messages
 
@@ -453,11 +464,10 @@
 
         <div class="staff-logout">
 
-            <a href="#">
-
-                ⇥ &nbsp; Logout
-
-            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">⇥ &nbsp; Logout</button>
+            </form>
 
         </div>
 

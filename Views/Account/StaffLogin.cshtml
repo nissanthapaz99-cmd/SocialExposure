@@ -1,66 +1,16 @@
-@{
-    ViewData["Title"] = "Staff / Admin Login";
-}
-
-<div class="container mt-5">
-
-    <div class="row justify-content-center">
-
-        <div class="col-md-6">
-
-            <div class="card shadow p-4">
-
-                <div class="text-center mb-4">
-
-                    <h1>Staff / Admin Login</h1>
-
-                    <p class="text-secondary">
-                        Enter your credentials to access the system
-                    </p>
-
-                </div>
-
-                <form asp-action="StaffLogin" method="post">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Username or Email
-                        </label>
-
-                        <input type="text"
-                               name="email"
-                               class="form-control"
-                               placeholder="admin@company.com"
-                               required />
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Password
-                        </label>
-
-                        <input type="password"
-                               name="password"
-                               class="form-control"
-                               placeholder="Password"
-                               required />
-
-                    </div>
-
-                    <button type="submit"
-                            class="btn btn-danger w-100">
-                        Login
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
-
+@{ ViewData["Title"] = "Staff / Admin Login"; ViewData["CompactHeader"] = true; }
+<section class="auth-page">
+    <div class="auth-switch"><a asp-action="Login">Client Login</a><a class="staff-active" asp-action="StaffLogin">Staff / Admin</a></div>
+    <div class="auth-card">
+        <div class="auth-icon">♙</div><h1>Staff / Admin Login</h1><p class="lead">Enter your credentials to access the system</p>
+        <div class="auth-tip">💡 Use “admin” in your username to access admin features</div>
+        <div asp-validation-summary="ModelOnly"></div>
+        <form asp-action="StaffLogin" method="post">
+            <div class="field"><label for="email">Username or Email</label><input id="email" name="email" type="email" placeholder="admin@company.com" required/></div>
+            <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="••••••••" required/></div>
+            <div class="auth-options"><label class="remember"><input type="checkbox" name="rememberMe" /> Remember me</label><a class="forgot" href="#">Forgot password?</a></div>
+            <button class="se-button auth-submit" type="submit">Login</button>
+        </form>
     </div>
-
-</div>
+    <a class="auth-back" asp-controller="Home" asp-action="Index">← Back to Homepage</a>
+</section>

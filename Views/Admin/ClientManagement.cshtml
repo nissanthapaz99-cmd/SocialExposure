@@ -1,0 +1,11 @@
+@model IEnumerable<SocialExposure.Models.User>
+@{ ViewData["Title"] = "Client Management"; }
+<section class="admin-page">
+    <div class="management-header"><div><h2>Client Account Management</h2><p>Manage all client accounts and invitations</p></div><a class="action-button" asp-action="CreateUser" asp-route-role="Client">+ Invite Client</a></div>
+    <div class="people-grid">
+    @foreach (var user in Model) {
+        var initials=string.Join("",user.FullName.Split(' ',StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x=>char.ToUpperInvariant(x[0])));
+        <article class="person-card"><span class="mini-avatar">@initials</span><div><h3>@user.FullName</h3><span class="account-state @(!user.IsActive ? "inactive" : "")">@(user.IsActive ? "Active" : "Suspended")</span><p>@user.Email</p><div class="person-meta"><span>Client account</span><span>@(user.IsVerified ? "Verified" : "Invitation pending")</span></div></div><div class="person-actions"><a href="#">Manage Access</a><form asp-action="ToggleStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><input type="hidden" name="returnTo" value="ClientManagement"/><button type="submit">@(user.IsActive ? "Suspend" : "Activate")</button></form></div></article>
+    }
+    </div>
+</section>

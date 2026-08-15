@@ -429,3 +429,13 @@ FodyWeavers.xsd
 *.msp
 
 .fake
+.keys/
+
+# SQLite test database is intentionally shared; never commit live WAL files
+*.db
+*.db-shm
+*.db-wal
+!SocialExposure.db
+
+# Archived nested sample project; the root SocialExposure project is the app
+SocialExposurePortal/

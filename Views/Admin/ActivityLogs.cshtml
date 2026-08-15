@@ -1,0 +1,7 @@
+@{ ViewData["Title"] = "Activity Logs"; var logs = new[]{("Just now",User.Identity?.Name??"Admin","Logged in successfully","login"),("Today","Admin","Opened user management","update"),("Today","System","Role-based access check completed","role change"),("Yesterday","Staff User","Uploaded a new design version","upload"),("Yesterday","Client","Reviewed project notification","approval")}; }
+<section class="admin-page">
+    <div class="admin-toolbar" style="grid-template-columns:1fr auto"><label class="admin-search"><span>⌕</span><input placeholder="Search activity logs..." /></label><button class="action-button" type="button">⇩ Export Logs</button></div>
+    <div class="admin-table-card"><div class="data-table-wrap"><table class="admin-table activity-table"><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Type</th></tr></thead><tbody>
+    @foreach(var log in logs){<tr><td>@log.Item1</td><td>@log.Item2</td><td>@log.Item3</td><td><span class="activity-badge @log.Item4.Replace(" ","-")">@log.Item4</span></td></tr>}
+    </tbody></table></div></div>
+</section>

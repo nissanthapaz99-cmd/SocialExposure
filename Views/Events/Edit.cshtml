@@ -1,194 +1,22 @@
 @model SocialExposure.Models.Event
-
-@{
-    ViewData["Title"] = "Edit Event";
-    Layout = "_StaffLayout";
-}
-
-<link rel="stylesheet" href="~/css/edit.css" />
-
-<div class="edit-page">
-
-    <!-- Dark background -->
-    <div class="edit-overlay">
-
-        <!-- Edit Modal -->
-        <div class="edit-modal">
-
-            <!-- Header -->
-            <div class="edit-header">
-
-                <div>
-                    <h1>Edit Event</h1>
-
-                    <p>
-                        Update event details
-                    </p>
-                </div>
-
-                <!-- Close button -->
-                <a asp-controller="Events"
-                   asp-action="ViewStaff"
-                   class="close-button">
-                    ×
-                </a>
-
-            </div>
-
-            <!-- Form -->
-            <form asp-controller="Events"
-                  asp-action="Edit"
-                  method="post">
-
-                @Html.AntiForgeryToken()
-
-                <!-- Event ID -->
-                <input type="hidden" asp-for="Id" />
-
-                <!-- Event Name -->
-                <div class="form-group">
-
-                    <label asp-for="EventName">
-                        Event Name
-                    </label>
-
-                    <input asp-for="EventName"
-                           class="edit-input" />
-
-                    <span asp-validation-for="EventName"
-                          class="validation-message">
-                    </span>
-
-                </div>
-
-                <!-- Client Name -->
-                <div class="form-group">
-
-                    <label asp-for="ClientName">
-                        Client Name
-                    </label>
-
-                    <input asp-for="ClientName"
-                           class="edit-input" />
-
-                    <span asp-validation-for="ClientName"
-                          class="validation-message">
-                    </span>
-
-                </div>
-
-                <!-- Client Email -->
-                <div class="form-group">
-
-                    <label asp-for="ClientEmail">
-                        ✉ &nbsp; Client Email
-                    </label>
-
-                    <input asp-for="ClientEmail"
-                           class="edit-input" />
-
-                    <span asp-validation-for="ClientEmail"
-                          class="validation-message">
-                    </span>
-
-                </div>
-
-                <!-- Description -->
-                <div class="form-group">
-
-                    <label asp-for="Description">
-                        Description
-                    </label>
-
-                    <textarea asp-for="Description"
-                              class="edit-input textarea-input"
-                              rows="3"></textarea>
-
-                    <span asp-validation-for="Description"
-                          class="validation-message">
-                    </span>
-
-                </div>
-
-                <!-- Start Date and Deadline -->
-                <div class="date-row">
-
-                    <div class="form-group">
-
-                        <label asp-for="StartDate">
-                            Start Date
-                        </label>
-
-                        <input asp-for="StartDate"
-                               type="date"
-                               class="edit-input" />
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label asp-for="Deadline">
-                            Deadline
-                        </label>
-
-                        <input asp-for="Deadline"
-                               type="date"
-                               class="edit-input" />
-
-                    </div>
-
-                </div>
-
-                <!-- Status -->
-                <div class="form-group">
-
-                    <label asp-for="Status">
-                        Status
-                    </label>
-
-                    <select asp-for="Status"
-                            class="edit-input">
-
-                        <option value="Pending">
-                            Pending
-                        </option>
-
-                        <option value="Active">
-                            Active
-                        </option>
-
-                        <option value="Completed">
-                            Completed
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <!-- Buttons -->
-                <div class="edit-actions">
-
-                    <a asp-controller="Events"
-                       asp-action="ViewStaff"
-                       class="cancel-button">
-                        Cancel
-                    </a>
-
-                    <button type="submit"
-                            class="save-button">
-                        Save Changes
-                    </button>
-
-                </div>
-
-            </form>
-
+@{ ViewData["Title"] = "Edit Event"; }
+<div class="form-card">
+    <div class="form-card-header"><h2>Edit Event</h2><p>Update event details, schedule and status.</p></div>
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()<input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="field-error"></div>
+        <div class="field-grid">
+            <div class="field"><label asp-for="EventName">Event Name</label><input asp-for="EventName" /><span asp-validation-for="EventName" class="field-error"></span></div>
+            <div class="field"><label asp-for="ClientName">Client Name</label><input asp-for="ClientName" /><span asp-validation-for="ClientName" class="field-error"></span></div>
         </div>
-
-    </div>
-
+        <div class="field"><label asp-for="ClientEmail">Client Email</label><input asp-for="ClientEmail" /><span asp-validation-for="ClientEmail" class="field-error"></span></div>
+        <div class="field"><label asp-for="Description">Description</label><textarea asp-for="Description"></textarea><span asp-validation-for="Description" class="field-error"></span></div>
+        <div class="field-grid">
+            <div class="field"><label asp-for="StartDate">Start Date</label><input asp-for="StartDate" type="date" /></div>
+            <div class="field"><label asp-for="Deadline">Deadline</label><input asp-for="Deadline" type="date" /></div>
+        </div>
+        <div class="field"><label asp-for="Status">Status</label><select asp-for="Status"><option>Pending</option><option>Active</option><option>Completed</option></select></div>
+        <div class="form-actions"><button class="action-button" type="submit">Save Changes</button><a class="action-button secondary" asp-action="ViewStaff">Cancel</a></div>
+    </form>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

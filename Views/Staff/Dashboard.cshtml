@@ -1,95 +1,29 @@
-@{
-    Layout = "~/Views/Shared/_StaffLayout.cshtml";
-    ViewData["Title"] = "Dashboard";
-}
-
-<div class="text-center mb-5">
-    <h1 class="display-4 fw-bold">
-        Staff Dashboard
-    </h1>
-
-    <p class="lead text-secondary">
-        Welcome to the Social Exposure Design Platform
-    </p>
-</div>
-
-<div class="row g-4">
-
-    <!-- Projects -->
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4 h-100">
-
-            <h2>Projects</h2>
-
-            <p>
-                Create and manage client projects.
-            </p>
-
-            <a asp-controller="Project"
-               asp-action="Index"
-               class="btn btn-danger">
-                Manage Projects
-            </a>
-
-        </div>
+@{ ViewData["Title"] = "Dashboard"; }
+<section class="dashboard-page">
+    <div class="page-intro"><div><h2>Welcome back, @User.Identity?.Name! 👋</h2><p>Here's what's happening with your projects today.</p></div></div>
+    <div class="quick-actions">
+        <a class="peach" asp-controller="Design" asp-action="Index">⇧ Upload Design</a>
+        <a asp-controller="Project" asp-action="Create">＋ Create Project</a>
+        <a class="gold" asp-controller="Project" asp-action="Index">➤ Send for Approval</a>
     </div>
-
-
-    <!-- Designs -->
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4 h-100">
-
-            <h2>Designs</h2>
-
-            <p>
-                Upload designs and assign them to clients.
-            </p>
-
-         <a asp-controller="Design"
-   asp-action="Index"
-   class="btn btn-danger">
-    Manage Designs
-</a>   
-
-        </div>
+    <div class="stat-grid four">
+        <article><i>◇</i><b>0</b><span>Active Projects</span></article>
+        <article><i>◷</i><b>0</b><span>Pending Approvals</span></article>
+        <article><i>♧</i><b>0</b><span>Feedback Received</span></article>
+        <article><i>!</i><b>0</b><span>Overdue Tasks</span></article>
     </div>
-
-
-    <!-- Clients -->
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4 h-100">
-
-            <h2>Clients</h2>
-
-            <p>
-                View and manage registered clients.
-            </p>
-
-            <a href="#"
-               class="btn btn-danger">
-                Manage Clients
-            </a>
-
-        </div>
+    <div class="dashboard-columns">
+        <section class="panel">
+            <div class="panel-heading"><h3>Assigned Projects</h3><a asp-controller="Project" asp-action="Index">View All →</a></div>
+            <div class="project-preview"><h4>Your projects will appear here</h4><p>Create a project or open Projects to manage existing work.</p><a class="text-link" asp-controller="Project" asp-action="Index">Open Projects</a></div>
+        </section>
+        <aside class="panel">
+            <div class="panel-heading"><h3>Pending Tasks</h3></div>
+            <div class="task-list">
+                <a asp-controller="Design" asp-action="Index"><b>Upload Design</b><span>Add the next design version</span></a>
+                <a asp-controller="Message" asp-action="Index"><b>Respond to Messages</b><span>Check client conversations</span></a>
+                <a asp-controller="Notification" asp-action="Index"><b>Review Updates</b><span>Open notifications</span></a>
+            </div>
+        </aside>
     </div>
-
-
-    <!-- Approvals -->
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4 h-100">
-
-            <h2>Approvals</h2>
-
-            <p>
-                Monitor design feedback and approval status.
-            </p>
-
-            <a href="#"
-               class="btn btn-danger">
-                View Approvals
-            </a>
-
-        </div>
-    </div>
-
-</div>
+</section>

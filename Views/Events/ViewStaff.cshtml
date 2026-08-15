@@ -1,139 +1,15 @@
 @model IEnumerable<SocialExposure.Models.Event>
-
-@{
-    ViewData["Title"] = "View Events";
-    Layout = "_StaffLayout";
-}
-
-<link rel="stylesheet" href="~/css/viewstaff.css" />
-
-<div class="events-staff-page">
-
-    <div class="container mt-4">
-
-        <!-- Back -->
-        <a asp-controller="Events"
-           asp-action="Index"
-           class="back-link">
-            ← Back to Events
-        </a>
-
-        <div class="page-header">
-
-            <h1 class="page-title">
-                View Events
-            </h1>
-
-            <a asp-controller="Events"
-               asp-action="Create"
-               class="btn-create">
-                + Create Event
-            </a>
-
-        </div>
-
-        <div class="table-card">
-
-            <table class="table">
-
-                <thead>
-                    <tr>
-                        <th>Event Name</th>
-                        <th>Client</th>
-                        <th>Client Email</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-
-                                <td>@item.EventName</td>
-
-                                <td>@item.ClientName</td>
-
-                                <td>@item.ClientEmail</td>
-
-                                <td>
-                                    @if (item.Status == "Completed")
-                                    {
-                                        <span class="status-badge completed">
-                                            @item.Status
-                                        </span>
-                                    }
-                                    else if (item.Status == "Active")
-                                    {
-                                        <span class="status-badge active">
-                                            @item.Status
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge pending">
-                                            @item.Status
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="action-buttons">
-
-                                    <a asp-controller="Events"
-                                       asp-action="Details"
-                                       asp-route-id="@item.Id"
-                                       class="btn-details">
-                                        View Details
-                                    </a>
-
-                                    <a asp-controller="Events"
-                                       asp-action="Edit"
-                                       asp-route-id="@item.Id"
-                                       class="btn-edit">
-                                        Edit
-                                    </a>
-
-                                    <a asp-controller="Events"
-                                       asp-action="Delete"
-                                       asp-route-id="@item.Id"
-                                       class="btn-delete">
-                                        Delete
-                                    </a>
-
-                                    <a asp-controller="Events"
-                                       asp-action="Upload"
-                                       asp-route-id="@item.Id"
-                                       class="btn-upload">
-                                        Upload Design
-                                    </a>
-
-                                </td>
-
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="5"
-                                class="no-events">
-
-                                No Events Found
-
-                            </td>
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
+@{ ViewData["Title"] = "All Events"; var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>(); }
+<div class="feature-page">
+    <div class="feature-header"><div><h2>All Events</h2><p>Manage event details, designs and deadlines.</p></div><div class="feature-actions"><a class="action-button secondary" asp-action="Index">← Back</a><a class="action-button" asp-action="Create">+ Create Event</a></div></div>
+    <div class="data-card"><div class="data-table-wrap"><table class="data-table">
+        <thead><tr><th>Event</th><th>Client</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        @if (events.Count > 0) {
+            foreach (var item in events) {
+                <tr><td><strong>@item.EventName</strong></td><td>@item.ClientName</td><td>@item.ClientEmail</td><td><span class="status-pill @item.Status.ToLowerInvariant()">@item.Status</span></td><td><div class="row-actions"><a asp-action="Details" asp-route-id="@item.Id">Details</a><a asp-action="Edit" asp-route-id="@item.Id">Edit</a><a asp-action="Upload" asp-route-id="@item.Id">Upload</a><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></div></td></tr>
+            }
+        } else { <tr><td colspan="5"><div class="empty-state"><i>□</i><h3>No events found</h3><p>Create your first client event to get started.</p></div></td></tr> }
+        </tbody>
+    </table></div></div>
 </div>

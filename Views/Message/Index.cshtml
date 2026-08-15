@@ -1,0 +1,88 @@
+@model SocialExposure.ViewModels.MessagePageViewModel
+@{
+    ViewData["Title"] = "Messages";
+    ViewData["PortalFullBleed"] = true;
+    var myInitials = Initials(Model.CurrentUser.FullName);
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/message.css" asp-append-version="true" />
+}
+
+<div class="messaging">
+    <section class="inbox">
+        <div class="inbox-head">
+            <h2>Messages</h2>
+            <form asp-action="Index" method="get">
+                <span>⌕</span>
+                <input name="search" value="@Model.Search" placeholder="Search conversations..." />
+            </form>
+        </div>
+        <div class="conversation-list">
+            @if (Model.Conversations.Count == 0)
+            {
+                <div class="no-chat">No conversations yet</div>
+            }
+            @foreach (var conversation in Model.Conversations)
+            {
+                <a class="conversation @(conversation.Contact.Id == Model.SelectedContact?.Id ? "selected" : "")"
+                   asp-action="Index" asp-route-contactId="@conversation.Contact.Id">
+                    <div class="avatar contact">@Initials(conversation.Contact.FullName)<i></i></div>
+                    <div class="preview">
+                        <div><strong>@conversation.Contact.FullName</strong><time>@When(conversation.LastMessage?.SentAt)</time></div>
+                        <span>@conversation.Contact.Role</span>
+                        <p>@conversation.LastMessage?.Content</p>
+                    </div>
+                    @if (conversation.UnreadCount > 0) { <em>@conversation.UnreadCount</em> }
+                </a>
+            }
+        </div>
+    </section>
+
+    <section class="chat">
+        @if (Model.SelectedContact == null)
+        {
+            <div class="empty-chat"><h2>Select a conversation</h2></div>
+        }
+        else
+        {
+            <header>
+                <div class="avatar">@Initials(Model.SelectedContact.FullName)<i></i></div>
+                <div><h2>@Model.SelectedContact.FullName</h2><p>Online • @Model.SelectedContact.Role</p></div>
+            </header>
+            <div class="thread">
+                @foreach (var message in Model.Messages)
+                {
+                    var sent = message.SenderId == Model.CurrentUser.Id;
+                    <div class="message @(sent ? "sent" : "received")">
+                        @if (!sent) { <div class="avatar small">@Initials(Model.SelectedContact.FullName)</div> }
+                        <div><div class="bubble">@message.Content</div><time>@message.SentAt.ToString("h:mm tt")</time></div>
+                        @if (sent) { <div class="avatar small">@myInitials</div> }
+                    </div>
+                }
+            </div>
+            <form class="composer" asp-action="Send" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="receiverId" value="@Model.SelectedContact.Id" />
+                <button type="button" aria-label="Attach file">⌕</button>
+                <textarea name="content" required maxlength="2000" placeholder="Type a message..."></textarea>
+                <button class="send" type="submit" aria-label="Send message">➤</button>
+            </form>
+        }
+    </section>
+</div>
+
+@functions {
+    string Initials(string name) => string.IsNullOrWhiteSpace(name) ? "?" :
+        string.Join("", name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2).Select(x => char.ToUpperInvariant(x[0])));
+
+    string When(DateTime? date)
+    {
+        if (date == null) return "";
+        var age = DateTime.Now - date.Value;
+        return age.TotalDays >= 2 ? $"{(int)age.TotalDays} days ago" :
+            age.TotalDays >= 1 ? "Yesterday" :
+            age.TotalHours >= 1 ? $"{(int)age.TotalHours} hr ago" :
+            $"{Math.Max(1, (int)age.TotalMinutes)} min ago";
+    }
+}

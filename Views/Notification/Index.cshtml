@@ -1,0 +1,70 @@
+@model SocialExposure.ViewModels.NotificationPageViewModel
+@{
+    ViewData["Title"] = "Notifications";
+    ViewData["PortalFullBleed"] = true;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
+}
+
+<div class="notification-page">
+    <div class="title-row">
+        <div>
+            <h2>Notifications</h2>
+            <p>@Model.UnreadCount unread notification@(Model.UnreadCount == 1 ? "" : "s")</p>
+        </div>
+        <div class="filters">
+            <div class="segmented">
+                <a class="@(Model.Filter != "unread" ? "active" : "")"
+                   asp-action="Index" asp-route-filter="all">All</a>
+                <a class="@(Model.Filter == "unread" ? "active" : "")"
+                   asp-action="Index" asp-route-filter="unread">
+                    Unread
+                    @if (Model.UnreadCount > 0) { <span>@Model.UnreadCount</span> }
+                </a>
+            </div>
+            <form asp-action="MarkAllRead" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Mark all read</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="cards">
+        @if (Model.Notifications.Count == 0)
+        {
+            <div class="empty"><h3>You're all caught up</h3><p>No notifications to show right now.</p></div>
+        }
+        @foreach (var item in Model.Notifications)
+        {
+            var kind = (item.Type ?? "").ToLowerInvariant();
+            var icon = kind switch { "message" => "♧", "project" => "⇧", "alert" => "◷", _ => "✓" };
+            <article class="notification-card @(!item.IsRead ? "unread" : "")">
+                <div class="type @kind">@icon</div>
+                <div class="copy">
+                    <h3>@item.Title</h3>
+                    <p>@item.Message</p>
+                    <time>@RelativeTime(item.CreatedAt)</time>
+                </div>
+                @if (!item.IsRead) { <span class="dot"></span> }
+                <form asp-action="Dismiss" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <input type="hidden" name="filter" value="@Model.Filter" />
+                    <button class="dismiss" type="submit" title="Dismiss">×</button>
+                </form>
+            </article>
+        }
+    </div>
+</div>
+
+@functions {
+    string RelativeTime(DateTime date)
+    {
+        var age = DateTime.Now - date;
+        return age.TotalMinutes < 1 ? "Just now" :
+            age.TotalHours < 1 ? $"{(int)age.TotalMinutes} min ago" :
+            age.TotalDays < 1 ? $"{(int)age.TotalHours} hr ago" :
+            age.TotalDays < 2 ? "Yesterday" : $"{(int)age.TotalDays} days ago";
+    }
+}

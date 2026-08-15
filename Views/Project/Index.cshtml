@@ -1,97 +1,32 @@
 @model IEnumerable<SocialExposure.Models.Project>
-
 @{
     ViewData["Title"] = "Projects";
     var clients = ViewBag.Clients as List<SocialExposure.Models.User>;
+    var projects = Model?.ToList() ?? new List<SocialExposure.Models.Project>();
 }
 
-<div class="container py-5">
-
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
-
-        <div>
-            <h1 class="fw-bold">Projects</h1>
-
-            <p class="text-secondary fs-5">
-                Manage Social Exposure client projects.
-            </p>
-        </div>
-
-        <a asp-action="Create"
-           class="btn btn-danger btn-lg">
-            + Create Project
-        </a>
-
+<div class="feature-page">
+    <div class="feature-header">
+        <div><h2>Projects</h2><p>Manage Social Exposure client projects.</p></div>
+        <div class="feature-actions"><a class="action-button" asp-action="Create">+ Create Project</a></div>
     </div>
 
-
-    @if (!Model.Any())
+    @if (projects.Count == 0)
     {
-        <div class="alert alert-info">
-            No projects have been created yet.
-        </div>
+        <div class="data-card empty-state"><i>◇</i><h3>No projects yet</h3><p>Create a project and assign it to an active client.</p></div>
     }
     else
     {
-        <div class="row g-4">
-
-            @foreach (var project in Model)
-            {
-                var client = clients?
-                    .FirstOrDefault(x => x.Id == project.ClientId);
-
-                <div class="col-md-6">
-
-                    <div class="card shadow-sm h-100">
-
-                        <div class="card-body p-4">
-
-                            <h2 class="fw-bold mb-3">
-                                @project.ProjectName
-                            </h2>
-
-                            <p class="text-secondary fs-5 mb-4">
-                                @project.Description
-                            </p>
-
-                            <div class="mb-2">
-                                <strong>Status:</strong>
-                                <span class="badge bg-success">
-                                    @project.Status
-                                </span>
-                            </div>
-
-                            <div class="mb-2">
-                                <strong>Client:</strong>
-
-                                @if (client != null)
-                                {
-                                    <span>
-                                        @client.FullName
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger">
-                                        Client not found
-                                    </span>
-                                }
-                            </div>
-
-                            <div class="text-secondary">
-                                <strong>Created:</strong>
-                                @project.CreatedDate.ToString("dd/MM/yyyy")
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            }
-
+        <div class="project-grid">
+        @foreach (var project in projects)
+        {
+            var client = clients?.FirstOrDefault(x => x.Id == project.ClientId);
+            <article class="project-card">
+                <div class="data-card-header" style="padding:0 0 14px;border:0"><h3>@project.ProjectName</h3><span class="status-pill @project.Status.ToLowerInvariant()">@project.Status</span></div>
+                <p>@project.Description</p>
+                <div class="project-meta"><div><b>Client:</b> <span>@(client?.FullName ?? "Client not found")</span></div><div><b>Created:</b> <span>@project.CreatedDate.ToString("dd MMM yyyy")</span></div></div>
+            </article>
+        }
         </div>
     }
-
 </div>

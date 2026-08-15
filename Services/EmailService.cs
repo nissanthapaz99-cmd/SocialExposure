@@ -7,19 +7,48 @@ namespace SocialExposure.Services
     public class EmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(
+            IConfiguration configuration,
+            IWebHostEnvironment environment,
+            ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _environment = environment;
+            _logger = logger;
         }
 
-        public async Task SendOTPAsync(string email, string otp)
+        public async Task<bool> SendOTPAsync(string email, string otp)
         {
+            var senderName = _configuration["EmailSettings:SenderName"];
+            var senderEmail = _configuration["EmailSettings:SenderEmail"];
+            var smtpServer = _configuration["EmailSettings:SmtpServer"];
+            var username = _configuration["EmailSettings:Username"];
+            var password = _configuration["EmailSettings:Password"];
+
+            if (string.IsNullOrWhiteSpace(senderEmail) ||
+                string.IsNullOrWhiteSpace(smtpServer) ||
+                string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                if (_environment.IsDevelopment())
+                {
+                    _logger.LogWarning(
+                        "Email is not configured. Using the development OTP display instead.");
+                    return false;
+                }
+
+                throw new InvalidOperationException(
+                    "EmailSettings is incomplete. Configure SMTP before using OTP login.");
+            }
+
             var message = new MimeMessage();
 
             message.From.Add(new MailboxAddress(
-                _configuration["EmailSettings:SenderName"],
-                _configuration["EmailSettings:SenderEmail"]
+                senderName ?? "Social Exposure",
+                senderEmail
             ));
 
             message.To.Add(MailboxAddress.Parse(email));
@@ -46,24 +75,27 @@ namespace SocialExposure.Services
 
             using var smtp = new SmtpClient();
 
-            // Local development fix for the certificate
-            smtp.ServerCertificateValidationCallback =
-                (sender, certificate, chain, sslPolicyErrors) => true;
+            if (_environment.IsDevelopment())
+            {
+                smtp.ServerCertificateValidationCallback =
+                    (sender, certificate, chain, sslPolicyErrors) => true;
+            }
 
             await smtp.ConnectAsync(
-                _configuration["EmailSettings:SmtpServer"],
+                smtpServer,
                 int.Parse(_configuration["EmailSettings:Port"] ?? "587"),
                 SecureSocketOptions.StartTls
             );
 
             await smtp.AuthenticateAsync(
-                _configuration["EmailSettings:Username"],
-                _configuration["EmailSettings:Password"]
+                username,
+                password
             );
 
             await smtp.SendAsync(message);
 
             await smtp.DisconnectAsync(true);
+            return true;
         }
     }
 }

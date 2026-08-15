@@ -1,33 +1,16 @@
 @model SocialExposure.ViewModels.VerifyOTPViewModel
-
-@{
-    ViewData["Title"] = "Verify OTP";
-}
-
-<div class="container mt-5">
-
-    <h2>Verify OTP</h2>
-
-    <form asp-action="VerifyOTP" method="post">
-
-        <input asp-for="Email" type="hidden" />
-
-        <div class="mb-3">
-            <label>Enter OTP</label>
-            <input asp-for="OTP" class="form-control" />
-            <span asp-validation-for="OTP" class="text-danger"></span>
-        </div>
-
-        <button class="btn btn-primary">
-            Verify OTP
-        </button>
-
-    </form>
-
-</div>
-
-@section Scripts{
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+@{ ViewData["Title"] = "Verify Code"; ViewData["CompactHeader"] = true; }
+<section class="auth-page">
+    <div class="auth-switch"><a class="active" asp-action="Login">Client Login</a><a asp-action="StaffLogin">Staff / Admin</a></div>
+    <div class="auth-card">
+        <div class="auth-icon">✉</div><h1>Enter the verification code</h1><p class="lead">We've sent a 6-digit code to <strong>@Model.Email</strong></p>
+        <form asp-action="VerifyOTP" method="post">
+            <input asp-for="Email" type="hidden"/>
+            <div class="field"><label asp-for="OTP">6-Digit Code</label><input asp-for="OTP" inputmode="numeric" maxlength="6" placeholder="000000"/><span asp-validation-for="OTP"></span></div>
+            <button class="se-button peach auth-submit" type="submit">Verify & Login</button>
+        </form>
+    </div>
+    @if (ViewBag.DevelopmentOtp is string developmentOtp) { <div class="auth-dev">Development OTP: <strong>@developmentOtp</strong><br/><small>Shown only because SMTP is not configured in Development.</small></div> }
+    <a class="auth-back" asp-action="Login">← Use a different email</a>
+</section>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

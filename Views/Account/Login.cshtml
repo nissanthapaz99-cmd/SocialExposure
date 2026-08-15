@@ -1,31 +1,15 @@
 @model SocialExposure.ViewModels.LoginViewModel
-
-@{
-    ViewData["Title"] = "Client Login";
-}
-
-<div class="container mt-5">
-
-    <h2>Client Login</h2>
-
-    <form asp-action="Login" method="post">
-
-        <div class="mb-3">
-            <label>Email</label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <button class="btn btn-success">
-            Send OTP
-        </button>
-
-    </form>
-
-</div>
-
-@section Scripts{
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+@{ ViewData["Title"] = "Client Login"; ViewData["CompactHeader"] = true; }
+<section class="auth-page">
+    <div class="auth-switch"><a class="active" asp-action="Login">Client Login</a><a asp-action="StaffLogin">Staff / Admin</a></div>
+    <div class="auth-card">
+        <div class="auth-icon">✉</div><h1>Client Login</h1><p class="lead">Enter your email to receive a one-time password</p>
+        <div asp-validation-summary="ModelOnly"></div>
+        <form asp-action="Login" method="post">
+            <div class="field"><label asp-for="Email">Email Address</label><input asp-for="Email" placeholder="your.email@company.com"/><span asp-validation-for="Email"></span></div>
+            <button class="se-button peach auth-submit" type="submit">Send OTP</button>
+        </form>
+    </div>
+    <a class="auth-back" asp-controller="Home" asp-action="Index">← Back to Homepage</a>
+</section>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

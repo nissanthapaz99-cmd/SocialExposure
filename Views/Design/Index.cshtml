@@ -1,246 +1,35 @@
+@using System.Security.Claims
 @{
-    Layout = "~/Views/Shared/_StaffLayout.cshtml";
     ViewData["Title"] = "Designs";
+    var role = User.FindFirstValue(ClaimTypes.Role) ?? UserRoles.Client;
+    var canUpload = role is UserRoles.Admin or UserRoles.Staff;
 }
 
-<div class="container-fluid">
-
-    <!-- Page Header -->
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold mb-2">
-            Designs
-        </h1>
-
-        <p class="text-secondary">
-            Manage all your design files
-        </p>
+<div class="feature-page">
+    <div class="feature-header">
+        <div><h2>Designs</h2><p>Review, organise and approve design files.</p></div>
+        @if (canUpload)
+        {
+            <div class="feature-actions"><a class="action-button peach" asp-controller="Events" asp-action="Index">↑ Upload Design</a></div>
+        }
     </div>
 
-
-    <!-- Statistics -->
-    <div class="row g-4 mb-5">
-
-        <!-- Total Designs -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card shadow-sm border-0 h-100 p-4">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <p class="text-secondary mb-2">
-                            Total Designs
-                        </p>
-
-                        <h2 class="display-6 fw-bold mb-0">
-                            0
-                        </h2>
-                    </div>
-
-                    <div class="bg-primary text-white rounded-3 p-3 fs-4">
-                        📄
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
-
-        <!-- Pending -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card shadow-sm border-0 h-100 p-4">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <p class="text-secondary mb-2">
-                            Pending
-                        </p>
-
-                        <h2 class="display-6 fw-bold mb-0">
-                            0
-                        </h2>
-                    </div>
-
-                    <div class="bg-warning text-white rounded-3 p-3 fs-4">
-                        🕐
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
-
-        <!-- Approved -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card shadow-sm border-0 h-100 p-4">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <p class="text-secondary mb-2">
-                            Approved
-                        </p>
-
-                        <h2 class="display-6 fw-bold mb-0">
-                            0
-                        </h2>
-                    </div>
-
-                    <div class="bg-success text-white rounded-3 p-3 fs-4">
-                        ✓
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
-
-        <!-- Feedback -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card shadow-sm border-0 h-100 p-4">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <p class="text-secondary mb-2">
-                            Feedback
-                        </p>
-
-                        <h2 class="display-6 fw-bold mb-0">
-                            0
-                        </h2>
-                    </div>
-
-                    <div class="bg-danger text-white rounded-3 p-3 fs-4">
-                        !
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
+    <div class="summary-grid">
+        <article class="summary-tile"><i class="summary-tile-icon">▤</i><strong>0</strong><span>Total Designs</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">◷</i><strong>0</strong><span>Pending</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">✓</i><strong>0</strong><span>Approved</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">!</i><strong>0</strong><span>Feedback</span></article>
     </div>
 
-
-    <!-- Latest Designs -->
-    <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
-
-        <h4 class="fw-bold mb-0">
-            Latest designs
-        </h4>
-
-
-        <!-- Search -->
-        <div class="flex-grow-1">
-
-            <input type="text"
-                   class="form-control"
-                   placeholder="🔍  Search designs..." />
-
+    <section class="feature-section">
+        <div class="search-row">
+            <label class="search-field"><span>⌕</span><input type="search" placeholder="Search designs..." aria-label="Search designs" /></label>
+            <button class="action-button secondary" type="button">Filter</button>
+            <button class="action-button secondary" type="button">View All</button>
         </div>
-
-
-        <!-- Filter -->
-        <button type="button"
-                class="btn btn-outline-secondary">
-            ⚱ Filter
-        </button>
-
-
-        <!-- View All -->
-        <button type="button"
-                class="btn btn-outline-secondary">
-            👁 View All
-        </button>
-
-
-        <!-- Upload Design -->
-        <a asp-controller="Design"
-           asp-action="Upload"
-           class="btn btn-warning">
-            ⬆ Upload Design
-        </a>
-
-    </div>
-
-
-    <!-- Recent Design Activities -->
-    <div class="card shadow-sm border-0">
-
-        <div class="card-header bg-white py-4">
-
-            <h4 class="fw-bold mb-0">
-                Recent Design Activities
-            </h4>
-
+        <div class="data-card">
+            <div class="data-card-header"><h3>Recent Design Activity</h3></div>
+            <div class="empty-state"><i>▤</i><h3>No designs yet</h3><p>Uploaded designs and client feedback will appear here.</p></div>
         </div>
-
-
-        <div class="table-responsive">
-
-            <table class="table mb-0">
-
-                <thead>
-                    <tr>
-
-                        <th class="px-4 py-3">
-                            Design Name
-                        </th>
-
-                        <th class="py-3">
-                            Designer
-                        </th>
-
-                        <th class="py-3">
-                            Version
-                        </th>
-
-                        <th class="py-3">
-                            Status
-                        </th>
-
-                    </tr>
-                </thead>
-
-
-                <tbody>
-
-                    <!-- Empty state -->
-                    <tr>
-
-                        <td colspan="4"
-                            class="text-center py-5">
-
-                            <div class="text-secondary">
-
-                                <div class="fs-1 mb-3">
-                                    📄
-                                </div>
-
-                                <h5 class="fw-semibold">
-                                    No designs yet
-                                </h5>
-
-                                <p class="mb-0">
-                                    Upload your first design to get started.
-                                </p>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
+    </section>
 </div>

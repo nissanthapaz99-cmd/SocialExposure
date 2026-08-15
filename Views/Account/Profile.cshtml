@@ -1,0 +1,9 @@
+@model SocialExposure.Models.User
+@{ ViewData["Title"] = "Profile"; var initials=string.Join("",Model.FullName.Split(' ',StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x=>char.ToUpperInvariant(x[0]))); }
+<section class="feature-page">
+    <div class="feature-header"><div><h2>My Profile</h2><p>Review your Social Exposure account information.</p></div></div>
+    <div class="form-card" style="margin:0">
+        <div class="user-cell" style="margin-bottom:24px"><span class="mini-avatar" style="width:64px;height:64px">@initials</span><div><h3 style="margin:0 0 5px">@Model.FullName</h3><span class="role-badge @Model.Role.ToLowerInvariant()">@Model.Role</span></div></div>
+        <div class="detail-list"><div class="detail-row"><b>Email Address</b><span>@Model.Email</span></div><div class="detail-row"><b>Account Status</b><span>@(Model.IsActive ? "Active" : "Suspended")</span></div><div class="detail-row"><b>Verification</b><span>@(Model.IsVerified ? "Verified" : "Pending")</span></div></div>
+    </div>
+</section>

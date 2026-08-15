@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialExposure.Models;
 
 namespace SocialExposure.Controllers
 {
+    [Authorize]
     public class EventsController : Controller
     {
         // =========================
@@ -17,6 +19,7 @@ namespace SocialExposure.Controllers
         // CREATE EVENT - GET
         // =========================
         [HttpGet]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Create()
         {
             return View();
@@ -27,6 +30,7 @@ namespace SocialExposure.Controllers
         // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Create(Event model)
         {
             if (ModelState.IsValid)
@@ -75,6 +79,7 @@ namespace SocialExposure.Controllers
         // EDIT EVENT - GET
         // =========================
         [HttpGet]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Edit(int id)
         {
             return View();
@@ -85,6 +90,7 @@ namespace SocialExposure.Controllers
         // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Edit(Event model)
         {
             if (ModelState.IsValid)
@@ -100,6 +106,7 @@ namespace SocialExposure.Controllers
         // =========================
         // DELETE EVENT
         // =========================
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Delete(int id)
         {
             // Database deletion removed
@@ -110,6 +117,7 @@ namespace SocialExposure.Controllers
         // =========================
         // UPLOAD DESIGN
         // =========================
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
         public IActionResult Upload(int id)
         {
             return View();

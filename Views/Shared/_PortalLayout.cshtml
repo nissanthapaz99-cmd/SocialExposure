@@ -1,0 +1,97 @@
+@using System.Security.Claims
+@using SocialExposure.Models
+@inject SocialExposure.Data.ApplicationDbContext Db
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var title = ViewData["Title"]?.ToString() ?? controller;
+    var displayName = User.Identity?.Name ?? "User";
+    var role = User.FindFirstValue(ClaimTypes.Role) ?? UserRoles.Client;
+    var initials = string.Join("", displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+    var fullBleed = ViewData["PortalFullBleed"] as bool? == true;
+    var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var parsedUserId) ? parsedUserId : 0;
+    var unreadNotifications = userId == 0 ? 0 : Db.Notifications.Count(x => x.UserId == userId && !x.IsRead);
+    var unreadMessages = userId == 0 ? 0 : Db.Messages.Count(x => x.ReceiverId == userId && !x.IsRead);
+    var isAdmin = role == UserRoles.Admin;
+    var isStaff = role == UserRoles.Staff;
+    string Active(string targetController, string targetAction = "") =>
+        controller == targetController && (string.IsNullOrEmpty(targetAction) || action == targetAction) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title - Social Exposure</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="role-@role.ToLowerInvariant()">
+<div class="portal-shell">
+    <aside class="portal-sidebar">
+        <a class="portal-logo" asp-controller="Home" asp-action="Index">
+            <strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span>
+        </a>
+
+        @if (isAdmin)
+        {
+            <div class="portal-user admin-user"><div class="role-symbol">♢</div><div><b>Admin Panel</b><span>Full Access</span></div></div>
+        }
+        else
+        {
+            <div class="portal-user"><div class="portal-avatar soft">@initials</div><div><b>@displayName</b><span>@(isStaff ? "Staff Member" : "Client")</span></div></div>
+        }
+
+        <nav class="portal-nav" aria-label="Portal navigation">
+        @if (isAdmin)
+        {
+            <a class="@Active("Admin","Dashboard")" asp-controller="Admin" asp-action="Dashboard"><i>▦</i>Dashboard</a>
+            <a class="@Active("Admin","UserManagement")" asp-controller="Admin" asp-action="UserManagement"><i>♧</i>User Management</a>
+            <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement"><i>♙</i>Staff Management</a>
+            <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement"><i>♙</i>Client Management</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Admin","ActivityLogs")" asp-controller="Admin" asp-action="ActivityLogs"><i>⌁</i>Activity Logs</a>
+        }
+        else if (isStaff)
+        {
+            <a class="@Active("Staff")" asp-controller="Staff" asp-action="Dashboard"><i>▦</i>Dashboard</a>
+            <a class="@Active("Events")" asp-controller="Events" asp-action="Index"><i>□</i>Events</a>
+            <a class="@Active("Design")" asp-controller="Design" asp-action="Index"><i>⇧</i>Designs</a>
+            <a class="@Active("Project")" asp-controller="Project" asp-action="Index"><i>◇</i>Projects</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
+        }
+        else
+        {
+            <a class="@(controller is "Client" or "Events" ? "active" : "")" asp-controller="Client" asp-action="Dashboard"><i>□</i>Events</a>
+            <a class="@Active("Design","Upload")" asp-controller="Design" asp-action="Upload"><i>⇧</i>Upload</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
+            <a class="@Active("Account","Profile")" asp-controller="Account" asp-action="Profile"><i>♙</i>Profile</a>
+        }
+        </nav>
+
+        <form class="portal-logout" asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()<button type="submit"><i>⇥</i>Logout</button>
+        </form>
+    </aside>
+
+    <section class="portal-workspace">
+        <header class="portal-topbar">
+            <button class="portal-menu" type="button" aria-label="Toggle navigation">☰</button>
+            <div class="portal-heading"><h1>@title</h1>@if(isAdmin){<p>Social Exposure Admin Panel</p>}</div>
+            <div class="portal-top-actions">
+                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications">♢@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
+                @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
+                <div class="portal-avatar">@initials</div>
+            </div>
+        </header>
+        <main class="portal-content @(fullBleed ? "full-bleed" : "")">@RenderBody()</main>
+    </section>
+</div>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>document.querySelector('.portal-menu')?.addEventListener('click',()=>document.body.classList.toggle('portal-nav-open'));</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

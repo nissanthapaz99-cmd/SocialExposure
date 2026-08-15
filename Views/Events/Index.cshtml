@@ -1,184 +1,57 @@
 @model IEnumerable<SocialExposure.Models.Event>
-
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Events";
- Layout = "_StaffLayout";
-    var totalEvents = Model?.Count() ?? 0;
-    var activeEvents = Model?.Count(e => e.Status == "Active") ?? 0;
-    var pendingEvents = Model?.Count(e => e.Status == "Pending") ?? 0;
-    var completedEvents = Model?.Count(e => e.Status == "Completed") ?? 0;
+    var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>();
+    var role = User.FindFirstValue(ClaimTypes.Role) ?? UserRoles.Client;
+    var canManage = role is UserRoles.Admin or UserRoles.Staff;
 }
-<link rel="stylesheet" href="~/css/event.css" />
-<div class="container-fluid">
 
-    <div class="content">
-
-        <h1 class="page-title">Events</h1>
-
-
-        <!-- Buttons -->
-        <div class="mb-5">
-
-            <a asp-controller="Events"
-               asp-action="Create"
-               class="btn-create">
-                Create Event
-            </a>
-
-            <a asp-controller="Events"
-               asp-action="ViewStaff"
-               class="btn-view">
-                View Events
-            </a>
-
+<div class="feature-page">
+    <div class="feature-header">
+        <div>
+            <h2>Events</h2>
+            <p>Track client events, deadlines and design activity.</p>
         </div>
-
-
-        <!-- Summary -->
-        <h2 class="section-title">Summary</h2>
-
-        <div class="row">
-
-            <!-- Total Events -->
-            <div class="col-lg-3 col-md-6 mb-4">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon">
-                        📅
-                    </div>
-
-                    <h2>@totalEvents</h2>
-
-                    <p>Total Events</p>
-
-                </div>
-
-            </div>
-
-
-            <!-- Active Events -->
-            <div class="col-lg-3 col-md-6 mb-4">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon">
-                        📈
-                    </div>
-
-                    <h2>@activeEvents</h2>
-
-                    <p>Active Events</p>
-
-                </div>
-
-            </div>
-
-
-            <!-- Pending -->
-            <div class="col-lg-3 col-md-6 mb-4">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon">
-                        🕒
-                    </div>
-
-                    <h2>@pendingEvents</h2>
-
-                    <p>Pending</p>
-
-                </div>
-
-            </div>
-
-
-            <!-- Completed -->
-            <div class="col-lg-3 col-md-6 mb-4">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon">
-                        ✅
-                    </div>
-
-                    <h2>@completedEvents</h2>
-
-                    <p>Completed</p>
-
-                </div>
-
-            </div>
-
+        <div class="feature-actions">
+            @if (canManage)
+            {
+                <a class="action-button" asp-action="Create">+ Create Event</a>
+                <a class="action-button secondary" asp-action="ViewStaff">View All</a>
+            }
+            else
+            {
+                <a class="action-button secondary" asp-action="ViewClient">View My Events</a>
+            }
         </div>
-
-
-        <!-- Recent Events -->
-        <h3 class="section-title">Recent Events</h3>
-
-        <div class="table-card">
-
-            <table class="table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Event Name</th>
-                        <th>Client</th>
-                        <th>Status</th>
-                        <th>Date</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model.OrderByDescending(e => e.Id).Take(5))
-                        {
-                            <tr>
-
-                                <td>
-                                    @item.EventName
-                                </td>
-
-                                <td>
-                                    @item.ClientName
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning">
-                                        @item.Status
-                                    </span>
-                                </td>
-
-                                <td>
-                                    @item.StartDate.ToString("dd/MM/yyyy")
-                                </td>
-
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-
-                            <td colspan="4" class="text-center p-5">
-                                No Events Found
-                            </td>
-
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
     </div>
 
+    <div class="summary-grid">
+        <article class="summary-tile"><i class="summary-tile-icon">□</i><strong>@events.Count</strong><span>Total Events</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">↗</i><strong>@events.Count(e => e.Status == "Active")</strong><span>Active Events</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">◷</i><strong>@events.Count(e => e.Status == "Pending")</strong><span>Pending</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">✓</i><strong>@events.Count(e => e.Status == "Completed")</strong><span>Completed</span></article>
+    </div>
+
+    <section class="feature-section data-card">
+        <div class="data-card-header"><h3>Recent Events</h3></div>
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Event Name</th><th>Client</th><th>Status</th><th>Start Date</th></tr></thead>
+                <tbody>
+                @if (events.Count > 0)
+                {
+                    foreach (var item in events.OrderByDescending(e => e.Id).Take(5))
+                    {
+                        <tr><td><strong>@item.EventName</strong></td><td>@item.ClientName</td><td><span class="status-pill @item.Status.ToLowerInvariant()">@item.Status</span></td><td>@item.StartDate.ToString("dd MMM yyyy")</td></tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4"><div class="empty-state"><i>□</i><h3>No events yet</h3><p>Events will appear here once they are created.</p></div></td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>

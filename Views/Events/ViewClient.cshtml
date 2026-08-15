@@ -1,110 +1,15 @@
 @model IEnumerable<SocialExposure.Models.Event>
-
-@{
-    ViewData["Title"] = "View Events";
-    Layout = "_StaffLayout";
-}
-
-<link rel="stylesheet" href="~/css/viewstaff.css" />
-
-<div class="container mt-4">
-
-    <!-- Back -->
-    <a asp-controller="Events"
-       asp-action="Client"
-       class="back-link">
-        ← Back to Events
-    </a>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <h1 class="page-title">
-            View Events
-        </h1>
-
-    </div>
-
-    <div class="table-card">
-
-        <table class="table">
-
-            <thead>
-
-                <tr>
-                    <th>Event Name</th>
-                    <th>Client</th>
-                    <th>Client Email</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var item in Model)
-                    {
-                        <tr>
-
-                            <td>
-                                @item.EventName
-                            </td>
-
-                            <td>
-                                @item.ClientName
-                            </td>
-
-                            <td>
-                                @item.ClientEmail
-                            </td>
-
-                            <td>
-                                <span class="status">
-                                    @item.Status
-                                </span>
-                            </td>
-
-                            <td class="action-buttons">
-
-                                <a asp-controller="Events"
-                                   asp-action="Details"
-                                   asp-route-id="@item.Id"
-                                   class="btn-details">
-                                    View Details
-                                </a>
-
-                                <a asp-controller="Events"
-                                   asp-action="Upload"
-                                   asp-route-id="@item.Id"
-                                   class="btn-upload">
-                                    Upload Design
-                                </a>
-
-                            </td>
-
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-
-                        <td colspan="5"
-                            class="text-center p-5">
-
-                            No Events Found
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+@{ ViewData["Title"] = "My Events"; var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>(); }
+<div class="feature-page">
+    <div class="feature-header"><div><h2>My Events</h2><p>See your active work, deadlines and submitted designs.</p></div><div class="feature-actions"><a class="action-button secondary" asp-action="Index">← Back</a></div></div>
+    <div class="data-card"><div class="data-table-wrap"><table class="data-table">
+        <thead><tr><th>Event</th><th>Client</th><th>Status</th><th>Start Date</th><th>Deadline</th><th>Action</th></tr></thead>
+        <tbody>
+        @if (events.Count > 0) {
+            foreach (var item in events) {
+                <tr><td><strong>@item.EventName</strong></td><td>@item.ClientName</td><td><span class="status-pill @item.Status.ToLowerInvariant()">@item.Status</span></td><td>@item.StartDate.ToString("dd MMM yyyy")</td><td>@item.Deadline.ToString("dd MMM yyyy")</td><td><div class="row-actions"><a asp-action="Details" asp-route-id="@item.Id">Details</a></div></td></tr>
+            }
+        } else { <tr><td colspan="6"><div class="empty-state"><i>□</i><h3>No events found</h3><p>Your events will appear here when they are assigned.</p></div></td></tr> }
+        </tbody>
+    </table></div></div>
 </div>

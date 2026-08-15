@@ -15,6 +15,16 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    <!-- Override the vulnerable transitive native SQLite package from EF Core. -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.12" />
+  </ItemGroup>
+
+  <!-- Keep the archived/nested sample project from being compiled into this app. -->
+  <ItemGroup>
+    <Compile Remove="SocialExposurePortal\**\*.cs" />
+    <Content Remove="SocialExposurePortal\**\*" />
+    <EmbeddedResource Remove="SocialExposurePortal\**\*" />
+    <None Remove="SocialExposurePortal\**\*" />
   </ItemGroup>
 
 </Project>

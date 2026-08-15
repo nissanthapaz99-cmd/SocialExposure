@@ -1,0 +1,11 @@
+@{ ViewData["Title"] = "Upload"; }
+<div class="form-card">
+    <div class="form-card-header"><h2>Upload Design</h2><p>Share a new design version for review and approval.</p></div>
+    <form>
+        <div class="field"><label>Design Name</label><input placeholder="e.g. Homepage Hero v2.3" /></div>
+        <div class="field"><label>Project or Event</label><select><option>Select a project</option><option>Spring Campaign Launch</option><option>Website Refresh</option></select></div>
+        <div class="field"><label>Design File</label><input type="file" /></div>
+        <div class="field"><label>Version Notes</label><textarea placeholder="Describe what changed in this version"></textarea></div>
+        <div class="form-actions"><button class="action-button peach" type="button">Upload Design</button><a class="action-button secondary" asp-controller="Client" asp-action="Dashboard">Cancel</a></div>
+    </form>
+</div>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialExposure.Data;
@@ -5,6 +6,7 @@ using SocialExposure.Models;
 
 namespace SocialExposure.Controllers
 {
+    [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext _context;

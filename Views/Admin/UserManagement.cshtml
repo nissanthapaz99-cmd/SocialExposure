@@ -1,0 +1,27 @@
+@model IEnumerable<SocialExposure.Models.User>
+@{ ViewData["Title"] = "User Management"; }
+<section class="admin-page">
+    <form class="admin-toolbar" method="get">
+        <label class="admin-search"><span>⌕</span><input name="search" value="@ViewBag.Search" placeholder="Search users by name or email..." /></label>
+        <select name="role" onchange="this.form.submit()"><option value="">All Roles</option><option value="Admin" selected="@(ViewBag.Role == "Admin")">Admin</option><option value="Staff" selected="@(ViewBag.Role == "Staff")">Staff</option><option value="Client" selected="@(ViewBag.Role == "Client")">Client</option></select>
+        <select name="status" onchange="this.form.submit()"><option value="">All Status</option><option value="Active" selected="@(ViewBag.Status == "Active")">Active</option><option value="Suspended" selected="@(ViewBag.Status == "Suspended")">Suspended</option><option value="Pending" selected="@(ViewBag.Status == "Pending")">Pending</option></select>
+        <a class="action-button" asp-action="CreateUser">♙&nbsp; Add User</a>
+    </form>
+    <div class="admin-table-card"><div class="data-table-wrap"><table class="admin-table">
+        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Verified</th><th>Projects</th><th>Actions</th></tr></thead>
+        <tbody>
+        @foreach (var user in Model)
+        {
+            var initials = string.Join("", user.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+            <tr>
+                <td><div class="user-cell"><span class="mini-avatar">@initials</span><strong>@user.FullName</strong></div></td>
+                <td>@user.Email</td><td><span class="role-badge @user.Role.ToLowerInvariant()">@user.Role</span></td>
+                <td><span class="account-state @(!user.IsActive ? "inactive" : "")">@(user.IsActive ? "Active" : "Suspended")</span></td>
+                <td>@(user.IsVerified ? "Verified" : "Pending")</td><td>—</td>
+                <td><div class="table-actions"><a title="View profile" href="#">◉</a><a title="Edit user" href="#">□</a><form asp-action="ToggleStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><button title="@(user.IsActive ? "Suspend account" : "Reactivate account")" type="submit">@(user.IsActive ? "⊘" : "↻")</button></form></div></td>
+            </tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><i>♙</i><h3>No matching users</h3><p>Try a different search or filter.</p></div></td></tr> }
+        </tbody>
+    </table></div></div>
+</section>

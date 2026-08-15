@@ -1,96 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Home";
-}
-
-<div class="container py-5">
-
-    <!-- Logo -->
-    <div class="text-center mb-4">
-        <img src="~/images/logo.png" class="logo" alt="Social Exposure Logo" />
-    </div>
-
-    <!-- Heading -->
-    <div class="text-center mb-5">
-        <h1 class="main-title">
-            Social Exposure Design Platform
-        </h1>
-
-        <p class="sub-title">
-            Built for Social Exposure teams and clients to manage design approvals in one place.
-        </p>
-    </div>
-
-    <!-- Access Cards -->
-    <div class="row justify-content-center">
-
-        <!-- Client -->
-        <div class="col-lg-5 col-md-6 mb-4">
-
-            <div class="access-card">
-
-                <h2 class="access-title">
-                    Client Access
-                </h2>
-
-                <p class="access-text">
-                    Review your assigned designs, provide feedback,
-                    approve designs, and communicate with the design team.
-                </p>
-
-                <div class="button-group">
-
-                    <a asp-controller="Account"
-                       asp-action="Login"
-                       class="btn client-btn">
-                        Login
-                    </a>
-
-                    <a asp-controller="Account"
-                       asp-action="Register"
-                       class="btn client-outline">
-                        Sign Up
-                    </a>
-
-                </div>
-
+@{ ViewData["Title"] = "Home"; }
+<section class="hero">
+    <div class="brand-mark large-brand"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></div>
+    <h1>Social Exposure Design Platform</h1>
+    <p class="hero-subtitle">Built for Social Exposure teams and clients to manage design approvals in one place</p>
+    <div class="access-grid">
+        <article class="access-card">
+            <div class="feature-icon">♙</div>
+            <h2>Client Access</h2>
+            <p>Create an account to review designs, provide feedback, and approve deliverables for your projects.</p>
+            <div class="button-row">
+                <a class="se-button peach" asp-controller="Account" asp-action="Login">⇥&nbsp; Login</a>
+                <a class="se-button outline peach-outline" asp-controller="Account" asp-action="Register">♙&nbsp; Sign Up</a>
             </div>
-
-        </div>
-
-        <!-- Staff -->
-        <div class="col-lg-5 col-md-6 mb-4">
-
-            <div class="access-card staff-card">
-
-                <h2 class="access-title">
-                    Staff / Admin Access
-                </h2>
-
-                <p class="access-text">
-                    Upload designs, manage projects, collaborate with clients,
-                    and monitor approvals.
-                </p>
-
-                <div class="button-group">
-
-                    <a asp-controller="Account"
-                       asp-action="StaffLogin"
-                       class="btn staff-btn">
-                        Login
-                    </a>
-
-                    <a asp-controller="Account"
-                       asp-action="RequestAccess"
-                       class="btn staff-outline">
-                        Request Access
-                    </a>
-
-                </div>
-
+            <p class="access-note">New clients can create an account instantly</p>
+        </article>
+        <article class="access-card staff">
+            <div class="feature-icon">♢</div>
+            <h2>Staff / Admin Access</h2>
+            <p>Internal team access for managing projects, uploading designs, coordinating approvals, and full administrative control.</p>
+            <div class="button-row">
+                <a class="se-button" asp-controller="Account" asp-action="StaffLogin">⇥&nbsp; Login</a>
+                <a class="se-button outline" href="#">♙&nbsp; Request Access</a>
             </div>
-
-        </div>
-
+            <p class="access-note">Staff and admin accounts require approval</p>
+        </article>
     </div>
-
-</div>
+    <div class="unified-note"><strong>Unified Login Platform:</strong> Clients can sign up instantly and login with email verification. Staff and admin users login with secure credentials and gain access based on their assigned role.</div>
+</section>
+<section class="feature-strip" id="about">
+    <div class="mini-feature"><i>📊</i><h3>Project Tracking</h3><p>Monitor all design projects and their progress in real-time</p></div>
+    <div class="mini-feature"><i>✓</i><h3>Client Review &amp; Approval</h3><p>Streamlined feedback and approval workflow for faster decisions</p></div>
+    <div class="mini-feature"><i>💬</i><h3>Internal Communication</h3><p>Collaborate seamlessly with team members and clients</p></div>
+</section>
+<section class="trust-strip">
+    <p>Trusted By Social Exposure Teams</p>
+    <div><strong>500+</strong><span>Designs Approved</span></div>
+    <div><strong>50+</strong><span>Active Projects</span></div>
+    <div><strong>98%</strong><span>Client Satisfaction</span></div>
+</section>
