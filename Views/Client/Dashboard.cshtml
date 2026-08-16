@@ -1,19 +1,125 @@
-@{ ViewData["Title"] = "Events"; }
+@model IEnumerable<SocialExposure.Models.Event>
+
+@{
+    ViewData["Title"] = "Events";
+
+    var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>();
+
+    var totalEvents = events.Count;
+    var activeEvents = events.Count(e => e.Status == "Active");
+    var pendingEvents = events.Count(e => e.Status == "Pending");
+    var completedEvents = events.Count(e => e.Status == "Completed");
+}
+
 <section class="dashboard-page client-dashboard">
-    <div class="client-title-row"><h2>My Events</h2><a class="se-portal-button peach" asp-controller="Events" asp-action="ViewClient">◉&nbsp; View Events</a></div>
-    <h3 class="section-title">Summary</h3>
-    <div class="stat-grid four">
-        <article><i>□</i><b>0</b><span>Total Events</span></article>
-        <article><i>↗</i><b>0</b><span>Active Events</span></article>
-        <article><i>◷</i><b>0</b><span>Pending</span></article>
-        <article><i>✓</i><b>0</b><span>Completed</span></article>
+
+    <div class="client-title-row">
+
+        <h2>My Events</h2>
+
+        <a class="se-portal-button peach"
+           asp-controller="Events"
+           asp-action="ViewClient">
+            ◉&nbsp; View Events
+        </a>
+
     </div>
-    <h3 class="section-title recent-title">Recent Events</h3>
-    <div class="data-card"><div class="data-table-wrap"><table class="data-table client-events-table">
-        <thead><tr><th>Event Name</th><th>Client</th><th>Status</th><th>Date</th></tr></thead>
-        <tbody>
-            <tr><td><strong>Empty</strong></td><td>Acme Empty</td><td><span class="status-pill">Empty</span></td><td>Empty</td></tr>
-            
-        </tbody>
-    </table></div></div>
+
+    <h3 class="section-title">Summary</h3>
+
+    <div class="stat-grid four">
+
+        <article>
+            <i>□</i>
+            <b>@totalEvents</b>
+            <span>Total Events</span>
+        </article>
+
+        <article>
+            <i>↗</i>
+            <b>@activeEvents</b>
+            <span>Active Events</span>
+        </article>
+
+        <article>
+            <i>◷</i>
+            <b>@pendingEvents</b>
+            <span>Pending</span>
+        </article>
+
+        <article>
+            <i>✓</i>
+            <b>@completedEvents</b>
+            <span>Completed</span>
+        </article>
+
+    </div>
+
+    <h3 class="section-title recent-title">
+        Recent Events
+    </h3>
+
+    <div class="data-card">
+
+        <div class="data-table-wrap">
+
+            <table class="data-table client-events-table">
+
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (events.Any())
+                    {
+                        foreach (var item in events
+                            .OrderByDescending(e => e.Id)
+                            .Take(5))
+                        {
+                            <tr>
+
+                                <td>
+                                    <strong>@item.EventName</strong>
+                                </td>
+
+                                <td>
+                                    @item.ClientName
+                                </td>
+
+                                <td>
+                                    <span class="status-pill @item.Status.ToLowerInvariant()">
+                                        @item.Status
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @item.StartDate.ToString("dd MMM yyyy")
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                No events found
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </section>
