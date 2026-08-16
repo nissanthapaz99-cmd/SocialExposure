@@ -1,7 +1,7 @@
 @model IEnumerable<SocialExposure.Models.Event>
 @{ ViewData["Title"] = "My Events"; var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>(); }
 <div class="feature-page">
-    <div class="feature-header"><div><h2>My Events</h2><p>See your active work, deadlines and submitted designs.</p></div><div class="feature-actions"><a class="action-button secondary" asp-action="Index">← Back</a></div></div>
+    <div class="feature-header"><div><h2>My Events</h2><p>See your active work, deadlines and submitted designs.</p></div><div class="feature-actions"><a class="action-button secondary" asp-controller="Client" asp-action="Dashboard">← Back</a></div></div>
     <div class="data-card"><div class="data-table-wrap"><table class="data-table">
         <thead><tr><th>Event</th><th>Client</th><th>Status</th><th>Start Date</th><th>Deadline</th><th>Action</th></tr></thead>
         <tbody>
