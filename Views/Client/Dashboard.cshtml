@@ -6,7 +6,7 @@
     var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>();
 
     var totalEvents = events.Count;
-    var activeEvents = events.Count(e => e.Status != "Incomplete");
+    var activeEvents = events.Count(e => e.Status != "Completed");
     var pendingEvents = events.Count(e => e.Status == "Pending");
     var completedEvents = events.Count(e => e.Status == "Completed");
 }

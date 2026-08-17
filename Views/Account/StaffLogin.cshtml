@@ -2,7 +2,7 @@
 <section class="auth-page">
     <div class="auth-switch"><a asp-action="Login">Client Login</a><a class="staff-active" asp-action="StaffLogin">Staff / Admin</a></div>
     <div class="auth-card">
-        <div class="auth-icon">♙</div><h1>Staff / Admin Login</h1><p class="lead">Enter your credentials to access the system</p>
+       <h1>Staff / Admin Login</h1><p class="lead">Enter your credentials to access the system</p>
         <div class="auth-tip">💡 Use “admin” in your username to access admin features</div>
         <div asp-validation-summary="ModelOnly"></div>
         <form asp-action="StaffLogin" method="post">

@@ -7,7 +7,28 @@
         <tbody>
         @if (events.Count > 0) {
             foreach (var item in events) {
-                <tr><td><strong>@item.EventName</strong></td><td>@item.ClientName</td><td>@item.ClientEmail</td><td><span class="status-pill @item.Status.ToLowerInvariant()">@item.Status</span></td><td><div class="row-actions"><a asp-action="Details" asp-route-id="@item.Id">Details</a><a asp-action="Edit" asp-route-id="@item.Id">Edit</a><a asp-action="Upload" asp-route-id="@item.Id">Upload</a><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></div></td></tr>
+                <tr><td><strong>@item.EventName</strong></td><td>@item.ClientName</td><td>@item.ClientEmail</td><td><span class="status-pill @item.Status.ToLowerInvariant()">@item.Status</span></td><td><div class="row-actions"><a asp-action="Details" asp-route-id="@item.Id">Details</a><a asp-action="Edit" asp-route-id="@item.Id">Edit</a><a asp-action="Upload" asp-route-id="@item.Id">Upload</a><a asp-action="Delete" asp-route-id="@item.Id">Delete</a> @if (item.Status != "Completed")
+    {
+        <form asp-action="Complete"
+              asp-route-id="@item.Id"
+              method="post"
+              style="display:inline;">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="complete-btn">
+                Completed
+            </button>
+
+        </form>
+    }
+    else
+    {
+        <span class="completed-label">
+            ✓ Completed
+        </span>
+    }</div></td></tr>
             }
         } else { <tr><td colspan="5"><div class="empty-state"><i>□</i><h3>No events found</h3><p>Create your first client event to get started.</p></div></td></tr> }
         </tbody>

@@ -242,5 +242,22 @@ namespace SocialExposure.Controllers
 
             return View(eventItem);
         }
+        [HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult Complete(int id)
+{
+    var eventItem = _context.Events.FirstOrDefault(e => e.Id == id);
+
+    if (eventItem == null)
+    {
+        return NotFound();
+    }
+
+    eventItem.Status = "Completed";
+
+    _context.SaveChanges();
+
+    return RedirectToAction("ViewStaff");
+}
     }
 }

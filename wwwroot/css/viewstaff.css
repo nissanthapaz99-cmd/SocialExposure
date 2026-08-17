@@ -153,20 +153,39 @@
     flex-wrap: wrap;
 }
 
+/* Existing action buttons */
+
 .btn-details,
 .btn-edit,
 .btn-delete,
-.btn-upload {
-    display: inline-block;
-    padding: 9px 14px;
+.btn-upload,
+.btn-complete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 38px;
+    padding: 0 14px;
+
     border-radius: 9px;
     text-decoration: none;
+
     color: white;
+
+    font-family: inherit;
     font-size: 13px;
     font-weight: 600;
+    line-height: 1;
+
     white-space: nowrap;
     transition: 0.2s ease;
+
+    box-sizing: border-box;
 }
+
+/* =====================================
+   VIEW DETAILS
+===================================== */
 
 .btn-details {
     background: #8B1E1E;
@@ -177,6 +196,10 @@
     color: white;
 }
 
+/* =====================================
+   EDIT
+===================================== */
+
 .btn-edit {
     background: #C97700;
 }
@@ -185,6 +208,10 @@
     background: #A96000;
     color: white;
 }
+
+/* =====================================
+   DELETE
+===================================== */
 
 .btn-delete {
     background: #C62828;
@@ -195,6 +222,10 @@
     color: white;
 }
 
+/* =====================================
+   UPLOAD DESIGN
+===================================== */
+
 .btn-upload {
     background: #F2A36B;
 }
@@ -202,6 +233,132 @@
 .btn-upload:hover {
     background: #DD8B52;
     color: white;
+}
+
+/* =====================================
+   COMPLETED BUTTON
+===================================== */
+
+.btn-complete {
+    background: #2E7D32;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-complete:hover {
+    background: #1B5E20;
+    color: white;
+}
+
+/* Keep Completed form aligned with buttons */
+
+.action-buttons form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================================
+   COMPLETED LABEL
+===================================== */
+
+.completed-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 38px;
+    padding: 0 14px;
+
+    border-radius: 9px;
+
+    background: #E5F5E9;
+    color: #287A3E;
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* =====================================
+   CURRENT ROW-ACTIONS SUPPORT
+===================================== */
+
+/*
+   Your newer ViewStaff.cshtml uses "row-actions"
+   instead of "action-buttons".
+*/
+
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Make all current action links and
+   Completed button the same size */
+
+.row-actions a,
+.row-actions .btn-complete,
+.row-actions .completed-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 38px;
+    padding: 0 14px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+
+    text-decoration: none;
+    white-space: nowrap;
+
+    box-sizing: border-box;
+}
+
+/* Completed form must not add extra spacing */
+
+.row-actions form {
+    display: inline-flex;
+    align-items: center;
+
+    margin: 0;
+    padding: 0;
+}
+
+/* Completed button */
+
+.row-actions .btn-complete {
+    background: #2E7D32;
+    color: white;
+
+    border: none;
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.row-actions .btn-complete:hover {
+    background: #1B5E20;
+    color: white;
+}
+
+/* Completed label after event is completed */
+
+.row-actions .completed-label {
+    background: #E5F5E9;
+    color: #287A3E;
 }
 
 /* =====================================
