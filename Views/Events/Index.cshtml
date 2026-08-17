@@ -28,7 +28,7 @@
 
     <div class="summary-grid">
         <article class="summary-tile"><i class="summary-tile-icon">□</i><strong>@events.Count</strong><span>Total Events</span></article>
-        <article class="summary-tile"><i class="summary-tile-icon">↗</i><strong>@events.Count(e => e.Status == "Active")</strong><span>Active Events</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">↗</i><strong>@events.Count(e => e.Status != "Incomplete")</strong><span>Active Events</span></article>
         <article class="summary-tile"><i class="summary-tile-icon">◷</i><strong>@events.Count(e => e.Status == "Pending")</strong><span>Pending</span></article>
         <article class="summary-tile"><i class="summary-tile-icon">✓</i><strong>@events.Count(e => e.Status == "Completed")</strong><span>Completed</span></article>
     </div>
