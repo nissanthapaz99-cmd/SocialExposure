@@ -435,7 +435,6 @@ FodyWeavers.xsd
 *.db
 *.db-shm
 *.db-wal
-!SocialExposure.db
 
 # Archived nested sample project; the root SocialExposure project is the app
 SocialExposurePortal/
