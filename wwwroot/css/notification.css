@@ -19,6 +19,7 @@
 .notification-card .type{display:grid;width:54px;height:54px;place-items:center;border-radius:12px;background:#faece9;color:var(--notice-red);font-size:25px}
 .notification-card .type.message{background:#f7e6d5;color:#c67f50}.notification-card .type.alert{background:#f7e9cc;color:#b77d2e}.notification-card .type.project{background:#eaf0fb;color:#6686d6}
 .notification-card .copy h3{margin:2px 0 7px;font-size:18px}.notification-card .copy p{margin:0 0 12px;color:var(--notice-muted);font-size:16px;line-height:1.35}.notification-card .copy time{color:var(--notice-muted);font-size:13px}
+.notification-card .notification-link{display:block;color:inherit;text-decoration:none}.notification-card .notification-link:hover h3{color:var(--notice-red)}
 .notification-card .dot{width:10px;height:10px;margin-top:5px;border-radius:50%;background:var(--notice-red)}
 .notification-card .dismiss{border:0;background:transparent;color:#797986;font-size:28px;font-weight:300;line-height:.7;cursor:pointer}.notification-card .dismiss:hover{color:var(--notice-red)}
 .notification-page .empty{padding:75px 20px;text-align:center;color:var(--notice-muted)}.notification-page .empty h3{color:#222}

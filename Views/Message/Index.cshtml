@@ -20,7 +20,7 @@
         <div class="conversation-list">
             @if (Model.Conversations.Count == 0)
             {
-                <div class="no-chat">No conversations yet</div>
+                <div class="no-chat">No users match your search.</div>
             }
             @foreach (var conversation in Model.Conversations)
             {
@@ -39,6 +39,14 @@
     </section>
 
     <section class="chat">
+        @if (TempData["MessageError"] is string messageError)
+        {
+            <div class="message-status error" role="alert">@messageError</div>
+        }
+        else if (TempData["MessageSuccess"] is string messageSuccess)
+        {
+            <div class="message-status success" role="status">@messageSuccess</div>
+        }
         @if (Model.SelectedContact == null)
         {
             <div class="empty-chat"><h2>Select a conversation</h2></div>

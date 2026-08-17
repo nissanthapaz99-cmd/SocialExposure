@@ -25,25 +25,35 @@ public class MessageController : Controller
             .Where(x => x.SenderId == currentUser.Id || x.ReceiverId == currentUser.Id)
             .OrderBy(x => x.SentAt).ToListAsync();
 
-        var contactIds = allMessages.Select(x => x.SenderId == currentUser.Id ? x.ReceiverId : x.SenderId).Distinct();
-        var contactsQuery = _context.Users.Where(x => contactIds.Contains(x.Id) && x.IsActive);
+        // Show every active user so a new conversation can be started before any
+        // messages exist between the two accounts.
+        var contactsQuery = _context.Users
+            .Where(x => x.Id != currentUser.Id && x.IsActive);
+
         if (!string.IsNullOrWhiteSpace(search))
             contactsQuery = contactsQuery.Where(x => x.FullName.Contains(search) || x.Email.Contains(search));
 
         var contacts = await contactsQuery.OrderBy(x => x.FullName).ToListAsync();
         var conversations = contacts.Select(contact =>
         {
-            var messages = allMessages.Where(x => x.SenderId == contact.Id || x.ReceiverId == contact.Id).ToList();
+            var messages = allMessages.Where(x =>
+                (x.SenderId == currentUser.Id && x.ReceiverId == contact.Id) ||
+                (x.SenderId == contact.Id && x.ReceiverId == currentUser.Id)).ToList();
+
             return new ConversationViewModel
             {
                 Contact = contact,
                 LastMessage = messages.LastOrDefault(),
                 UnreadCount = messages.Count(x => x.SenderId == contact.Id && x.ReceiverId == currentUser.Id && !x.IsRead)
             };
-        }).OrderByDescending(x => x.LastMessage?.SentAt).ToList();
+        })
+            .OrderByDescending(x => x.LastMessage?.SentAt ?? DateTime.MinValue)
+            .ThenBy(x => x.Contact.FullName)
+            .ToList();
 
         var selectedContact = contactId.HasValue
-            ? await _context.Users.FirstOrDefaultAsync(x => x.Id == contactId && x.IsActive)
+            ? await _context.Users.FirstOrDefaultAsync(x =>
+                x.Id == contactId && x.Id != currentUser.Id && x.IsActive)
             : conversations.FirstOrDefault()?.Contact;
 
         var thread = selectedContact == null ? [] : allMessages
@@ -72,19 +82,48 @@ public class MessageController : Controller
     public async Task<IActionResult> Send(int receiverId, string content)
     {
         var currentUser = await GetCurrentUser();
-        var receiverExists = await _context.Users.AnyAsync(x => x.Id == receiverId && x.IsActive);
+        var receiver = await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == receiverId && x.Id != currentUser.Id && x.IsActive);
 
-        if (receiverExists && receiverId != currentUser.Id && !string.IsNullOrWhiteSpace(content))
+        if (receiver == null)
         {
-            _context.Messages.Add(new Message
-            {
-                SenderId = currentUser.Id,
-                ReceiverId = receiverId,
-                Content = content.Trim(),
-                SentAt = DateTime.Now
-            });
-            await _context.SaveChangesAsync();
+            TempData["MessageError"] = "That recipient is not available.";
+            return RedirectToAction(nameof(Index));
         }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["MessageError"] = "Enter a message before sending.";
+            return RedirectToAction(nameof(Index), new { contactId = receiverId });
+        }
+
+        var messageText = content.Trim();
+        if (messageText.Length > 2000)
+            messageText = messageText[..2000];
+
+        var sentAt = DateTime.Now;
+
+        _context.Messages.Add(new Message
+        {
+            SenderId = currentUser.Id,
+            ReceiverId = receiver.Id,
+            Content = messageText,
+            SentAt = sentAt
+        });
+
+        var preview = messageText.Length > 120 ? $"{messageText[..117]}..." : messageText;
+        _context.Notifications.Add(new Notification
+        {
+            UserId = receiver.Id,
+            Title = $"New message from {currentUser.FullName}",
+            Message = preview,
+            Type = "message",
+            Link = Url.Action(nameof(Index), "Message", new { contactId = currentUser.Id }),
+            CreatedAt = sentAt
+        });
+
+        await _context.SaveChangesAsync();
+        TempData["MessageSuccess"] = $"Message sent to {receiver.FullName}.";
 
         return RedirectToAction(nameof(Index), new { contactId = receiverId });
     }

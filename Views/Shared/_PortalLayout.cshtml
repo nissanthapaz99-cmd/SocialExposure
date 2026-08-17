@@ -51,6 +51,7 @@
             <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement"><i>♙</i>Staff Management</a>
             <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement"><i>♙</i>Client Management</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
             <a class="@Active("Admin","ActivityLogs")" asp-controller="Admin" asp-action="ActivityLogs"><i>⌁</i>Activity Logs</a>
         }
         else if (isStaff)

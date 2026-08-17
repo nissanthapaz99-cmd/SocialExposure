@@ -53,6 +53,27 @@ public class NotificationController : Controller
         return RedirectToAction(nameof(Index), new { filter });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Open(int id)
+    {
+        var currentUser = await GetCurrentUser();
+        var notification = await _context.Notifications
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == currentUser.Id);
+
+        if (notification == null)
+            return RedirectToAction(nameof(Index));
+
+        if (!notification.IsRead)
+        {
+            notification.IsRead = true;
+            await _context.SaveChangesAsync();
+        }
+
+        return !string.IsNullOrWhiteSpace(notification.Link) && Url.IsLocalUrl(notification.Link)
+            ? LocalRedirect(notification.Link)
+            : RedirectToAction(nameof(Index));
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkAllRead()
