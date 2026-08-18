@@ -59,7 +59,6 @@
             <a class="@Active("Staff")" asp-controller="Staff" asp-action="Dashboard">Dashboard</a>
             <a class="@Active("Events")" asp-controller="Events" asp-action="Index">Events</a>
             <a class="@Active("Design")" asp-controller="Design" asp-action="Index">Designs</a>
-            <a class="@Active("Project")" asp-controller="Project" asp-action="Index">Projects</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
             <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
         }

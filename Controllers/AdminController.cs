@@ -26,7 +26,6 @@ public class AdminController : Controller
         ViewBag.ActiveStaff = users.Count(x => x.Role == UserRoles.Staff && x.IsActive);
         ViewBag.ActiveClients = users.Count(x => x.Role == UserRoles.Client && x.IsActive);
         ViewBag.PendingUsers = users.Count(x => !x.IsVerified);
-        ViewBag.ActiveProjects = await _context.Projects.CountAsync(x => x.Status == "Active");
         ViewBag.SuspendedUsers = users.Count(x => !x.IsActive);
         return View();
     }
