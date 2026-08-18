@@ -46,30 +46,30 @@
         <nav class="portal-nav" aria-label="Portal navigation">
         @if (isAdmin)
         {
-            <a class="@Active("Admin","Dashboard")" asp-controller="Admin" asp-action="Dashboard"><i>▦</i>Dashboard</a>
-            <a class="@Active("Admin","UserManagement")" asp-controller="Admin" asp-action="UserManagement"><i>♧</i>User Management</a>
-            <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement"><i>♙</i>Staff Management</a>
-            <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement"><i>♙</i>Client Management</a>
-            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
-            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
-            <a class="@Active("Admin","ActivityLogs")" asp-controller="Admin" asp-action="ActivityLogs"><i>⌁</i>Activity Logs</a>
+            <a class="@Active("Admin","Dashboard")" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
+            <a class="@Active("Admin","UserManagement")" asp-controller="Admin" asp-action="UserManagement">User Management</a>
+            <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement">Staff Management</a>
+            <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement">Client Management</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
+            <a class="@Active("Admin","ActivityLogs")" asp-controller="Admin" asp-action="ActivityLogs">Activity Logs</a>
         }
         else if (isStaff)
         {
-            <a class="@Active("Staff")" asp-controller="Staff" asp-action="Dashboard"><i>▦</i>Dashboard</a>
-            <a class="@Active("Events")" asp-controller="Events" asp-action="Index"><i>□</i>Events</a>
-            <a class="@Active("Design")" asp-controller="Design" asp-action="Index"><i>⇧</i>Designs</a>
-            <a class="@Active("Project")" asp-controller="Project" asp-action="Index"><i>◇</i>Projects</a>
-            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
-            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
+            <a class="@Active("Staff")" asp-controller="Staff" asp-action="Dashboard">Dashboard</a>
+            <a class="@Active("Events")" asp-controller="Events" asp-action="Index">Events</a>
+            <a class="@Active("Design")" asp-controller="Design" asp-action="Index">Designs</a>
+            <a class="@Active("Project")" asp-controller="Project" asp-action="Index">Projects</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
         }
         else
         {
-            <a class="@(controller is "Client" or "Events" ? "active" : "")" asp-controller="Client" asp-action="Dashboard"><i>□</i>Events</a>
-            <a class="@Active("Design","Upload")" asp-controller="Design" asp-action="Upload"><i>⇧</i>Upload</a>
-            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index"><i>♢</i>Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
-            <a class="@Active("Message")" asp-controller="Message" asp-action="Index"><i>▢</i>Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
-            <a class="@Active("Account","Profile")" asp-controller="Account" asp-action="Profile"><i>♙</i>Profile</a>
+            <a class="@(controller is "Client" or "Events" ? "active" : "")" asp-controller="Client" asp-action="Dashboard">Events</a>
+            <a class="@Active("Design","Upload")" asp-controller="Design" asp-action="Upload">Upload</a>
+            <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
+            <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
+            <a class="@Active("Account","Profile")" asp-controller="Account" asp-action="Profile">Profile</a>
         }
         </nav>
 
@@ -83,7 +83,7 @@
             <button class="portal-menu" type="button" aria-label="Toggle navigation">☰</button>
             <div class="portal-heading"><h1>@title</h1>@if(isAdmin){<p>Social Exposure Admin Panel</p>}</div>
             <div class="portal-top-actions">
-                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications">♢@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
+                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications">💬@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
                 @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
                 <div class="portal-avatar">@initials</div>
             </div>
