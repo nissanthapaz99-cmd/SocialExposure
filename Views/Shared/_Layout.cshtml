@@ -14,13 +14,15 @@
     <header class="public-header">
         @if (compactHeader) { <a class="public-back" asp-controller="Home" asp-action="Index" aria-label="Back to homepage">←</a> }
         <a class="brand-mark" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a>
-        @if (!compactHeader) { <nav><a href="#about">About</a><a href="#contact">Contact</a><a href="#help">Help</a></nav> }
+       <!-- @if (!compactHeader) { <nav><a href="#about">About</a><a href="#contact">Contact</a><a href="#help">Help</a></nav> } -->
+     @if (!compactHeader) { <nav><a asp-controller="Home" asp-action="About">About</a><a asp-controller="Home" asp-action="Contact">Contact</a><a asp-controller="Home" asp-action="Help">Help</a></nav> }
     </header>
     <main class="public-main">@RenderBody()</main>
     @if (!compactHeader)
     {
         <footer class="public-footer">
-            <nav><a href="#contact">Contact</a><span>•</span><a href="#about">About</a><span>•</span><a href="#help">Help Center</a><span>•</span><a asp-controller="Home" asp-action="Privacy">Privacy</a></nav>
+           <!-- <nav><a href="#contact">Contact</a><span>•</span><a href="#about">About</a><span>•</span><a href="#help">Help Center</a><span>•</span><a asp-controller="Home" asp-action="Privacy">Privacy</a></nav> -->
+           <nav><a asp-controller="Home" asp-action="Contact">Contact</a><span>•</span><a asp-controller="Home" asp-action="About">About</a><span>•</span><a asp-controller="Home" asp-action="Help">Help Center</a><span>•</span><a asp-controller="Home" asp-action="Privacy">Privacy</a></nav>
             <p>© 2026 Social Exposure. All rights reserved.</p>
         </footer>
     }
