@@ -25,5 +25,7 @@ namespace SocialExposure.Controllers
 
             return View(events);
         }
+        
     }
 }
+
