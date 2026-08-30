@@ -9,21 +9,19 @@
 <section class="dashboard-page">
 
     <div class="page-intro">
-        <div><h2>Welcome back, @User.Identity?.Name! 👋</h2><p>Here's what's happening with your projects today.</p></div>
+        <div><h2>Welcome back, @User.Identity?.Name! </h2><p>Here's what's happening with your projects today.</p></div>
     </div>
 
-    <div class="quick-actions">
-        <a class="peach" asp-controller="Events" asp-action="Index">⇧ Upload Design</a>
+    <div class="quick-actions"><a class="peach" asp-controller="Design" asp-action="Index">⇧ Upload Design</a>
         <a asp-controller="Events" asp-action="Create">＋ Create Events</a>
-        <a class="gold" asp-controller="Project" asp-action="Index">➤ Send for Approval</a>
+      <!--<a class="gold" asp-controller="Project" asp-action="Index">➤ Send for Approval</a> -->
     </div>
 <div class="stat-grid four">
     <article><i class="bi bi-calendar-event"></i><b>@activeEvents</b><span>Active Events</span></article>
-    <article><i class="bi bi-clock"></i><b>0</b><span>Pending Approvals</span></article>
-    <article><i class="bi bi-chat-square-text"></i><b>0</b><span>Feedback Received</span></article>
-    <article><i class="bi bi-exclamation-circle"></i><b>0</b><span>Overdue Tasks</span></article>
-</div>
-    
+    <article><i class="bi bi-clock"></i><b>@ViewBag.PendingApprovals</b><span>Pending Approvals</span></article>
+<article><i class="bi bi-chat-square-text"></i><b>@ViewBag.FeedbackReceived</b><span>Feedback Received</span></article>
+<article><i class="bi bi-exclamation-circle"></i><b>@ViewBag.OverdueTasks</b><span>Overdue Tasks</span></article>
+    </div>
 
     <div class="dashboard-columns">
 
@@ -39,7 +37,7 @@
                     @foreach (var item in events.Where(e => e.Status != "Completed").OrderByDescending(e => e.Id).Take(5))
                     {
                         <div style="margin-bottom:20px;">
-                            <h4>@item.EventName</h4>
+                            <h4>Event: @item.EventName</h4>
                             <p>Client: @item.ClientName<br />Status: @item.Status<br />Deadline: @item.Deadline.ToString("dd MMM yyyy")</p>
                             <a class="text-link" asp-controller="Events" asp-action="Details" asp-route-id="@item.Id">View Details</a>
                         </div>
