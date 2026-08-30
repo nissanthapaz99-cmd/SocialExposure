@@ -45,8 +45,9 @@ html,body{margin:0;min-height:100%;font-family:"Segoe UI",Arial,sans-serif;color
 .feature-section-title{margin:0 0 16px;font-size:21px}
 .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .summary-tile{padding:20px;border:1px solid var(--portal-line);border-radius:13px;background:#fff}
-.summary-tile-icon{display:grid;width:45px;height:45px;place-items:center;margin-bottom:14px;border-radius:10px;background:#f7e6dc;color:var(--portal-red);font-style:normal;font-size:21px}
-.summary-tile:nth-child(2n) .summary-tile-icon{background:#f8ecd4;color:#b2792e}
+.summary-tile-icon{display:grid;width:45px;height:45px;place-items:center;margin-bottom:14px;border-radius:10px;background:#f7e6dc;color:var(--portal-red);font-style:normal;font-size:23px}
+
+.summary-tile:nth-child(2n) .summary-tile-icon{background:#f7e6dc;color:var(--portal-red)}
 .summary-tile strong,.summary-tile span{display:block}.summary-tile strong{font-size:29px;line-height:1}.summary-tile span{margin-top:7px;color:var(--portal-muted);font-size:14px}
 .data-card{overflow:hidden;border:1px solid var(--portal-line);border-radius:13px;background:#fff}
 .data-card-header{display:flex;align-items:center;justify-content:space-between;padding:19px 22px;border-bottom:1px solid var(--portal-line)}

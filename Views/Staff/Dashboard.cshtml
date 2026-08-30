@@ -17,13 +17,13 @@
         <a asp-controller="Events" asp-action="Create">＋ Create Events</a>
         <a class="gold" asp-controller="Project" asp-action="Index">➤ Send for Approval</a>
     </div>
-
-    <div class="stat-grid four">
-        <article><i>📅</i><b>@activeEvents</b><span>Active Events</span></article>
-        <article><i>◷</i><b>0</b><span>Pending Approvals</span></article>
-        <article><i>♧</i><b>0</b><span>Feedback Received</span></article>
-        <article><i>!</i><b>0</b><span>Overdue Tasks</span></article>
-    </div>
+<div class="stat-grid four">
+    <article><i class="bi bi-calendar-event"></i><b>@activeEvents</b><span>Active Events</span></article>
+    <article><i class="bi bi-clock"></i><b>0</b><span>Pending Approvals</span></article>
+    <article><i class="bi bi-chat-square-text"></i><b>0</b><span>Feedback Received</span></article>
+    <article><i class="bi bi-exclamation-circle"></i><b>0</b><span>Overdue Tasks</span></article>
+</div>
+    
 
     <div class="dashboard-columns">
 
