@@ -81,7 +81,7 @@
             <button class="portal-menu" type="button" aria-label="Toggle navigation">☰</button>
             <div class="portal-heading"><h1>@title</h1>@if(isAdmin){<p>Social Exposure Admin Panel</p>}</div>
             <div class="portal-top-actions">
-                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications">💬@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
+                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications"><i class="bi bi-bell"></i>@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
                 @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
                 <div class="portal-avatar">@initials</div>
             </div>
