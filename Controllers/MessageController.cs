@@ -134,3 +134,5 @@ public class MessageController : Controller
         return await _context.Users.SingleAsync(x => x.Id == userId && x.IsActive);
     }
 }
+
+

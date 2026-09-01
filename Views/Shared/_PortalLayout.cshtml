@@ -14,9 +14,9 @@
     var unreadMessages = userId == 0 ? 0 : Db.Messages.Count(x => x.ReceiverId == userId && !x.IsRead);
     var isAdmin = role == UserRoles.Admin;
     var isStaff = role == UserRoles.Staff;
-    string Active(string targetController, string targetAction = "") =>
-        controller == targetController && (string.IsNullOrEmpty(targetAction) || action == targetAction) ? "active" : "";
+    string Active(string targetController, string targetAction = "") => controller == targetController && (string.IsNullOrEmpty(targetAction) || action == targetAction) ? "active" : "";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,15 +24,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title - Social Exposure</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body class="role-@role.ToLowerInvariant()">
 <div class="portal-shell">
+
     <aside class="portal-sidebar">
-        <a class="portal-logo" asp-controller="Home" asp-action="Index">
-            <strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span>
-        </a>
+        <a class="portal-logo" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a>
 
         @if (isAdmin)
         {
@@ -72,9 +73,7 @@
         }
         </nav>
 
-        <form class="portal-logout" asp-controller="Account" asp-action="Logout" method="post">
-            @Html.AntiForgeryToken()<button type="submit"><i>⇥</i>Logout</button>
-        </form>
+        <form class="portal-logout" asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button type="submit"><i>⇥</i>Logout</button></form>
     </aside>
 
     <section class="portal-workspace">
@@ -82,16 +81,20 @@
             <button class="portal-menu" type="button" aria-label="Toggle navigation">☰</button>
             <div class="portal-heading"><h1>@title</h1>@if(isAdmin){<p>Social Exposure Admin Panel</p>}</div>
             <div class="portal-top-actions">
-                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications">💬@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
+                <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications"><i class="bi bi-bell"></i>@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
                 @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
                 <div class="portal-avatar">@initials</div>
             </div>
         </header>
+
         <main class="portal-content @(fullBleed ? "full-bleed" : "")">@RenderBody()</main>
     </section>
+
 </div>
+
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>document.querySelector('.portal-menu')?.addEventListener('click',()=>document.body.classList.toggle('portal-nav-open'));</script>
 @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

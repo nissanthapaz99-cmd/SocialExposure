@@ -1,9 +1,12 @@
 @model IEnumerable<SocialExposure.Models.Event>
 
+
 @{
     ViewData["Title"] = "Events";
 
+
     var events = Model?.ToList() ?? new List<SocialExposure.Models.Event>();
+
 
     var totalEvents = events.Count;
     var activeEvents = events.Count(e => e.Status != "Completed");
@@ -11,11 +14,15 @@
     var completedEvents = events.Count(e => e.Status == "Completed");
 }
 
+
 <section class="dashboard-page client-dashboard">
+
 
     <div class="client-title-row">
 
+
         <h2>My Events</h2>
+
 
         <a class="se-portal-button peach"
            asp-controller="Events"
@@ -23,47 +30,60 @@
             ◉&nbsp; View Events
         </a>
 
+
     </div>
+
 
     <h3 class="section-title">Summary</h3>
 
+
     <div class="stat-grid four">
 
+
         <article>
-            <i>📅</i>
+            <i class="bi bi-calendar-event"></i>
             <b>@totalEvents</b>
             <span>Total Events</span>
         </article>
 
+
         <article>
-            <i>↗</i>
+            <i class="bi bi-graph-up-arrow"></i>
             <b>@activeEvents</b>
             <span>Active Events</span>
         </article>
 
+
         <article>
-            <i>◷</i>
+            <i class="bi bi-clock"></i>
             <b>@pendingEvents</b>
             <span>Pending</span>
         </article>
 
+
         <article>
-            <i>✓</i>
+            <i class="bi bi-check-circle"></i>
             <b>@completedEvents</b>
             <span>Completed</span>
         </article>
 
+
     </div>
+
 
     <h3 class="section-title recent-title">
         Recent Events
     </h3>
 
+
     <div class="data-card">
+
 
         <div class="data-table-wrap">
 
+
             <table class="data-table client-events-table">
+
 
                 <thead>
                     <tr>
@@ -74,7 +94,9 @@
                     </tr>
                 </thead>
 
+
                 <tbody>
+
 
                     @if (events.Any())
                     {
@@ -84,13 +106,16 @@
                         {
                             <tr>
 
+
                                 <td>
                                     <strong>@item.EventName</strong>
                                 </td>
 
+
                                 <td>
                                     @item.ClientName
                                 </td>
+
 
                                 <td>
                                     <span class="status-pill @item.Status.ToLowerInvariant()">
@@ -98,9 +123,11 @@
                                     </span>
                                 </td>
 
+
                                 <td>
                                     @item.StartDate.ToString("dd MMM yyyy")
                                 </td>
+
 
                             </tr>
                         }
@@ -114,12 +141,17 @@
                         </tr>
                     }
 
+
                 </tbody>
+
 
             </table>
 
+
         </div>
 
+
     </div>
+
 
 </section>
