@@ -1,5 +1,8 @@
-﻿@{
-    Layout = User.Identity?.IsAuthenticated == true
-        ? "_PortalLayout"
-        : "_Layout";
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var isPublicPage = controller is "Home" or "Account";
+
+    Layout = isPublicPage || User.Identity?.IsAuthenticated != true
+        ? "_Layout"
+        : "_PortalLayout";
 }
