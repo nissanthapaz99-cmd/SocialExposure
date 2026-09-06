@@ -83,7 +83,7 @@
             <div class="portal-top-actions">
                 <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications"><i class="bi bi-bell"></i>@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
                 @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
-                <div class="portal-avatar">@initials</div>
+               <a class="portal-avatar portal-avatar-link" asp-controller="Account" asp-action="Profile">@initials</a>
             </div>
         </header>
 
