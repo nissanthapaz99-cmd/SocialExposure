@@ -33,8 +33,10 @@
 <div class="portal-shell">
 
     <aside class="portal-sidebar">
-        <a class="portal-logo" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a>
-
+       <!-- <a class="portal-logo" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a> -->
+      <a class="portal-logo" asp-controller="Home" asp-action="Index">
+          <img src="~/images/logo-white.png" alt="Social Exposure Events" class="portal-logo-img" />
+      </a>
         @if (isAdmin)
         {
             <div class="portal-user admin-user"><div class="role-symbol">♢</div><div><b>Admin Panel</b><span>Full Access</span></div></div>
