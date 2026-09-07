@@ -80,9 +80,6 @@ public class AdminController : Controller
             .OrderBy(x => x.FullName).ToListAsync());
 
     [HttpGet]
-    public IActionResult ActivityLogs() => View();
-
-    [HttpGet]
     public IActionResult CreateUser(string? role)
     {
         ViewBag.SelectedRole = UserRoles.IsValid(role) ? role : UserRoles.Client;

@@ -12,17 +12,7 @@
         <article><span class="stat-delta">+15%</span><i>◇</i><b>@ViewBag.ActiveProjects</b><span>Active Projects</span></article>
         <article><span class="stat-delta down">+2</span><i>⊘</i><b>@ViewBag.SuspendedUsers</b><span>Suspended Accounts</span></article>
     </div>
-    <div class="dashboard-columns">
-        <section class="panel">
-            <div class="panel-heading"><h3>Recent Activity</h3><a asp-action="ActivityLogs">View All →</a></div>
-            <div class="activity-list">
-                <div><i>◉</i><p><b>Logged in successfully</b><span>@User.Identity?.Name • Just now</span></p></div>
-                <div><i>♢</i><p><b>User management is ready</b><span>Admin • Roles and access can be managed</span></p></div>
-                <div><i>□</i><p><b>Client projects available</b><span>Open Projects to review active work</span></p></div>
-                <div><i>✓</i><p><b>Design approval workflow active</b><span>Staff and clients can collaborate</span></p></div>
-                <div><i>⇧</i><p><b>Messaging and notifications enabled</b><span>All authenticated roles are connected</span></p></div>
-            </div>
-        </section>
+    <div class="dashboard-columns admin-approval-columns">
         <aside>
             <section class="panel">
                 <div class="panel-heading"><h3>Pending Approvals</h3><span class="account-state">@pendingApprovals.Count</span></div>

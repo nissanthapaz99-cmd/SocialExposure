@@ -7,7 +7,8 @@
         <form asp-action="Register" method="post">
             <div class="field"><label asp-for="FullName">Full Name</label><input asp-for="FullName" placeholder="Your full name"/><span asp-validation-for="FullName"></span></div>
             <div class="field"><label asp-for="Email">Email Address</label><input asp-for="Email" placeholder="your.email@company.com"/><span asp-validation-for="Email"></span></div>
-            <label class="terms"><input asp-for="AcceptTerms"/><span>I agree to the Terms & Conditions</span></label>
+            <label class="terms"><input asp-for="AcceptTerms" required/><span>I agree to the Terms &amp; Conditions</span></label>
+            <span asp-validation-for="AcceptTerms"></span>
             <button class="se-button peach auth-submit" type="submit">Send Verification Code</button>
         </form>
     </div>
