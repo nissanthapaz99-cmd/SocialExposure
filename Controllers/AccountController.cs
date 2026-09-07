@@ -50,6 +50,13 @@ namespace SocialExposure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (!model.AcceptTerms)
+            {
+                ModelState.AddModelError(
+                    nameof(model.AcceptTerms),
+                    "You must agree to the Terms & Conditions to sign up.");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -65,7 +72,7 @@ namespace SocialExposure.Controllers
 
             User user = new User
             {
-                FullName = model.FullName,
+                FullName = model.FullName.Trim(),
                 Email = normalizedEmail,
                 Role = UserRoles.Client,
                 Password = null,
