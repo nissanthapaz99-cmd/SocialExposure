@@ -787,7 +787,7 @@ namespace SocialExposure.Controllers
                     DateTime.Now,
 
                 EventId =
-                    selectedEvent.Id,
+                    selectedEvent!.Id,
 
                 ClientId =
                     client.Id,
