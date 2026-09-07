@@ -25,10 +25,14 @@ public class MessageController : Controller
             .Where(x => x.SenderId == currentUser.Id || x.ReceiverId == currentUser.Id)
             .OrderBy(x => x.SentAt).ToListAsync();
 
-        // Show every active user so a new conversation can be started before any
-        // messages exist between the two accounts.
+        var currentUserIsClient = currentUser.Role == UserRoles.Client;
+
+        // Clients may contact the internal team, but not unrelated clients.
+        // Staff and administrators may contact any approved active account.
         var contactsQuery = _context.Users
-            .Where(x => x.Id != currentUser.Id && x.IsActive);
+            .Where(x => x.Id != currentUser.Id && x.IsActive && x.IsApproved &&
+                (!currentUserIsClient ||
+                    x.Role == UserRoles.Staff || x.Role == UserRoles.Admin));
 
         if (!string.IsNullOrWhiteSpace(search))
             contactsQuery = contactsQuery.Where(x => x.FullName.Contains(search) || x.Email.Contains(search));
@@ -53,7 +57,9 @@ public class MessageController : Controller
 
         var selectedContact = contactId.HasValue
             ? await _context.Users.FirstOrDefaultAsync(x =>
-                x.Id == contactId && x.Id != currentUser.Id && x.IsActive)
+                x.Id == contactId && x.Id != currentUser.Id && x.IsActive && x.IsApproved &&
+                (!currentUserIsClient ||
+                    x.Role == UserRoles.Staff || x.Role == UserRoles.Admin))
             : conversations.FirstOrDefault()?.Contact;
 
         var thread = selectedContact == null ? [] : allMessages
@@ -82,8 +88,12 @@ public class MessageController : Controller
     public async Task<IActionResult> Send(int receiverId, string content)
     {
         var currentUser = await GetCurrentUser();
+        var currentUserIsClient = currentUser.Role == UserRoles.Client;
         var receiver = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == receiverId && x.Id != currentUser.Id && x.IsActive);
+            .FirstOrDefaultAsync(x =>
+                x.Id == receiverId && x.Id != currentUser.Id && x.IsActive && x.IsApproved &&
+                (!currentUserIsClient ||
+                    x.Role == UserRoles.Staff || x.Role == UserRoles.Admin));
 
         if (receiver == null)
         {
@@ -131,7 +141,8 @@ public class MessageController : Controller
     private async Task<User> GetCurrentUser()
     {
         var userId = User.GetUserId();
-        return await _context.Users.SingleAsync(x => x.Id == userId && x.IsActive);
+        return await _context.Users.SingleAsync(x =>
+            x.Id == userId && x.IsActive && x.IsApproved);
     }
 }
 

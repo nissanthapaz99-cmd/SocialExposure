@@ -5,7 +5,21 @@
     <div class="people-grid">
     @foreach (var user in Model) {
         var initials=string.Join("",user.FullName.Split(' ',StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x=>char.ToUpperInvariant(x[0])));
-        <article class="person-card"><span class="mini-avatar">@initials</span><div><h3>@user.FullName</h3><span class="account-state @(!user.IsActive ? "inactive" : "")">@(user.IsActive ? "Active" : "Suspended")</span><p>@user.Email</p><div class="person-meta"><span>Client account</span><span>@(user.IsVerified ? "Verified" : "Invitation pending")</span></div></div><div class="person-actions"><a href="#">Manage Access</a><form asp-action="ToggleStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><input type="hidden" name="returnTo" value="ClientManagement"/><button type="submit">@(user.IsActive ? "Suspend" : "Activate")</button></form></div></article>
+        var status = !user.IsVerified ? "Awaiting email verification" : !user.IsApproved ? (user.IsActive ? "Pending approval" : "Rejected") : (user.IsActive ? "Active" : "Suspended");
+        <article class="person-card"><span class="mini-avatar">@initials</span><div><h3>@user.FullName</h3><span class="account-state @(!user.IsActive || !user.IsApproved ? "inactive" : "")">@status</span><p>@user.Email</p><div class="person-meta"><span>Client account</span><span>@(user.IsVerified ? "Email verified" : "Email verification pending")</span></div></div><div class="person-actions">
+            @if (user.IsVerified && !user.IsApproved)
+            {
+                <form asp-action="ApproveUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><input type="hidden" name="returnTo" value="ClientManagement"/><button type="submit">Approve</button></form>
+                @if (user.IsActive)
+                {
+                    <form asp-action="RejectUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><input type="hidden" name="returnTo" value="ClientManagement"/><button type="submit">Reject</button></form>
+                }
+            }
+            else if (user.IsApproved)
+            {
+                <form asp-action="ToggleStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><input type="hidden" name="returnTo" value="ClientManagement"/><button type="submit">@(user.IsActive ? "Suspend" : "Reactivate")</button></form>
+            }
+        </div></article>
     }
     </div>
 </section>

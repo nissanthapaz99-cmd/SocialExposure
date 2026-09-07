@@ -1,35 +1,67 @@
-@using System.Security.Claims
+@model IReadOnlyList<SocialExposure.Models.Design>
+@using SocialExposure.Services
 @{
     ViewData["Title"] = "Designs";
-    var role = User.FindFirstValue(ClaimTypes.Role) ?? UserRoles.Client;
-    var canUpload = role is UserRoles.Admin or UserRoles.Staff;
+    var pending = Model.Count(x => x.Status == "Pending Review");
+    var approved = Model.Count(x => x.Status == "Approved");
+    var feedback = Model.Count(x => x.Status == "Feedback Required");
 }
 
 <div class="feature-page">
     <div class="feature-header">
-        <div><h2>Designs</h2><p>Review, organise and approve design files.</p></div>
-        @if (canUpload)
-        {
-            <div class="feature-actions"><a class="action-button peach" asp-controller="Events" asp-action="Index">↑ Upload Design</a></div>
-        }
+        <div><h2>Designs</h2><p>Review photos and videos connected to your events.</p></div>
+        <div class="feature-actions"><a class="action-button peach" asp-action="Upload">↑ Upload Design</a></div>
     </div>
 
+    @if (TempData["DesignSuccess"] is string success)
+    {
+        <div class="success-message">@success</div>
+    }
+
     <div class="summary-grid">
-        <article class="summary-tile"><i class="summary-tile-icon">▤</i><strong>0</strong><span>Total Designs</span></article>
-        <article class="summary-tile"><i class="summary-tile-icon">◷</i><strong>0</strong><span>Pending</span></article>
-        <article class="summary-tile"><i class="summary-tile-icon">✓</i><strong>0</strong><span>Approved</span></article>
-        <article class="summary-tile"><i class="summary-tile-icon">!</i><strong>0</strong><span>Feedback</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">▤</i><strong>@Model.Count</strong><span>Total Designs</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">◷</i><strong>@pending</strong><span>Pending</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">✓</i><strong>@approved</strong><span>Approved</span></article>
+        <article class="summary-tile"><i class="summary-tile-icon">!</i><strong>@feedback</strong><span>Feedback</span></article>
     </div>
 
     <section class="feature-section">
-        <div class="search-row">
-            <label class="search-field"><span>⌕</span><input type="search" placeholder="Search designs..." aria-label="Search designs" /></label>
-            <button class="action-button secondary" type="button">Filter</button>
-            <button class="action-button secondary" type="button">View All</button>
-        </div>
         <div class="data-card">
             <div class="data-card-header"><h3>Recent Design Activity</h3></div>
-            <div class="empty-state"><i>▤</i><h3>No designs yet</h3><p>Uploaded designs and client feedback will appear here.</p></div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state"><i>▤</i><h3>No designs yet</h3><p>Uploaded photos and videos will appear here.</p></div>
+            }
+            else
+            {
+                <div class="design-gallery">
+                    @foreach (var design in Model)
+                    {
+                        var isVideo = DesignUploadPolicy.IsVideo(design.FilePath);
+                        <article class="design-card">
+                            <div class="design-preview">
+                                @if (isVideo)
+                                {
+                                    <video controls preload="metadata" src="@Url.Action("Download", "Design", new { id = design.Id })"></video>
+                                }
+                                else
+                                {
+                                    <img src="@Url.Action("Download", "Design", new { id = design.Id })" alt="@design.FileName" loading="lazy" />
+                                }
+                            </div>
+                            <div class="design-copy">
+                                <div><h3>@design.FileName</h3><span class="status-pill pending">@design.Status</span></div>
+                                <p>@(design.Event?.EventName ?? "Event") • @design.Version</p>
+                                @if (!string.IsNullOrWhiteSpace(design.Description))
+                                {
+                                    <p>@design.Description</p>
+                                }
+                                <small>Uploaded @design.UploadedAt.ToString("dd MMM yyyy, h:mm tt")</small>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
         </div>
     </section>
 </div>

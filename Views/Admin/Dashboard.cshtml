@@ -1,10 +1,14 @@
-@{ ViewData["Title"] = "Dashboard"; }
+@using SocialExposure.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    var pendingApprovals = ViewBag.PendingApprovals as List<User> ?? new List<User>();
+}
 <section class="dashboard-page">
     <div class="stat-grid six">
         <article><span class="stat-delta">+12%</span><i>♙</i><b>@ViewBag.TotalUsers</b><span>Total Users</span></article>
         <article><span class="stat-delta">+5%</span><i>♧</i><b>@ViewBag.ActiveStaff</b><span>Active Staff</span></article>
         <article><span class="stat-delta">+18%</span><i>♙</i><b>@ViewBag.ActiveClients</b><span>Active Clients</span></article>
-        <article><span class="stat-delta down">-8%</span><i>✉</i><b>@ViewBag.PendingUsers</b><span>Pending Invitations</span></article>
+        <article><span class="stat-delta down">Review</span><i>✉</i><b>@ViewBag.PendingUsers</b><span>Pending Approvals</span></article>
         <article><span class="stat-delta">+15%</span><i>◇</i><b>@ViewBag.ActiveProjects</b><span>Active Projects</span></article>
         <article><span class="stat-delta down">+2</span><i>⊘</i><b>@ViewBag.SuspendedUsers</b><span>Suspended Accounts</span></article>
     </div>
@@ -21,12 +25,24 @@
         </section>
         <aside>
             <section class="panel">
-                <div class="panel-heading"><h3>Pending Approvals</h3><span class="account-state">3</span></div>
-                <div class="approval-card"><h4>Lisa Smith</h4><p>New Staff Account<br/>Today</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
-                <div class="approval-card"><h4>John Anderson</h4><p>Password Reset Request<br/>Today</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
-                <div class="approval-card"><h4>Maria Garcia</h4><p>Client Invitation<br/>Yesterday</p><div class="approval-actions"><button>✓ Approve</button><button class="reject">⊗ Reject</button></div></div>
+                <div class="panel-heading"><h3>Pending Approvals</h3><span class="account-state">@pendingApprovals.Count</span></div>
+                @foreach (var pendingUser in pendingApprovals.Take(5))
+                {
+                    <div class="approval-card">
+                        <h4>@pendingUser.FullName</h4>
+                        <p>@pendingUser.Email<br />Verified Client</p>
+                        <div class="approval-actions">
+                            <form asp-action="ApproveUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@pendingUser.Id" /><button type="submit">✓ Approve</button></form>
+                            <form asp-action="RejectUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@pendingUser.Id" /><button class="reject" type="submit">⊗ Reject</button></form>
+                        </div>
+                    </div>
+                }
+                @if (!pendingApprovals.Any())
+                {
+                    <div class="empty-state"><i>✓</i><h3>No approvals waiting</h3><p>Verified Client requests will appear here.</p></div>
+                }
             </section>
-            <section class="panel" style="margin-top:16px"><div class="panel-heading"><h3>System Alerts</h3></div><div class="task-list"><a href="#"><b>Account review required</b><span>Check suspended and pending users</span></a></div></section>
+            <section class="panel" style="margin-top:16px"><div class="panel-heading"><h3>System Alerts</h3></div><div class="task-list"><a asp-action="UserManagement"><b>Account review</b><span>Check suspended, pending, and unverified users</span></a></div></section>
         </aside>
     </div>
 </section>

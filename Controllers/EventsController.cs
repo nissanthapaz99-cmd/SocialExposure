@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SocialExposure.Data;
 using SocialExposure.Models;
+using SocialExposure.Services;
 
 namespace SocialExposure.Controllers
 {
@@ -10,10 +12,14 @@ namespace SocialExposure.Controllers
     public class EventsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly NotificationService _notificationService;
 
-        public EventsController(ApplicationDbContext context)
+        public EventsController(
+            ApplicationDbContext context,
+            NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         // =========================
@@ -34,10 +40,10 @@ namespace SocialExposure.Controllers
             }
 
             // Client only sees events assigned to their email
-            var clientEmail = User.FindFirstValue(ClaimTypes.Email);
+            var clientEmail = User.FindFirstValue(ClaimTypes.Email)?.ToLower();
 
             var clientEvents = _context.Events
-                .Where(e => e.ClientEmail == clientEmail)
+                .Where(e => e.ClientEmail.ToLower() == clientEmail)
                 .OrderByDescending(e => e.Id)
                 .ToList();
 
@@ -60,7 +66,7 @@ namespace SocialExposure.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
-        public IActionResult Create(Event model)
+        public async Task<IActionResult> Create(Event model)
         {
             if (!ModelState.IsValid)
             {
@@ -72,7 +78,15 @@ namespace SocialExposure.Controllers
                 : model.Status;
 
             _context.Events.Add(model);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            await _notificationService.QueueForClientEmailAsync(
+                model.ClientEmail,
+                "New event assigned",
+                $"{model.EventName} has been added to your account by {User.Identity?.Name ?? "the Social Exposure team"}.",
+                "project",
+                Url.Action(nameof(Details), "Events", new { id = model.Id }));
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ViewStaff));
         }
@@ -83,10 +97,10 @@ namespace SocialExposure.Controllers
         [Authorize(Roles = UserRoles.Client)]
         public IActionResult Client()
         {
-            var clientEmail = User.FindFirstValue(ClaimTypes.Email);
+            var clientEmail = User.FindFirstValue(ClaimTypes.Email)?.ToLower();
 
             var events = _context.Events
-                .Where(e => e.ClientEmail == clientEmail)
+                .Where(e => e.ClientEmail.ToLower() == clientEmail)
                 .OrderByDescending(e => e.Id)
                 .ToList();
 
@@ -99,10 +113,10 @@ namespace SocialExposure.Controllers
         [Authorize(Roles = UserRoles.Client)]
         public IActionResult ViewClient()
         {
-            var clientEmail = User.FindFirstValue(ClaimTypes.Email);
+            var clientEmail = User.FindFirstValue(ClaimTypes.Email)?.ToLower();
 
             var events = _context.Events
-                .Where(e => e.ClientEmail == clientEmail)
+                .Where(e => e.ClientEmail.ToLower() == clientEmail)
                 .OrderByDescending(e => e.Id)
                 .ToList();
 
@@ -178,20 +192,23 @@ namespace SocialExposure.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
-        public IActionResult Edit(Event model)
+        public async Task<IActionResult> Edit(Event model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var eventItem = _context.Events
-                .FirstOrDefault(e => e.Id == model.Id);
+            var eventItem = await _context.Events
+                .FirstOrDefaultAsync(e => e.Id == model.Id);
 
             if (eventItem == null)
             {
                 return NotFound();
             }
+
+            var previousClientEmail = eventItem.ClientEmail;
+            var previousStatus = eventItem.Status;
 
             eventItem.EventName = model.EventName;
             eventItem.ClientName = model.ClientName;
@@ -201,7 +218,43 @@ namespace SocialExposure.Controllers
             eventItem.Deadline = model.Deadline;
             eventItem.Status = model.Status;
 
-            _context.SaveChanges();
+            var link = Url.Action(nameof(Details), "Events", new { id = eventItem.Id });
+            var clientChanged = !string.Equals(
+                previousClientEmail,
+                eventItem.ClientEmail,
+                StringComparison.OrdinalIgnoreCase);
+
+            if (clientChanged)
+            {
+                await _notificationService.QueueForClientEmailAsync(
+                    previousClientEmail,
+                    "Event reassigned",
+                    $"{eventItem.EventName} is no longer assigned to your account.",
+                    "project");
+                await _notificationService.QueueForClientEmailAsync(
+                    eventItem.ClientEmail,
+                    "New event assigned",
+                    $"{eventItem.EventName} has been assigned to your account.",
+                    "project",
+                    link);
+            }
+            else
+            {
+                var statusChanged = !string.Equals(
+                    previousStatus,
+                    eventItem.Status,
+                    StringComparison.OrdinalIgnoreCase);
+                await _notificationService.QueueForClientEmailAsync(
+                    eventItem.ClientEmail,
+                    statusChanged ? "Event status updated" : "Event updated",
+                    statusChanged
+                        ? $"{eventItem.EventName} is now {eventItem.Status}."
+                        : $"The details for {eventItem.EventName} were updated.",
+                    "project",
+                    link);
+            }
+
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ViewStaff));
         }
@@ -210,18 +263,23 @@ namespace SocialExposure.Controllers
         // DELETE EVENT
         // =========================
         [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var eventItem = _context.Events
-                .FirstOrDefault(e => e.Id == id);
+            var eventItem = await _context.Events
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (eventItem == null)
             {
                 return NotFound();
             }
 
+            await _notificationService.QueueForClientEmailAsync(
+                eventItem.ClientEmail,
+                "Event removed",
+                $"{eventItem.EventName} was removed from your account.",
+                "project");
             _context.Events.Remove(eventItem);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ViewStaff));
         }
@@ -240,24 +298,31 @@ namespace SocialExposure.Controllers
                 return NotFound();
             }
 
-            return View(eventItem);
+            return RedirectToAction("Upload", "Design", new { eventId = eventItem.Id });
         }
         [HttpPost]
-[ValidateAntiForgeryToken]
-public IActionResult Complete(int id)
-{
-    var eventItem = _context.Events.FirstOrDefault(e => e.Id == id);
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Staff)]
+        public async Task<IActionResult> Complete(int id)
+        {
+            var eventItem = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
 
-    if (eventItem == null)
-    {
-        return NotFound();
-    }
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
 
-    eventItem.Status = "Completed";
+            eventItem.Status = "Completed";
 
-    _context.SaveChanges();
+            await _notificationService.QueueForClientEmailAsync(
+                eventItem.ClientEmail,
+                "Event completed",
+                $"{eventItem.EventName} has been marked as completed.",
+                "project",
+                Url.Action(nameof(Details), "Events", new { id = eventItem.Id }));
+            await _context.SaveChangesAsync();
 
-    return RedirectToAction("ViewStaff");
-}
+            return RedirectToAction(nameof(ViewStaff));
+        }
     }
 }

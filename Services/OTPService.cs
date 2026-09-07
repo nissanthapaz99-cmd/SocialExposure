@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using SocialExposure.Data;
 using SocialExposure.Models;
 
@@ -15,8 +16,7 @@ namespace SocialExposure.Services
         // Generate a random 6-digit OTP
         public string GenerateOTP()
         {
-            Random random = new Random();
-            return random.Next(100000, 999999).ToString();
+            return RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         }
 
         // Save OTP to the database
@@ -24,7 +24,7 @@ namespace SocialExposure.Services
         {
             var otp = new OTP
             {
-                Email = email,
+                Email = email.Trim().ToLowerInvariant(),
                 Code = code,
                 ExpiryTime = DateTime.Now.AddMinutes(10),
                 IsUsed = false
@@ -37,10 +37,11 @@ namespace SocialExposure.Services
         // Verify OTP
         public bool VerifyOTP(string email, string code)
         {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
             var otp = _context.OTPs
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefault(x =>
-                    x.Email == email &&
+                    x.Email.ToLower() == normalizedEmail &&
                     x.Code == code &&
                     !x.IsUsed &&
                     x.ExpiryTime > DateTime.Now);

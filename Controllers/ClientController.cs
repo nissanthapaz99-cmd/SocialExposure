@@ -19,10 +19,10 @@ namespace SocialExposure.Controllers
 
         public IActionResult Dashboard()
         {
-            var clientEmail = User.FindFirstValue(ClaimTypes.Email);
+            var clientEmail = User.FindFirstValue(ClaimTypes.Email)?.ToLower();
 
             var events = _context.Events
-                .Where(e => e.ClientEmail == clientEmail)
+                .Where(e => e.ClientEmail.ToLower() == clientEmail)
                 .OrderByDescending(e => e.Id)
                 .ToList();
 

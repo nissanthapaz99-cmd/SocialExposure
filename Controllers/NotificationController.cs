@@ -107,6 +107,7 @@ public class NotificationController : Controller
     private async Task<SocialExposure.Models.User> GetCurrentUser()
     {
         var userId = User.GetUserId();
-        return await _context.Users.SingleAsync(x => x.Id == userId && x.IsActive);
+        return await _context.Users.SingleAsync(x =>
+            x.Id == userId && x.IsActive && x.IsApproved);
     }
 }

@@ -1,11 +1,56 @@
-@{ ViewData["Title"] = "Upload"; }
+@model SocialExposure.ViewModels.DesignUploadViewModel
+@{
+    ViewData["Title"] = "Upload";
+}
+
 <div class="form-card">
-    <div class="form-card-header"><h2>Upload Design</h2><p>Share a new design version for review and approval.</p></div>
-    <form>
-        <div class="field"><label>Design Name</label><input placeholder="e.g. Homepage Hero v2.3" /></div>
-        <div class="field"><label>Project or Event</label><select><option>Select a project</option><option>Spring Campaign Launch</option><option>Website Refresh</option></select></div>
-        <div class="field"><label>Design File</label><input type="file" /></div>
-        <div class="field"><label>Version Notes</label><textarea placeholder="Describe what changed in this version"></textarea></div>
-        <div class="form-actions"><button class="action-button peach" type="button">Upload Design</button><a class="action-button secondary" asp-controller="Client" asp-action="Dashboard">Cancel</a></div>
+    <div class="form-card-header">
+        <h2>Upload Design</h2>
+        <p>Upload a photo or video to an event you can access.</p>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="field-error"></div>
+    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+        <div class="field">
+            <label asp-for="DesignName"></label>
+            <input asp-for="DesignName" placeholder="e.g. Homepage Hero v2.3" />
+            <span asp-validation-for="DesignName" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="EventId"></label>
+            <select asp-for="EventId">
+                <option value="0">Select an event</option>
+                @foreach (var eventItem in Model.Events)
+                {
+                    <option value="@eventItem.Id">@eventItem.EventName — @eventItem.ClientName</option>
+                }
+            </select>
+            <span asp-validation-for="EventId" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="File"></label>
+            <input asp-for="File" type="file" accept=".jpg,.jpeg,.png,.webp,.mp4,.webm,.mov" />
+            <small class="field-note">Photos: JPG, PNG or WebP up to 10 MB. Videos: MP4, WebM or MOV up to 100 MB.</small>
+            <span asp-validation-for="File" class="field-error"></span>
+        </div>
+        <div class="field-grid">
+            <div class="field">
+                <label asp-for="Version"></label>
+                <input asp-for="Version" placeholder="v1.0" />
+                <span asp-validation-for="Version" class="field-error"></span>
+            </div>
+        </div>
+        <div class="field">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" placeholder="Describe what changed in this version"></textarea>
+            <span asp-validation-for="Description" class="field-error"></span>
+        </div>
+        <div class="form-actions">
+            <button class="action-button peach" type="submit">Upload Design</button>
+            <a class="action-button secondary" asp-action="Index">Cancel</a>
+        </div>
     </form>
 </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
