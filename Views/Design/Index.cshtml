@@ -6,41 +6,17 @@
 @{
     ViewData["Title"] = "Designs";
 
-    var role =
-        User.FindFirstValue(ClaimTypes.Role)
-        ?? UserRoles.Client;
+    var role = User.FindFirstValue(ClaimTypes.Role)
+               ?? UserRoles.Client;
 
-    var canUpload =
-        role == UserRoles.Admin ||
-        role == UserRoles.Staff;
-
-    var designs =
-        Model?.ToList()
-        ?? new List<Design>();
-
-    var totalDesigns =
-        designs.Count;
-
-    var pendingCount =
-        designs.Count(d =>
-            d.Status == "Pending Review");
-
-    var approvedCount =
-        designs.Count(d =>
-            d.Status == "Approved");
-
-    var feedbackCount =
-        designs.Count(d =>
-            d.Status == "Changes Requested" ||
-            d.Status == "Rejected");
+    var designs = Model?.ToList()
+                   ?? new List<Design>();
 
     var currentSearch =
-        ViewBag.Search as string
-        ?? string.Empty;
+        ViewBag.Search as string ?? string.Empty;
 
     var currentStatus =
-        ViewBag.Status as string
-        ?? "All";
+        ViewBag.Status as string ?? "All";
 
     var statuses =
         ViewBag.Statuses as List<string>
@@ -51,294 +27,546 @@
             "Changes Requested",
             "Rejected"
         };
+
+    var isClient = role == UserRoles.Client;
+
+    var isStaffOrAdmin =
+        role == UserRoles.Staff ||
+        role == UserRoles.Admin;
 }
 
-<div class="feature-page">
 
-    <!-- =========================================
-         PAGE HEADER
-         ========================================= -->
+@if (isClient)
+{
+    <!-- =====================================================
+         CLIENT DESIGN PAGE
+         ===================================================== -->
 
-    <div class="feature-header">
+    <div class="client-design-page">
 
-        <div>
+        <!-- HEADER -->
 
-            <h2>
-                Designs
-            </h2>
+        <div class="client-design-header">
 
-            <p>
-                Review, organise and approve design files.
-            </p>
+            <div class="client-design-heading">
 
-        </div>
+                <h1>My Designs</h1>
 
-        @if (canUpload)
-        {
-            <div class="feature-actions">
-
-                <a class="action-button peach"
-                   asp-controller="Design"
-                   asp-action="Upload">
-
-                    ↑ Upload Design
-
-                </a>
+                <p>
+                    Review designs shared with you by the design team.
+                </p>
 
             </div>
-        }
 
-    </div>
-
-
-    <!-- =========================================
-         SUMMARY CARDS
-         ========================================= -->
-
-    <div class="summary-grid">
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ▤
-            </i>
-
-            <strong>
-                @totalDesigns
-            </strong>
-
-            <span>
-                Total Designs
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ◷
-            </i>
-
-            <strong>
-                @pendingCount
-            </strong>
-
-            <span>
-                Pending
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ✓
-            </i>
-
-            <strong>
-                @approvedCount
-            </strong>
-
-            <span>
-                Approved
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                !
-            </i>
-
-            <strong>
-                @feedbackCount
-            </strong>
-
-            <span>
-                Feedback
-            </span>
-
-        </article>
-
-    </div>
-
-
-    <!-- =========================================
-         SEARCH AND FILTER
-         ========================================= -->
-
-    <section class="feature-section">
-
-        <form method="get"
-              asp-controller="Design"
-              asp-action="Index"
-              class="search-row">
-
-            <!-- SEARCH -->
-
-            <label class="search-field">
-
-                <span>
-                    ⌕
-                </span>
-
-                <input type="search"
-                       name="search"
-                       value="@currentSearch"
-                       placeholder="Search designs..."
-                       aria-label="Search designs" />
-
-            </label>
-
-
-            <!-- STATUS -->
-
-            <select name="status"
-                    class="action-button secondary">
-
-                @if (string.IsNullOrEmpty(currentStatus) ||
-                     currentStatus == "All")
-                {
-                    <option value="All" selected>
-                        All Status
-                    </option>
-                }
-                else
-                {
-                    <option value="All">
-                        All Status
-                    </option>
-                }
-
-
-                @foreach (var item in statuses)
-                {
-                    if (currentStatus == item)
-                    {
-                        <option value="@item" selected>
-                            @item
-                        </option>
-                    }
-                    else
-                    {
-                        <option value="@item">
-                            @item
-                        </option>
-                    }
-                }
-
-            </select>
-
-
-            <!-- SEARCH BUTTON -->
-
-            <button class="action-button secondary"
-                    type="submit">
-
-                Search
-
-            </button>
-
-
-            <!-- VIEW ALL -->
-
-            <a class="action-button secondary"
+            <a class="client-upload-button"
                asp-controller="Design"
-               asp-action="All">
+               asp-action="ClientUpload">
 
-                View All
+                <span class="upload-icon">↑</span>
+
+                Upload Reference File
 
             </a>
 
-        </form>
+        </div>
 
 
-        <!-- =========================================
-             DESIGN CARD
-             ========================================= -->
+        <!-- SEARCH / FILTER -->
 
-        <div class="data-card">
+        <div class="client-design-toolbar">
 
-            <div class="data-card-header">
+            <form method="get"
+                  asp-controller="Design"
+                  asp-action="Index"
+                  class="client-search-form">
 
-                <h3>
-                    Recent Design Activity
-                </h3>
+                <div class="client-search-box">
+
+                    <span class="search-icon">⌕</span>
+
+                    <input type="search"
+                           name="search"
+                           value="@currentSearch"
+                           placeholder="Search your designs..."
+                           aria-label="Search your designs" />
+
+                </div>
+
+
+                <select name="status"
+                        class="client-status-select">
+
+                    <option value="All"
+                            selected="@(currentStatus == "All")">
+
+                        All Status
+
+                    </option>
+
+                    @foreach (var item in statuses)
+                    {
+                        <option value="@item"
+                                selected="@(currentStatus == item)">
+
+                            @item
+
+                        </option>
+                    }
+
+                </select>
+
+
+                <button type="submit"
+                        class="client-search-button">
+
+                    Search
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- DESIGN SECTION -->
+
+        <section class="client-design-section">
+
+            <div class="client-section-heading">
+
+                <div>
+
+                    <h2>My Project Designs</h2>
+
+                    <p>
+                        Designs assigned to your account will appear here.
+                    </p>
+
+                </div>
 
             </div>
 
 
             @if (designs.Any())
             {
-                <div class="design-list">
+                <div class="client-design-list">
 
                     @foreach (var design in designs)
                     {
-                        <article class="design-list-item">
+                        <article class="client-design-card">
 
-                            <!-- DESIGN INFORMATION -->
+                            <!-- FILE ICON -->
 
-                            <div class="design-info">
+                            <div class="client-design-icon">
 
-                                <h3>
-                                    @design.FileName
-                                </h3>
-
-
-                                @if (design.Event != null)
-                                {
-                                    <p>
-                                        @design.Event.EventName
-                                    </p>
-                                }
-
-
-                                @if (!string.IsNullOrWhiteSpace(
-                                    design.Description))
-                                {
-                                    <p>
-                                        @design.Description
-                                    </p>
-                                }
+                                <span>▤</span>
 
                             </div>
 
 
-                            <!-- DESIGN DETAILS -->
+                            <!-- DESIGN INFORMATION -->
 
-                            <div class="design-meta">
+                            <div class="client-design-main">
 
-                                <span class="design-version">
-                                    @design.Version
-                                </span>
+                                <div class="client-design-title-row">
 
+                                    <div class="client-design-title">
 
-                                <span class="design-status">
+                                        <h3>
+                                            @design.FileName
+                                        </h3>
 
-                                    @design.Status
+                                        @if (design.Event != null)
+                                        {
+                                            <p class="client-project-name">
+                                                @design.Event.EventName
+                                            </p>
+                                        }
 
-                                </span>
-
-
-                                <span class="design-date">
-
-                                    @design.UploadedAt.ToString(
-                                        "dd MMM yyyy")
-
-                                </span>
+                                    </div>
 
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    design.FilePath))
+                                    <span class="client-version">
+                                        @design.Version
+                                    </span>
+
+                                </div>
+
+
+                                @if (!string.IsNullOrWhiteSpace(design.Description))
                                 {
-                                    <a class="action-button secondary"
+                                    <p class="client-design-description">
+                                        @design.Description
+                                    </p>
+                                }
+
+
+                                <div class="client-design-details">
+
+                                    <span>
+                                        Uploaded
+                                        @design.UploadedAt.ToString("dd MMM yyyy")
+                                    </span>
+
+
+                                    <span class="client-status
+                                        @(design.Status == "Approved"
+                                            ? "status-approved"
+                                            : design.Status == "Rejected"
+                                                ? "status-rejected"
+                                                : "status-pending")">
+
+                                        @design.Status
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- CLIENT ACTIONS -->
+
+                            <div class="client-design-actions">
+
+                                @if (!string.IsNullOrWhiteSpace(design.FilePath))
+                                {
+                                    <a class="client-preview-button"
                                        href="@design.FilePath"
                                        target="_blank"
-                                       rel="noopener">
+                                       rel="noopener noreferrer"
+                                       title="Preview design">
+
+                                        Preview
+
+                                    </a>
+                                }
+
+
+                                @if (design.Status != "Approved")
+                                {
+                                    <form asp-controller="Design"
+                                          asp-action="Approve"
+                                          asp-route-id="@design.Id"
+                                          method="post"
+                                          class="client-action-form">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="client-approve-button"
+                                                title="Approve design">
+
+                                            ✓ Approve
+
+                                        </button>
+
+                                    </form>
+                                }
+
+
+                                @if (design.Status != "Rejected")
+                                {
+                                    <form asp-controller="Design"
+                                          asp-action="NotApproved"
+                                          asp-route-id="@design.Id"
+                                          method="post"
+                                          class="client-action-form">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="client-reject-button"
+                                                title="Mark design as not approved">
+
+                                            ✕ Not Approved
+
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </div>
+
+                        </article>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <!-- EMPTY STATE -->
+
+                <div class="client-empty-state">
+
+                    <div class="client-empty-icon">
+                        ▤
+                    </div>
+
+                    <h3>
+                        No designs available yet
+                    </h3>
+
+                    <p>
+                        Your design files will appear here once
+                        the design team uploads them.
+                    </p>
+
+                    <a class="client-empty-upload-button"
+                       asp-controller="Design"
+                       asp-action="ClientUpload">
+
+                        Upload Reference File
+
+                    </a>
+
+                </div>
+            }
+
+        </section>
+
+    </div>
+}
+else if (isStaffOrAdmin)
+{
+    <!-- =====================================================
+         STAFF / ADMIN DESIGN PAGE
+         ===================================================== -->
+
+    <div class="staff-design-page">
+
+        <!-- PAGE HEADER -->
+
+        <div class="staff-design-header">
+
+            <div class="staff-design-heading">
+
+                <span class="staff-page-label">
+                    DESIGN MANAGEMENT
+                </span>
+
+                <h1>Designs</h1>
+
+                <p>
+                    Manage design files, review client responses,
+                    and track the latest design versions.
+                </p>
+
+            </div>
+
+
+            <a class="staff-upload-button"
+               asp-controller="Design"
+               asp-action="Upload">
+
+                <span class="staff-upload-icon">↑</span>
+
+                Upload Design
+
+            </a>
+
+        </div>
+
+
+        <!-- SEARCH / FILTER -->
+
+        <div class="staff-design-toolbar">
+
+            <form method="get"
+                  asp-controller="Design"
+                  asp-action="Index"
+                  class="staff-search-form">
+
+                <div class="staff-search-box">
+
+                    <span class="staff-search-icon">⌕</span>
+
+                    <input type="search"
+                           name="search"
+                           value="@currentSearch"
+                           placeholder="Search designs, projects or clients..."
+                           aria-label="Search designs" />
+
+                </div>
+
+
+                <select name="status"
+                        class="staff-status-select">
+
+                    <option value="All"
+                            selected="@(currentStatus == "All")">
+
+                        All Status
+
+                    </option>
+
+                    @foreach (var item in statuses)
+                    {
+                        <option value="@item"
+                                selected="@(currentStatus == item)">
+
+                            @item
+
+                        </option>
+                    }
+
+                </select>
+
+
+                <button type="submit"
+                        class="staff-search-button">
+
+                    Search
+
+                </button>
+
+
+                <a class="staff-view-all-button"
+                   asp-controller="Design"
+                   asp-action="All">
+
+                    View All
+
+                </a>
+
+            </form>
+
+        </div>
+
+
+        <!-- DESIGN SECTION -->
+
+        <section class="staff-design-section">
+
+            <div class="staff-section-header">
+
+                <div>
+
+                    <h2>Recent Design Activity</h2>
+
+                    <p>
+                        Recently uploaded designs and their current review status.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            @if (designs.Any())
+            {
+                <div class="staff-design-list">
+
+                    @foreach (var design in designs)
+                    {
+                        <article class="staff-design-card">
+
+                            <!-- FILE ICON -->
+
+                            <div class="staff-design-file-icon">
+
+                                <span>▤</span>
+
+                            </div>
+
+
+                            <!-- MAIN INFORMATION -->
+
+                            <div class="staff-design-content">
+
+                                <div class="staff-design-title-row">
+
+                                    <div class="staff-design-title">
+
+                                        <h3>
+                                            @design.FileName
+                                        </h3>
+
+                                        @if (design.Event != null)
+                                        {
+                                            <span class="staff-event-name">
+                                                @design.Event.EventName
+                                            </span>
+                                        }
+
+                                    </div>
+
+
+                                    <span class="staff-version">
+                                        @design.Version
+                                    </span>
+
+                                </div>
+
+
+                                @if (!string.IsNullOrWhiteSpace(design.Description))
+                                {
+                                    <p class="staff-design-description">
+                                        @design.Description
+                                    </p>
+                                }
+
+
+                                <div class="staff-design-meta">
+
+                                    <span class="staff-meta-item">
+
+                                        <span class="meta-icon">
+                                            ◷
+                                        </span>
+
+                                        Uploaded
+                                        @design.UploadedAt.ToString("dd MMM yyyy")
+
+                                    </span>
+
+
+                                    @if (design.Client != null)
+                                    {
+                                        <span class="staff-meta-item">
+
+                                            <span class="meta-icon">
+                                                ●
+                                            </span>
+
+                                            @design.Client.FullName
+
+                                        </span>
+                                    }
+
+
+                                    <span class="staff-status
+                                        @(design.Status == "Approved"
+                                            ? "staff-status-approved"
+                                            : design.Status == "Rejected"
+                                                ? "staff-status-rejected"
+                                                : design.Status == "Changes Requested"
+                                                    ? "staff-status-changes"
+                                                    : "staff-status-pending")">
+
+                                        <span class="status-dot"></span>
+
+                                        @design.Status
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- VIEW FILE -->
+
+                            <div class="staff-design-action">
+
+                                @if (!string.IsNullOrWhiteSpace(design.FilePath))
+                                {
+                                    <a class="staff-view-button"
+                                       href="@design.FilePath"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+
+                                        <span>◉</span>
 
                                         View File
 
@@ -354,37 +582,1358 @@
             }
             else
             {
-                <div class="empty-state">
+                <!-- EMPTY STATE -->
 
-                    <i>
+                <div class="staff-empty-state">
+
+                    <div class="staff-empty-icon">
                         ▤
-                    </i>
+                    </div>
 
                     <h3>
                         No designs yet
                     </h3>
 
+                    <p>
+                        Design files will appear here after
+                        a staff member uploads them.
+                    </p>
 
-                    @if (!string.IsNullOrWhiteSpace(currentSearch) ||
-                        currentStatus != "All")
-                    {
-                        <p>
-                            No designs match your current search or filter.
-                        </p>
-                    }
-                    else
-                    {
-                        <p>
-                            Uploaded designs and client feedback
-                            will appear here.
-                        </p>
-                    }
+                    <a class="staff-empty-button"
+                       asp-controller="Design"
+                       asp-action="Upload">
+
+                        Upload First Design
+
+                    </a>
 
                 </div>
             }
 
-        </div>
+        </section>
 
-    </section>
+    </div>
+}
 
-</div>
+
+<style>
+
+    /* =====================================================
+       CLIENT DESIGN PAGE
+       ===================================================== */
+
+    .client-design-page {
+        width: 100%;
+        padding: 10px 0 40px;
+    }
+
+
+    /* =====================================================
+       CLIENT HEADER
+       ===================================================== */
+
+    .client-design-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+
+    .client-design-heading h1 {
+        margin: 0 0 8px;
+        font-size: 42px;
+        font-weight: 700;
+        line-height: 1.15;
+        color: #1F2937;
+    }
+
+
+    .client-design-heading p {
+        margin: 0;
+        font-size: 16px;
+        color: #6B7280;
+    }
+
+
+    /* =====================================================
+       CLIENT UPLOAD BUTTON
+       ===================================================== */
+
+    .client-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 48px;
+        padding: 0 22px;
+        border-radius: 12px;
+        background: #D88B2A;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+
+    .client-upload-button:hover {
+        color: #FFFFFF;
+        text-decoration: none;
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+
+    .upload-icon {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+
+    /* =====================================================
+       CLIENT SEARCH TOOLBAR
+       ===================================================== */
+
+    .client-design-toolbar {
+        width: 100%;
+        padding: 20px;
+        margin-bottom: 28px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+    }
+
+
+    .client-search-form {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+    }
+
+
+    .client-search-box {
+        flex: 1;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 15px;
+        background: #FFFFFF;
+        border: 1px solid #D1D5DB;
+        border-radius: 12px;
+    }
+
+
+    .client-search-box:focus-within {
+        border-color: #971B1B;
+        box-shadow: 0 0 0 3px rgba(151, 27, 27, 0.08);
+    }
+
+
+    .search-icon {
+        font-size: 22px;
+        color: #6B7280;
+    }
+
+
+    .client-search-box input {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #1F2937;
+        font-size: 15px;
+    }
+
+
+    .client-status-select {
+        height: 48px;
+        min-width: 180px;
+        padding: 0 14px;
+        border: 1px solid #D1D5DB;
+        border-radius: 12px;
+        background: #FFFFFF;
+        color: #1F2937;
+        font-size: 15px;
+        outline: none;
+    }
+
+
+    .client-search-button {
+        height: 48px;
+        padding: 0 22px;
+        border: none;
+        border-radius: 12px;
+        background: #971B1B;
+        color: #FFFFFF;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+
+    .client-search-button:hover {
+        opacity: 0.92;
+    }
+
+
+    /* =====================================================
+       CLIENT SECTION
+       ===================================================== */
+
+    .client-design-section {
+        width: 100%;
+    }
+
+
+    .client-section-heading {
+        margin-bottom: 18px;
+    }
+
+
+    .client-section-heading h2 {
+        margin: 0 0 6px;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+
+    .client-section-heading p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+       CLIENT DESIGN LIST
+       ===================================================== */
+
+    .client-design-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+
+    /* =====================================================
+       CLIENT DESIGN CARD
+       ===================================================== */
+
+    .client-design-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+        transition: all 0.2s ease;
+    }
+
+
+    .client-design-card:hover {
+        border-color: #D1D5DB;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+
+    .client-design-icon {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #F8F5F2;
+        color: #971B1B;
+        font-size: 23px;
+    }
+
+
+    .client-design-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+
+    .client-design-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+
+    .client-design-title h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 650;
+        color: #1F2937;
+        word-break: break-word;
+    }
+
+
+    .client-project-name {
+        margin: 5px 0 0;
+        color: #6B7280;
+        font-size: 14px;
+    }
+
+
+    .client-version {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 54px;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 8px;
+        background: #F3F4F6;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+
+    .client-design-description {
+        margin: 12px 0 10px;
+        color: #6B7280;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+
+    .client-design-details {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: #6B7280;
+        font-size: 13px;
+    }
+
+
+    .client-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 8px;
+        background: #F8F5F2;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+
+    .status-approved {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+
+    .status-rejected {
+        background: #FDECEC;
+        color: #B42318;
+    }
+
+
+    .status-pending {
+        background: #F8F5F2;
+        color: #6B7280;
+    }
+
+
+    /* =====================================================
+       CLIENT ACTIONS
+       ===================================================== */
+
+    .client-design-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+        max-width: 420px;
+    }
+
+
+    .client-action-form {
+        display: inline-flex;
+        margin: 0;
+    }
+
+
+    .client-preview-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #1F2937;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+
+    .client-preview-button:hover {
+        color: #971B1B;
+        border-color: #971B1B;
+        text-decoration: none;
+    }
+
+
+    .client-approve-button {
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid #2E7D32;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #2E7D32;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+
+    .client-approve-button:hover {
+        background: #2E7D32;
+        color: #FFFFFF;
+    }
+
+
+    .client-reject-button {
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid #B42318;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #B42318;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+
+    .client-reject-button:hover {
+        background: #B42318;
+        color: #FFFFFF;
+    }
+
+
+    /* =====================================================
+       CLIENT EMPTY STATE
+       ===================================================== */
+
+    .client-empty-state {
+        min-height: 360px;
+        padding: 50px 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 20px;
+    }
+
+
+    .client-empty-icon {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        border-radius: 18px;
+        background: #F8F5F2;
+        color: #971B1B;
+        font-size: 30px;
+    }
+
+
+    .client-empty-state h3 {
+        margin: 0 0 8px;
+        color: #1F2937;
+        font-size: 21px;
+    }
+
+
+    .client-empty-state p {
+        max-width: 480px;
+        margin: 0 0 22px;
+        color: #6B7280;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+
+    .client-empty-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 20px;
+        border-radius: 10px;
+        background: #D88B2A;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    .client-empty-upload-button:hover {
+        color: #FFFFFF;
+        text-decoration: none;
+        opacity: 0.9;
+    }
+
+
+    /* =====================================================
+       STAFF / ADMIN DESIGN PAGE
+       ===================================================== */
+
+    .staff-design-page {
+        width: 100%;
+        padding: 8px 0 40px;
+    }
+
+
+    /* =====================================================
+       STAFF HEADER
+       ===================================================== */
+
+    .staff-design-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 30px;
+        margin-bottom: 28px;
+    }
+
+
+    .staff-design-heading {
+        min-width: 0;
+    }
+
+
+    .staff-page-label {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #971B1B;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+
+    .staff-design-heading h1 {
+        margin: 0 0 7px;
+        color: #1F2937;
+        font-size: 42px;
+        font-weight: 750;
+        line-height: 1.15;
+    }
+
+
+    .staff-design-heading p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       STAFF UPLOAD BUTTON
+       ===================================================== */
+
+    .staff-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 48px;
+        padding: 0 22px;
+        border-radius: 12px;
+        background: #D88B2A;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 650;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+
+    .staff-upload-button:hover {
+        color: #FFFFFF;
+        text-decoration: none;
+        background: #C97E22;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(216, 139, 42, 0.20);
+    }
+
+
+    .staff-upload-icon {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+
+    /* =====================================================
+       STAFF SEARCH TOOLBAR
+       ===================================================== */
+
+    .staff-design-toolbar {
+        width: 100%;
+        margin-bottom: 34px;
+        padding: 18px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(31, 41, 55, 0.03);
+    }
+
+
+    .staff-search-form {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+
+    .staff-search-box {
+        flex: 1;
+        min-width: 200px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 15px;
+        border: 1px solid #D1D5DB;
+        border-radius: 11px;
+        background: #FFFFFF;
+        transition: all 0.2s ease;
+    }
+
+
+    .staff-search-box:focus-within {
+        border-color: #971B1B;
+        box-shadow: 0 0 0 3px rgba(151, 27, 27, 0.07);
+    }
+
+
+    .staff-search-icon {
+        color: #6B7280;
+        font-size: 21px;
+    }
+
+
+    .staff-search-box input {
+        width: 100%;
+        height: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #1F2937;
+        font-size: 14px;
+    }
+
+
+    .staff-status-select {
+        width: 175px;
+        height: 48px;
+        padding: 0 13px;
+        border: 1px solid #D1D5DB;
+        border-radius: 11px;
+        background: #FFFFFF;
+        color: #1F2937;
+        font-size: 14px;
+        outline: none;
+    }
+
+
+    .staff-search-button,
+    .staff-view-all-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        padding: 0 19px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+
+    .staff-search-button {
+        border: none;
+        background: #971B1B;
+        color: #FFFFFF;
+        cursor: pointer;
+    }
+
+
+    .staff-search-button:hover {
+        background: #821717;
+    }
+
+
+    .staff-view-all-button {
+        border: 1px solid #D1D5DB;
+        background: #FFFFFF;
+        color: #374151;
+    }
+
+
+    .staff-view-all-button:hover {
+        border-color: #971B1B;
+        color: #971B1B;
+        text-decoration: none;
+    }
+
+
+    /* =====================================================
+       STAFF SECTION
+       ===================================================== */
+
+    .staff-design-section {
+        width: 100%;
+    }
+
+
+    .staff-section-header {
+        margin-bottom: 17px;
+    }
+
+
+    .staff-section-header h2 {
+        margin: 0 0 5px;
+        color: #1F2937;
+        font-size: 27px;
+        font-weight: 700;
+    }
+
+
+    .staff-section-header p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       STAFF DESIGN LIST
+       ===================================================== */
+
+    .staff-design-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+
+    /* =====================================================
+       STAFF DESIGN CARD
+       ===================================================== */
+
+    .staff-design-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        min-height: 145px;
+        padding: 21px 22px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 17px;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, 0.025);
+        transition: all 0.2s ease;
+    }
+
+
+    .staff-design-card:hover {
+        border-color: #D7D9DD;
+        box-shadow: 0 8px 22px rgba(31, 41, 55, 0.07);
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+       STAFF FILE ICON
+       ===================================================== */
+
+    .staff-design-file-icon {
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #FBF4EF;
+        color: #971B1B;
+        font-size: 24px;
+    }
+
+
+    /* =====================================================
+       STAFF CONTENT
+       ===================================================== */
+
+    .staff-design-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+
+    .staff-design-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+
+    .staff-design-title {
+        min-width: 0;
+    }
+
+
+    .staff-design-title h3 {
+        margin: 0;
+        color: #1F2937;
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+
+    .staff-event-name {
+        display: block;
+        margin-top: 4px;
+        color: #6B7280;
+        font-size: 14px;
+    }
+
+
+    .staff-version {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 55px;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 8px;
+        background: #F3F4F6;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+       STAFF DESCRIPTION
+       ===================================================== */
+
+    .staff-design-description {
+        max-width: 780px;
+        margin: 11px 0 12px;
+        color: #6B7280;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       STAFF META
+       ===================================================== */
+
+    .staff-design-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 13px;
+    }
+
+
+    .staff-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #6B7280;
+        font-size: 13px;
+    }
+
+
+    .meta-icon {
+        color: #9CA3AF;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       STAFF STATUS
+       ===================================================== */
+
+    .staff-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 27px;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+
+    .staff-status-pending {
+        background: #FFF7E8;
+        color: #A16207;
+    }
+
+
+    .staff-status-approved {
+        background: #ECFDF3;
+        color: #16803A;
+    }
+
+
+    .staff-status-rejected {
+        background: #FEF2F2;
+        color: #B42318;
+    }
+
+
+    .staff-status-changes {
+        background: #FFF4E5;
+        color: #B45309;
+    }
+
+
+    /* =====================================================
+       STAFF ACTION
+       ===================================================== */
+
+    .staff-design-action {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+    }
+
+
+    .staff-view-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 17px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #374151;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 650;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+
+    .staff-view-button span {
+        color: #971B1B;
+        font-size: 14px;
+    }
+
+
+    .staff-view-button:hover {
+        border-color: #971B1B;
+        color: #971B1B;
+        text-decoration: none;
+        background: #FFFDFB;
+    }
+
+
+    /* =====================================================
+       STAFF EMPTY STATE
+       ===================================================== */
+
+    .staff-empty-state {
+        min-height: 330px;
+        padding: 45px 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+    }
+
+
+    .staff-empty-icon {
+        width: 66px;
+        height: 66px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        border-radius: 16px;
+        background: #FBF4EF;
+        color: #971B1B;
+        font-size: 28px;
+    }
+
+
+    .staff-empty-state h3 {
+        margin: 0 0 7px;
+        color: #1F2937;
+        font-size: 20px;
+    }
+
+
+    .staff-empty-state p {
+        max-width: 430px;
+        margin: 0 0 20px;
+        color: #6B7280;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+
+    .staff-empty-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 43px;
+        padding: 0 18px;
+        border-radius: 10px;
+        background: #D88B2A;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+
+    .staff-empty-button:hover {
+        color: #FFFFFF;
+        text-decoration: none;
+        opacity: 0.9;
+    }
+
+
+    /* =====================================================
+       CLIENT RESPONSIVE
+       ===================================================== */
+
+    @@media (max-width: 1000px) {
+
+        .client-design-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .client-upload-button {
+            width: auto;
+        }
+
+
+        .client-search-form {
+            flex-wrap: wrap;
+        }
+
+
+        .client-search-box {
+            flex: 1 1 100%;
+        }
+
+
+        .client-status-select {
+            flex: 1;
+        }
+
+
+        .client-design-card {
+            align-items: flex-start;
+        }
+
+
+        .client-design-actions {
+            max-width: 300px;
+        }
+
+
+        .staff-design-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .staff-search-form {
+            flex-wrap: wrap;
+        }
+
+
+        .staff-search-box {
+            flex: 1 1 100%;
+        }
+
+
+        .staff-status-select {
+            flex: 1;
+        }
+
+
+        .staff-design-card {
+            align-items: flex-start;
+        }
+
+    }
+
+
+    /* =====================================================
+       SMALL TABLET
+       ===================================================== */
+
+    @@media (max-width: 750px) {
+
+        .client-design-title-row {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .client-design-card {
+            flex-wrap: wrap;
+        }
+
+
+        .client-design-actions {
+            width: 100%;
+            max-width: none;
+        }
+
+
+        .client-preview-button,
+        .client-approve-button,
+        .client-reject-button {
+            flex: 1;
+        }
+
+
+        .staff-design-title-row {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .staff-design-card {
+            flex-wrap: wrap;
+        }
+
+
+        .staff-design-action {
+            width: 100%;
+        }
+
+
+        .staff-view-button {
+            width: 100%;
+        }
+
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @@media (max-width: 600px) {
+
+        .client-design-page {
+            padding-top: 5px;
+        }
+
+
+        .client-design-heading h1 {
+            font-size: 32px;
+        }
+
+
+        .client-upload-button {
+            width: 100%;
+        }
+
+
+        .client-search-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+
+        .client-search-box,
+        .client-status-select,
+        .client-search-button {
+            width: 100%;
+            flex: none;
+        }
+
+
+        .client-design-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 18px;
+        }
+
+
+        .client-design-icon {
+            width: 46px;
+            height: 46px;
+            flex-basis: 46px;
+        }
+
+
+        .client-design-main {
+            width: 100%;
+        }
+
+
+        .client-design-title-row {
+            width: 100%;
+        }
+
+
+        .client-design-actions {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+
+        .client-action-form {
+            width: 100%;
+        }
+
+
+        .client-preview-button,
+        .client-approve-button,
+        .client-reject-button {
+            width: 100%;
+            flex: none;
+        }
+
+
+        .client-empty-state {
+            min-height: 320px;
+            padding: 35px 18px;
+        }
+
+
+        .staff-design-page {
+            padding-top: 5px;
+        }
+
+
+        .staff-design-heading h1 {
+            font-size: 32px;
+        }
+
+
+        .staff-upload-button {
+            width: 100%;
+        }
+
+
+        .staff-search-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+
+        .staff-search-box,
+        .staff-status-select,
+        .staff-search-button,
+        .staff-view-all-button {
+            width: 100%;
+            flex: none;
+        }
+
+
+        .staff-design-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 18px;
+        }
+
+
+        .staff-design-file-icon {
+            width: 48px;
+            height: 48px;
+            flex-basis: 48px;
+        }
+
+
+        .staff-design-content {
+            width: 100%;
+        }
+
+
+        .staff-design-title-row {
+            width: 100%;
+        }
+
+
+        .staff-design-action {
+            width: 100%;
+        }
+
+
+        .staff-view-button {
+            width: 100%;
+        }
+
+
+        .staff-empty-state {
+            min-height: 300px;
+            padding: 35px 18px;
+        }
+
+    }
+
+</style>

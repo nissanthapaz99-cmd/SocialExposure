@@ -86,6 +86,7 @@ namespace SocialExposure.Controllers
 
             // -----------------------------------------
             // CLIENT
+            // ONLY THEIR OWN DESIGNS
             // -----------------------------------------
 
             var email = User.FindFirstValue(
@@ -99,7 +100,8 @@ namespace SocialExposure.Controllers
             var client = await _context.Users
                 .FirstOrDefaultAsync(u =>
                     u.Email == email &&
-                    u.Role == "Client");
+                    u.Role == "Client" &&
+                    u.IsActive);
 
             if (client == null)
             {
@@ -109,6 +111,10 @@ namespace SocialExposure.Controllers
             designs = designs.Where(d =>
                 d.ClientId == client.Id);
 
+
+            // -----------------------------------------
+            // CLIENT SEARCH
+            // -----------------------------------------
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -123,6 +129,10 @@ namespace SocialExposure.Controllers
                 );
             }
 
+
+            // -----------------------------------------
+            // CLIENT STATUS FILTER
+            // -----------------------------------------
 
             if (!string.IsNullOrWhiteSpace(status) &&
                 status != "All")
@@ -219,7 +229,8 @@ namespace SocialExposure.Controllers
             var client = await _context.Users
                 .FirstOrDefaultAsync(u =>
                     u.Email == email &&
-                    u.Role == "Client");
+                    u.Role == "Client" &&
+                    u.IsActive);
 
             if (client == null)
             {
@@ -808,6 +819,128 @@ namespace SocialExposure.Controllers
 
             TempData["SuccessMessage"] =
                 "File uploaded successfully and sent for review.";
+
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
+
+        // =========================================
+        // CLIENT APPROVE DESIGN
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var email = User.FindFirstValue(
+                ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return Unauthorized();
+            }
+
+
+            var client = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email &&
+                    u.Role == "Client" &&
+                    u.IsActive);
+
+            if (client == null)
+            {
+                return Unauthorized();
+            }
+
+
+            // -----------------------------------------
+            // SECURITY CHECK
+            // CLIENT CAN ONLY APPROVE
+            // THEIR OWN DESIGN
+            // -----------------------------------------
+
+            var design = await _context.Designs
+                .FirstOrDefaultAsync(d =>
+                    d.Id == id &&
+                    d.ClientId == client.Id);
+
+            if (design == null)
+            {
+                return NotFound();
+            }
+
+
+            design.Status = "Approved";
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["SuccessMessage"] =
+                "Design approved successfully.";
+
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
+
+        // =========================================
+        // CLIENT NOT APPROVED DESIGN
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> NotApproved(int id)
+        {
+            var email = User.FindFirstValue(
+                ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return Unauthorized();
+            }
+
+
+            var client = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email &&
+                    u.Role == "Client" &&
+                    u.IsActive);
+
+            if (client == null)
+            {
+                return Unauthorized();
+            }
+
+
+            // -----------------------------------------
+            // SECURITY CHECK
+            // CLIENT CAN ONLY REJECT
+            // THEIR OWN DESIGN
+            // -----------------------------------------
+
+            var design = await _context.Designs
+                .FirstOrDefaultAsync(d =>
+                    d.Id == id &&
+                    d.ClientId == client.Id);
+
+            if (design == null)
+            {
+                return NotFound();
+            }
+
+
+            design.Status = "Rejected";
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["SuccessMessage"] =
+                "Design marked as not approved.";
 
 
             return RedirectToAction(
