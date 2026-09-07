@@ -33,8 +33,10 @@
 <div class="portal-shell">
 
     <aside class="portal-sidebar">
-        <a class="portal-logo" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a>
-
+       <!-- <a class="portal-logo" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a> -->
+      <a class="portal-logo" asp-controller="Home" asp-action="Index">
+          <img src="~/images/logo-white.png" alt="Social Exposure Events" class="portal-logo-img" />
+      </a>
         @if (isAdmin)
         {
             <div class="portal-user admin-user"><div class="role-symbol">♢</div><div><b>Admin Panel</b><span>Full Access</span></div></div>
@@ -53,7 +55,6 @@
             <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement">Client Management</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
             <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
-            <a class="@Active("Admin","ActivityLogs")" asp-controller="Admin" asp-action="ActivityLogs">Activity Logs</a>
         }
         else if (isStaff)
         {
@@ -66,7 +67,7 @@
         else
         {
             <a class="@(controller is "Client" or "Events" ? "active" : "")" asp-controller="Client" asp-action="Dashboard">Events</a>
-            <a class="@Active("Design","Upload")" asp-controller="Design" asp-action="Upload">Upload</a>
+            <a class="@Active("Design")" asp-controller="Design" asp-action="Index">Designs</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
             <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
             <a class="@Active("Account","Profile")" asp-controller="Account" asp-action="Profile">Profile</a>
@@ -83,7 +84,7 @@
             <div class="portal-top-actions">
                 <a class="portal-bell" asp-controller="Notification" asp-action="Index" aria-label="Notifications"><i class="bi bi-bell"></i>@if(unreadNotifications > 0){<b>@unreadNotifications</b>}</a>
                 @if(isAdmin){<div class="top-user-copy"><strong>@displayName</strong><span>Administrator</span></div>}
-                <div class="portal-avatar">@initials</div>
+               <a class="portal-avatar portal-avatar-link" asp-controller="Account" asp-action="Profile">@initials</a>
             </div>
         </header>
 

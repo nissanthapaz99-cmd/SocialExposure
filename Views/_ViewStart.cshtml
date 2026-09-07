@@ -1,5 +1,11 @@
-﻿@{
-    Layout = User.Identity?.IsAuthenticated == true
-        ? "_PortalLayout"
-        : "_Layout";
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isPublicAccountPage = controller == "Account" &&
+        action is "Login" or "Register" or "VerifyOTP" or "PendingApproval" or "StaffLogin" or "AccessDenied";
+    var isPublicPage = controller == "Home" || isPublicAccountPage;
+
+    Layout = isPublicPage || User.Identity?.IsAuthenticated != true
+        ? "_Layout"
+        : "_PortalLayout";
 }

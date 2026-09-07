@@ -1,0 +1,132 @@
+@{
+    ViewData["Title"] = "Upload File";
+
+    var events =
+        ViewBag.Events as List<SocialExposure.Models.Event>
+        ?? new List<SocialExposure.Models.Event>();
+}
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>Upload File</h2>
+
+        <p>
+            Upload a reference or revised file for your design project.
+        </p>
+
+    </div>
+
+
+    <form asp-controller="Design"
+          asp-action="ClientUpload"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger">
+        </div>
+
+
+        <!-- EVENT -->
+
+        <div class="field">
+
+            <label for="eventId">
+                Project or Event
+            </label>
+
+            <select id="eventId"
+                    name="eventId"
+                    required>
+
+                <option value="">
+                    Select an event
+                </option>
+
+                @foreach (var eventItem in events)
+                {
+                    <option value="@eventItem.Id">
+                        @eventItem.EventName
+                    </option>
+                }
+
+            </select>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("eventId")
+            </span>
+
+        </div>
+
+
+        <!-- FILE -->
+
+        <div class="field">
+
+            <label for="designFile">
+                File
+            </label>
+
+            <input id="designFile"
+                   name="designFile"
+                   type="file"
+                   accept=".jpg,.jpeg,.png,.pdf,.zip,.psd,.ai,.fig,.xd"
+                   required />
+
+            <small>
+                Supported: JPG, JPEG, PNG, PDF, ZIP, PSD, AI, FIG and XD
+            </small>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("designFile")
+            </span>
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <div class="field">
+
+            <label for="description">
+                Notes
+            </label>
+
+            <textarea id="description"
+                      name="description"
+                      rows="5"
+                      placeholder="Add any notes about this file"></textarea>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="form-actions">
+
+            <button class="action-button peach"
+                    type="submit">
+
+                Upload File
+
+            </button>
+
+
+            <a class="action-button secondary"
+               asp-controller="Design"
+               asp-action="Index">
+
+                Cancel
+
+            </a>
+
+        </div>
+
+    </form>
+
+</div>

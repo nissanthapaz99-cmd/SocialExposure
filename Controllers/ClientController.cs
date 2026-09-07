@@ -17,17 +17,27 @@ namespace SocialExposure.Controllers
             _context = context;
         }
 
-        public IActionResult Dashboard()
+        // Client Dashboard
+        public async Task<IActionResult> Dashboard()
         {
+            // Get the email address of the currently logged-in client
             var clientEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var events = _context.Events
-                .Where(e => e.ClientEmail == clientEmail)
+            // If the user's email cannot be found, prevent access
+            if (string.IsNullOrWhiteSpace(clientEmail))
+            {
+                return Unauthorized();
+            }
+
+            // Retrieve events belonging to the logged-in client
+            var events = await _context.Events
+                .Where(e =>
+                    e.ClientEmail != null &&
+                    e.ClientEmail.ToLower() == clientEmail.ToLower())
                 .OrderByDescending(e => e.Id)
-                .ToList();
+                .ToListAsync();
 
             return View(events);
         }
     }
 }
-//lklk changes

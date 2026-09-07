@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Approval Pending";
+    ViewData["CompactHeader"] = true;
+}
+
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-icon">◷</div>
+        <h1>Approval pending</h1>
+        <p class="lead">
+            Your email has been verified. An administrator must approve your
+            Client account before you can access the dashboard.
+        </p>
+        <a class="se-button peach auth-submit" asp-action="Login">Return to login</a>
+    </div>
+    <a class="auth-back" asp-controller="Home" asp-action="Index">← Back to Homepage</a>
+</section>

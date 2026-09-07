@@ -18,19 +18,22 @@ namespace SocialExposure.Controllers
         private readonly EmailService _emailService;
         private readonly IWebHostEnvironment _environment;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly NotificationService _notificationService;
 
         public AccountController(
             ApplicationDbContext context,
             OTPService otpService,
             EmailService emailService,
             IWebHostEnvironment environment,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            NotificationService notificationService)
         {
             _context = context;
             _otpService = otpService;
             _emailService = emailService;
             _environment = environment;
             _passwordHasher = passwordHasher;
+            _notificationService = notificationService;
         }
 
         // ==========================
@@ -47,11 +50,19 @@ namespace SocialExposure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (!model.AcceptTerms)
+            {
+                ModelState.AddModelError(
+                    nameof(model.AcceptTerms),
+                    "You must agree to the Terms & Conditions to sign up.");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
+            var normalizedEmail = model.Email.Trim().ToLowerInvariant();
             var existingUser = _context.Users
-                .FirstOrDefault(x => x.Email == model.Email);
+                .FirstOrDefault(x => x.Email.ToLower() == normalizedEmail);
 
             if (existingUser != null)
             {
@@ -61,12 +72,13 @@ namespace SocialExposure.Controllers
 
             User user = new User
             {
-                FullName = model.FullName,
-                Email = model.Email,
+                FullName = model.FullName.Trim(),
+                Email = normalizedEmail,
                 Role = UserRoles.Client,
                 Password = null,
                 IsVerified = false,
-                IsActive = true
+                IsActive = true,
+                IsApproved = false
             };
 
             _context.Users.Add(user);
@@ -74,14 +86,14 @@ namespace SocialExposure.Controllers
 
             string otp = _otpService.GenerateOTP();
 
-            await _otpService.SaveOTPAsync(model.Email, otp);
+            await _otpService.SaveOTPAsync(user.Email, otp);
 
-            var emailSent = await _emailService.SendOTPAsync(model.Email, otp);
+            var emailSent = await _emailService.SendOTPAsync(user.Email, otp);
             SetDevelopmentOtp(otp, emailSent);
 
             return RedirectToAction(
                 "VerifyOTP",
-                new { email = model.Email }
+                new { email = user.Email }
             );
         }
 
@@ -103,14 +115,15 @@ namespace SocialExposure.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = _context.Users
-                .FirstOrDefault(x => x.Email == model.Email);
+            var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            var user = _context.Users.FirstOrDefault(x =>
+                x.Role == UserRoles.Client && x.Email.ToLower() == normalizedEmail);
 
             if (user == null)
             {
                 ModelState.AddModelError(
                     "",
-                    "Email not found."
+                    "A Client account with that email was not found."
                 );
 
                 return View(model);
@@ -120,11 +133,16 @@ namespace SocialExposure.Controllers
             {
                 ModelState.AddModelError(
                     "",
-                    "This account is inactive."
+                    user.IsApproved
+                        ? "This Client account has been suspended."
+                        : "This registration was not approved."
                 );
 
                 return View(model);
             }
+
+            if (user.IsVerified && !user.IsApproved)
+                return RedirectToAction(nameof(PendingApproval));
 
             string otp = _otpService.GenerateOTP();
 
@@ -168,6 +186,16 @@ namespace SocialExposure.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            var user = _context.Users.FirstOrDefault(x =>
+                x.Role == UserRoles.Client && x.Email.ToLower() == normalizedEmail);
+
+            if (user == null || !user.IsActive)
+            {
+                ModelState.AddModelError("", "This Client account is not available.");
+                return View(model);
+            }
+
             bool success = _otpService.VerifyOTP(
                 model.Email,
                 model.OTP
@@ -183,17 +211,37 @@ namespace SocialExposure.Controllers
                 return View(model);
             }
 
-            var user = _context.Users
-                .FirstOrDefault(x => x.Email == model.Email);
+            var wasVerified = user.IsVerified;
+            user.IsVerified = true;
 
-            if (user != null)
+            if (!wasVerified && !user.IsApproved)
             {
-                user.IsVerified = true;
-                await _context.SaveChangesAsync();
-                await SignInUserAsync(user);
+                await _notificationService.QueueForUserAsync(
+                    user.Id,
+                    "Email verified",
+                    "Your registration is waiting for administrator approval.",
+                    "account");
+                await _notificationService.QueueForRoleAsync(
+                    UserRoles.Admin,
+                    "Client approval requested",
+                    $"{user.FullName} verified {user.Email} and is waiting for approval.",
+                    "account",
+                    Url.Action("ClientManagement", "Admin"));
             }
 
+            await _context.SaveChangesAsync();
+
+            if (!user.IsApproved)
+                return RedirectToAction(nameof(PendingApproval));
+
+            await SignInUserAsync(user);
             return RedirectToRoleDashboard(user);
+        }
+
+        [HttpGet]
+        public IActionResult PendingApproval()
+        {
+            return View();
         }
 
 
@@ -208,12 +256,14 @@ namespace SocialExposure.Controllers
         }
 [HttpPost]
 [ValidateAntiForgeryToken]
-public async Task<IActionResult> StaffLogin(string email, string password)
+public async Task<IActionResult> StaffLogin(string email, string password, bool rememberMe = false)
 {
+    var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
     var user = _context.Users.FirstOrDefault(
-        x => x.Email == email &&
+        x => x.Email.ToLower() == normalizedEmail &&
              (x.Role == UserRoles.Staff || x.Role == UserRoles.Admin) &&
-             x.IsActive);
+             x.IsActive &&
+             x.IsApproved);
 
     if (user == null || !VerifyStaffPassword(user, password))
     {
@@ -225,7 +275,7 @@ public async Task<IActionResult> StaffLogin(string email, string password)
         return View();
     }
 
-    await SignInUserAsync(user);
+    await SignInUserAsync(user, rememberMe);
     return RedirectToRoleDashboard(user);
 }
 
@@ -257,7 +307,7 @@ public async Task<IActionResult> Profile()
     return user == null ? RedirectToAction(nameof(Login)) : View(user);
 }
 
-private async Task SignInUserAsync(User user)
+private async Task SignInUserAsync(User user, bool rememberMe = false)
 {
     var claims = new List<Claim>
     {
@@ -276,8 +326,10 @@ private async Task SignInUserAsync(User user)
         new ClaimsPrincipal(identity),
         new AuthenticationProperties
         {
-            IsPersistent = false,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+            IsPersistent = rememberMe,
+            ExpiresUtc = rememberMe
+                ? DateTimeOffset.UtcNow.AddDays(30)
+                : DateTimeOffset.UtcNow.AddHours(8)
         });
 }
 

@@ -9,12 +9,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - Social Exposure</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="@(compactHeader ? "compact-public" : "")">
     <header class="public-header">
         @if (compactHeader) { <a class="public-back" asp-controller="Home" asp-action="Index" aria-label="Back to homepage">←</a> }
-        <a class="brand-mark" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a>
+       <!-- <a class="brand-mark" asp-controller="Home" asp-action="Index"><strong>S <i>•••</i> cial Exposure</strong><span>DESIGN</span></a> -->
+       <a class="brand-mark" asp-controller="Home" asp-action="Index"><img src="~/images/logo-white.png" alt="Social Exposure Events" class="header-logo" /></a>
        <!-- @if (!compactHeader) { <nav><a href="#about">About</a><a href="#contact">Contact</a><a href="#help">Help</a></nav> } -->
      @if (!compactHeader) { <nav><a asp-controller="Home" asp-action="About">About</a><a asp-controller="Home" asp-action="Contact">Contact</a><a asp-controller="Home" asp-action="Help">Help</a></nav> }
     </header>

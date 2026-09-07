@@ -1,5 +1,5 @@
 @model SocialExposure.Models.User
-@{ ViewData["Title"] = "Profile"; var initials=string.Join("",Model.FullName.Split(' ',StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x=>char.ToUpperInvariant(x[0]))); }
+@{ ViewData["Title"] = "Profile";    Layout = "~/Views/Shared/_PortalLayout.cshtml"; var initials=string.Join("",Model.FullName.Split(' ',StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x=>char.ToUpperInvariant(x[0]))); }
 <section class="feature-page">
     <div class="feature-header"><div><h2>My Profile</h2><p>Review your Social Exposure account information.</p></div></div>
     <div class="form-card" style="margin:0">
