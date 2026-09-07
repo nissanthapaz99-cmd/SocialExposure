@@ -4,53 +4,26 @@
 @model IEnumerable<Design>
 
 @{
-    ViewData["Title"] = "Designs";
+    ViewData["Title"] = "All Designs";
 
-    var role =
-        User.FindFirstValue(ClaimTypes.Role)
-        ?? UserRoles.Client;
+    var designs = Model?.ToList() ?? new List<Design>();
+
+    var currentSearch = ViewBag.Search as string ?? "";
+
+    var currentStatus = ViewBag.Status as string ?? "All";
+
+    var statuses = ViewBag.Statuses as List<string>
+                   ?? new List<string>
+                   {
+                       "Pending Review",
+                       "Approved",
+                       "Changes Requested",
+                       "Rejected"
+                   };
 
     var canUpload =
-        role == UserRoles.Admin ||
-        role == UserRoles.Staff;
-
-    var designs =
-        Model?.ToList()
-        ?? new List<Design>();
-
-    var totalDesigns =
-        designs.Count;
-
-    var pendingCount =
-        designs.Count(d =>
-            d.Status == "Pending Review");
-
-    var approvedCount =
-        designs.Count(d =>
-            d.Status == "Approved");
-
-    var feedbackCount =
-        designs.Count(d =>
-            d.Status == "Changes Requested" ||
-            d.Status == "Rejected");
-
-    var currentSearch =
-        ViewBag.Search as string
-        ?? string.Empty;
-
-    var currentStatus =
-        ViewBag.Status as string
-        ?? "All";
-
-    var statuses =
-        ViewBag.Statuses as List<string>
-        ?? new List<string>
-        {
-            "Pending Review",
-            "Approved",
-            "Changes Requested",
-            "Rejected"
-        };
+        User.IsInRole("Staff") ||
+        User.IsInRole("Admin");
 }
 
 <div class="feature-page">
@@ -62,15 +35,11 @@
     <div class="feature-header">
 
         <div>
-
-            <h2>
-                Designs
-            </h2>
+            <h2>All Designs</h2>
 
             <p>
-                Review, organise and approve design files.
+                View and manage available design files.
             </p>
-
         </div>
 
         @if (canUpload)
@@ -80,89 +49,11 @@
                 <a class="action-button peach"
                    asp-controller="Design"
                    asp-action="Upload">
-
                     ↑ Upload Design
-
                 </a>
 
             </div>
         }
-
-    </div>
-
-
-    <!-- =========================================
-         SUMMARY CARDS
-         ========================================= -->
-
-    <div class="summary-grid">
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ▤
-            </i>
-
-            <strong>
-                @totalDesigns
-            </strong>
-
-            <span>
-                Total Designs
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ◷
-            </i>
-
-            <strong>
-                @pendingCount
-            </strong>
-
-            <span>
-                Pending
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                ✓
-            </i>
-
-            <strong>
-                @approvedCount
-            </strong>
-
-            <span>
-                Approved
-            </span>
-
-        </article>
-
-
-        <article class="summary-tile">
-
-            <i class="summary-tile-icon">
-                !
-            </i>
-
-            <strong>
-                @feedbackCount
-            </strong>
-
-            <span>
-                Feedback
-            </span>
-
-        </article>
 
     </div>
 
@@ -175,16 +66,12 @@
 
         <form method="get"
               asp-controller="Design"
-              asp-action="Index"
+              asp-action="All"
               class="search-row">
-
-            <!-- SEARCH -->
 
             <label class="search-field">
 
-                <span>
-                    ⌕
-                </span>
+                <span>⌕</span>
 
                 <input type="search"
                        name="search"
@@ -195,13 +82,10 @@
             </label>
 
 
-            <!-- STATUS -->
-
             <select name="status"
                     class="action-button secondary">
 
-                @if (string.IsNullOrEmpty(currentStatus) ||
-                     currentStatus == "All")
+                @if (currentStatus == "All")
                 {
                     <option value="All" selected>
                         All Status
@@ -217,7 +101,7 @@
 
                 @foreach (var item in statuses)
                 {
-                    if (currentStatus == item)
+                    @if (currentStatus == item)
                     {
                         <option value="@item" selected>
                             @item
@@ -234,31 +118,23 @@
             </select>
 
 
-            <!-- SEARCH BUTTON -->
-
             <button class="action-button secondary"
                     type="submit">
-
                 Search
-
             </button>
 
 
-            <!-- VIEW ALL -->
-
             <a class="action-button secondary"
                asp-controller="Design"
-               asp-action="All">
-
-                View All
-
+               asp-action="Index">
+                Back
             </a>
 
         </form>
 
 
         <!-- =========================================
-             DESIGN CARD
+             DESIGN DATA
              ========================================= -->
 
         <div class="data-card">
@@ -266,7 +142,7 @@
             <div class="data-card-header">
 
                 <h3>
-                    Recent Design Activity
+                    Design Files
                 </h3>
 
             </div>
@@ -278,7 +154,7 @@
 
                     @foreach (var design in designs)
                     {
-                        <article class="design-list-item">
+                        <div class="design-list-item">
 
                             <!-- DESIGN INFORMATION -->
 
@@ -292,7 +168,17 @@
                                 @if (design.Event != null)
                                 {
                                     <p>
+                                        Event:
                                         @design.Event.EventName
+                                    </p>
+                                }
+
+
+                                @if (design.Client != null)
+                                {
+                                    <p>
+                                        Client:
+                                        @design.Client.FullName
                                     </p>
                                 }
 
@@ -318,17 +204,12 @@
 
 
                                 <span class="design-status">
-
                                     @design.Status
-
                                 </span>
 
 
                                 <span class="design-date">
-
-                                    @design.UploadedAt.ToString(
-                                        "dd MMM yyyy")
-
+                                    @design.UploadedAt.ToString("dd MMM yyyy")
                                 </span>
 
 
@@ -337,17 +218,14 @@
                                 {
                                     <a class="action-button secondary"
                                        href="@design.FilePath"
-                                       target="_blank"
-                                       rel="noopener">
-
+                                       target="_blank">
                                         View File
-
                                     </a>
                                 }
 
                             </div>
 
-                        </article>
+                        </div>
                     }
 
                 </div>
@@ -356,27 +234,28 @@
             {
                 <div class="empty-state">
 
-                    <i>
-                        ▤
-                    </i>
+                    <i>▤</i>
 
                     <h3>
-                        No designs yet
+                        No designs found
                     </h3>
 
-
-                    @if (!string.IsNullOrWhiteSpace(currentSearch) ||
-                        currentStatus != "All")
+                    @if (!string.IsNullOrWhiteSpace(currentSearch))
                     {
                         <p>
-                            No designs match your current search or filter.
+                            No designs match your search.
+                        </p>
+                    }
+                    else if (currentStatus != "All")
+                    {
+                        <p>
+                            No designs match the selected filter.
                         </p>
                     }
                     else
                     {
                         <p>
-                            Uploaded designs and client feedback
-                            will appear here.
+                            Uploaded designs will appear here.
                         </p>
                     }
 

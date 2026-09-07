@@ -1,11 +1,237 @@
-@{ ViewData["Title"] = "Upload"; }
+@{
+    ViewData["Title"] = "Upload Design";
+
+    var events = ViewBag.Events as List<SocialExposure.Models.Event>
+                 ?? new List<SocialExposure.Models.Event>();
+
+    var clients = ViewBag.Clients as List<SocialExposure.Models.User>
+                  ?? new List<SocialExposure.Models.User>();
+
+    var selectedEventId = ViewBag.SelectedEventId;
+    var selectedClientId = ViewBag.SelectedClientId;
+}
+
 <div class="form-card">
-    <div class="form-card-header"><h2>Upload Design</h2><p>Share a new design version for review and approval.</p></div>
-    <form>
-        <div class="field"><label>Design Name</label><input placeholder="e.g. Homepage Hero v2.3" /></div>
-        <div class="field"><label>Project or Event</label><select><option>Select a project</option><option>Spring Campaign Launch</option><option>Website Refresh</option></select></div>
-        <div class="field"><label>Design File</label><input type="file" /></div>
-        <div class="field"><label>Version Notes</label><textarea placeholder="Describe what changed in this version"></textarea></div>
-        <div class="form-actions"><button class="action-button peach" type="button">Upload Design</button><a class="action-button secondary" asp-controller="Client" asp-action="Dashboard">Cancel</a></div>
+
+    <!-- =========================================
+         HEADER
+         ========================================= -->
+
+    <div class="form-card-header">
+
+        <h2>Upload Design</h2>
+
+        <p>
+            Share a new design version for review and approval.
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         UPLOAD FORM
+         ========================================= -->
+
+    <form asp-controller="Design"
+          asp-action="Upload"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+
+        <!-- VALIDATION SUMMARY -->
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger">
+        </div>
+
+
+        <!-- =========================================
+             DESIGN NAME
+             ========================================= -->
+
+        <div class="field">
+
+            <label for="designName">
+                Design Name
+            </label>
+
+            <input id="designName"
+                   name="designName"
+                   type="text"
+                   value="@ViewBag.DesignName"
+                   placeholder="e.g. Homepage Hero"
+                   required />
+
+            <span class="text-danger">
+                @Html.ValidationMessage("designName")
+            </span>
+
+        </div>
+
+
+        <!-- =========================================
+             EVENT
+             ========================================= -->
+
+        <div class="field">
+
+            <label for="eventId">
+                Project or Event
+            </label>
+
+            <select id="eventId"
+                    name="eventId"
+                    required>
+
+                <option value="">
+                    Select an event
+                </option>
+
+                @foreach (var eventItem in events)
+                {
+                    if (selectedEventId != null &&
+                        selectedEventId.ToString() == eventItem.Id.ToString())
+                    {
+                        <option value="@eventItem.Id" selected>
+                            @eventItem.EventName
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@eventItem.Id">
+                            @eventItem.EventName
+                        </option>
+                    }
+                }
+
+            </select>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("eventId")
+            </span>
+
+        </div>
+
+
+        <!-- =========================================
+             CLIENT
+             ========================================= -->
+
+        <div class="field">
+
+            <label for="clientId">
+                Client
+            </label>
+
+            <select id="clientId"
+                    name="clientId"
+                    required>
+
+                <option value="">
+                    Select a client
+                </option>
+
+                @foreach (var client in clients)
+                {
+                    if (selectedClientId != null &&
+                        selectedClientId.ToString() == client.Id.ToString())
+                    {
+                        <option value="@client.Id" selected>
+                            @client.FullName (@client.Email)
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@client.Id">
+                            @client.FullName (@client.Email)
+                        </option>
+                    }
+                }
+
+            </select>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("clientId")
+            </span>
+
+        </div>
+
+
+        <!-- =========================================
+             DESIGN FILE
+             ========================================= -->
+
+        <div class="field">
+
+            <label for="designFile">
+                Design File
+            </label>
+
+            <input id="designFile"
+                   name="designFile"
+                   type="file"
+                   accept=".jpg,.jpeg,.png,.pdf,.zip,.psd,.ai,.fig,.xd"
+                   required />
+
+            <small>
+                Supported: JPG, JPEG, PNG, PDF, ZIP, PSD, AI, FIG and XD
+            </small>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("designFile")
+            </span>
+
+        </div>
+
+
+        <!-- =========================================
+             VERSION NOTES / DESCRIPTION
+             ========================================= -->
+
+        <div class="field">
+
+            <label for="description">
+                Version Notes
+            </label>
+
+            <textarea id="description"
+                      name="description"
+                      rows="5"
+                      placeholder="Describe what changed in this version">@ViewBag.Description</textarea>
+
+            <small>
+                The version number will be assigned automatically.
+            </small>
+
+        </div>
+
+
+        <!-- =========================================
+             BUTTONS
+             ========================================= -->
+
+        <div class="form-actions">
+
+            <button class="action-button peach"
+                    type="submit">
+
+                Upload Design
+
+            </button>
+
+
+            <a class="action-button secondary"
+               asp-controller="Design"
+               asp-action="Index">
+
+                Cancel
+
+            </a>
+
+        </div>
+
     </form>
+
 </div>
