@@ -53,9 +53,12 @@ namespace SocialExposure.Controllers
             if (request == null ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.Password) ||
-                string.IsNullOrWhiteSpace(request.FullName))
+                string.IsNullOrWhiteSpace(request.FullName) ||
+                string.IsNullOrWhiteSpace(request.CompanyName) ||
+                string.IsNullOrWhiteSpace(request.PhoneNumber) ||
+                string.IsNullOrWhiteSpace(request.AccessReason))
             {
-                return BadRequest(new { error = "Full name, email, and password are required." });
+                return BadRequest(new { error = "Full name, company, email, phone number, access reason, and password are required." });
             }
 
             if (!request.AcceptTerms)
@@ -65,6 +68,17 @@ namespace SocialExposure.Controllers
                     error = "You must agree to the Terms & Conditions to sign up."
                 });
             }
+
+            if (!request.AcceptPrivacy)
+            {
+                return BadRequest(new
+                {
+                    error = "You must agree to the Privacy Policy to sign up."
+                });
+            }
+
+            if (request.PreferredContactMethod is not ("Email" or "Phone"))
+                return BadRequest(new { error = "Preferred contact method must be Email or Phone." });
 
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
             if (!new EmailAddressAttribute().IsValid(normalizedEmail))
@@ -81,6 +95,14 @@ namespace SocialExposure.Controllers
             {
                 FullName = request.FullName.Trim(),
                 Email = normalizedEmail,
+                CompanyName = request.CompanyName.Trim(),
+                PhoneNumber = request.PhoneNumber.Trim(),
+                JobTitle = string.IsNullOrWhiteSpace(request.JobTitle) ? null : request.JobTitle.Trim(),
+                AccessReason = request.AccessReason.Trim(),
+                PreferredContactMethod = request.PreferredContactMethod,
+                CreatedAt = DateTime.UtcNow,
+                TermsAcceptedAt = DateTime.UtcNow,
+                PrivacyAcceptedAt = DateTime.UtcNow,
                 Role = UserRoles.Client,
                 IsVerified = false,
                 IsActive = true,
@@ -176,7 +198,7 @@ namespace SocialExposure.Controllers
                 await _notificationService.QueueForRoleAsync(
                     UserRoles.Admin,
                     "Client approval requested",
-                    $"{user.FullName} verified {user.Email} and is waiting for approval.",
+                    $"{user.FullName} from {(string.IsNullOrWhiteSpace(user.CompanyName) ? "an unspecified company" : user.CompanyName)} verified {user.Email} and is waiting for approval.",
                     "account",
                     Url.Action("ClientManagement", "Admin"));
             }
@@ -267,11 +289,34 @@ namespace SocialExposure.Controllers
         public string Email { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(150, MinimumLength = 2)]
+        public string CompanyName { get; set; } = string.Empty;
+
+        [Required]
+        [Phone]
+        [StringLength(30, MinimumLength = 7)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        public string? JobTitle { get; set; }
+
+        [Required]
+        [StringLength(500, MinimumLength = 10)]
+        public string AccessReason { get; set; } = string.Empty;
+
+        [Required]
+        [RegularExpression("^(Email|Phone)$")]
+        public string PreferredContactMethod { get; set; } = "Email";
+
+        [Required]
         [MinLength(8)]
         public string Password { get; set; } = string.Empty;
 
         [Range(typeof(bool), "true", "true")]
         public bool AcceptTerms { get; set; }
+
+        [Range(typeof(bool), "true", "true")]
+        public bool AcceptPrivacy { get; set; }
     }
 
     public class LoginRequest

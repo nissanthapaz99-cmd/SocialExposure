@@ -30,15 +30,17 @@ public class AdminController : Controller
     {
         var users = await _context.Users.AsNoTracking().ToListAsync();
         ViewBag.TotalUsers = users.Count;
-        ViewBag.ActiveStaff = users.Count(x => x.Role == UserRoles.Staff && x.IsActive);
+        ViewBag.ActiveStaff = users.Count(x =>
+            x.Role == UserRoles.Staff && x.IsActive && x.IsApproved);
         ViewBag.ActiveClients = users.Count(x =>
             x.Role == UserRoles.Client && x.IsActive && x.IsApproved);
         ViewBag.PendingUsers = users.Count(x =>
-            x.Role == UserRoles.Client && x.IsVerified && x.IsActive && !x.IsApproved);
+            (x.Role == UserRoles.Client || x.Role == UserRoles.Staff) &&
+            x.IsVerified && x.IsActive && !x.IsApproved);
         ViewBag.SuspendedUsers = users.Count(x => x.IsApproved && !x.IsActive);
         ViewBag.PendingApprovals = users
-            .Where(x => x.Role == UserRoles.Client && x.IsVerified &&
-                x.IsActive && !x.IsApproved)
+            .Where(x => (x.Role == UserRoles.Client || x.Role == UserRoles.Staff) &&
+                x.IsVerified && x.IsActive && !x.IsApproved)
             .OrderBy(x => x.FullName)
             .ToList();
         return View();
@@ -49,7 +51,11 @@ public class AdminController : Controller
     {
         var query = _context.Users.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(x => x.FullName.Contains(search) || x.Email.Contains(search));
+            query = query.Where(x =>
+                x.FullName.Contains(search) ||
+                x.Email.Contains(search) ||
+                (x.CompanyName != null && x.CompanyName.Contains(search)) ||
+                (x.PhoneNumber != null && x.PhoneNumber.Contains(search)));
         if (UserRoles.IsValid(role))
             query = query.Where(x => x.Role == role);
         query = status switch
@@ -112,9 +118,15 @@ public class AdminController : Controller
             FullName = fullName.Trim(),
             Email = normalizedEmail,
             Role = role,
+            CreatedAt = DateTime.UtcNow,
             IsActive = true,
             IsVerified = true,
-            IsApproved = true
+            IsApproved = true,
+            ApprovedAt = DateTime.UtcNow,
+            ApprovedByUserId = int.TryParse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier), out var creatorId)
+                ? creatorId
+                : null
         };
         if (role is UserRoles.Admin or UserRoles.Staff)
             user.Password = _passwordHasher.HashPassword(user, temporaryPassword!);
@@ -163,18 +175,25 @@ public class AdminController : Controller
     public async Task<IActionResult> ApproveUser(int id, string? returnTo)
     {
         var user = await _context.Users.FirstOrDefaultAsync(x =>
-            x.Id == id && x.Role == UserRoles.Client && x.IsVerified && !x.IsApproved);
+            x.Id == id &&
+            (x.Role == UserRoles.Client || x.Role == UserRoles.Staff) &&
+            x.IsVerified && !x.IsApproved);
 
         if (user != null)
         {
             user.IsApproved = true;
             user.IsActive = true;
+            user.ApprovedAt = DateTime.UtcNow;
+            user.ApprovedByUserId = int.TryParse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier), out var adminId)
+                ? adminId
+                : null;
             await _notificationService.QueueForUserAsync(
                 user.Id,
                 "Account approved",
-                "Your Client account has been approved. You can now sign in.",
+                $"Your {user.Role} access request has been approved. You can now sign in.",
                 "account",
-                Url.Action("Login", "Account"));
+                Url.Action(user.Role == UserRoles.Staff ? "StaffLogin" : "Login", "Account"));
             await _context.SaveChangesAsync();
         }
 
@@ -186,15 +205,17 @@ public class AdminController : Controller
     public async Task<IActionResult> RejectUser(int id, string? returnTo)
     {
         var user = await _context.Users.FirstOrDefaultAsync(x =>
-            x.Id == id && x.Role == UserRoles.Client && !x.IsApproved);
+            x.Id == id &&
+            (x.Role == UserRoles.Client || x.Role == UserRoles.Staff) &&
+            !x.IsApproved);
 
         if (user != null)
         {
             user.IsActive = false;
             await _notificationService.QueueForUserAsync(
                 user.Id,
-                "Registration not approved",
-                "Your Client registration was not approved. Contact an administrator if you need help.",
+                "Access request not approved",
+                $"Your {user.Role} access request was not approved. Contact an administrator if you need help.",
                 "account");
             await _context.SaveChangesAsync();
         }

@@ -24,7 +24,7 @@
                 <td><span class="account-state @(!user.IsActive || !user.IsApproved ? "inactive" : "")">@status</span></td>
                 <td>@(user.IsVerified ? "Verified" : "Pending")</td><td>—</td>
                 <td><div class="table-actions">
-                    @if (user.Role == UserRoles.Client && user.IsVerified && !user.IsApproved)
+                    @if ((user.Role == UserRoles.Client || user.Role == UserRoles.Staff) && user.IsVerified && !user.IsApproved)
                     {
                         <form asp-action="ApproveUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@user.Id"/><button title="Approve Client" type="submit">✓</button></form>
                         @if (user.IsActive)

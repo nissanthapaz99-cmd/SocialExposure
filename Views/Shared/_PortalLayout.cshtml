@@ -17,6 +17,9 @@
     var pendingClientApprovals = isAdmin
         ? Db.Users.Count(x => x.Role == UserRoles.Client && x.IsVerified && x.IsActive && !x.IsApproved)
         : 0;
+    var pendingStaffApprovals = isAdmin
+        ? Db.Users.Count(x => x.Role == UserRoles.Staff && x.IsVerified && x.IsActive && !x.IsApproved)
+        : 0;
     string Active(string targetController, string targetAction = "") => controller == targetController && (string.IsNullOrEmpty(targetAction) || action == targetAction) ? "active" : "";
 }
 
@@ -54,7 +57,7 @@
         {
             <a class="@Active("Admin","Dashboard")" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
             <a class="@Active("Admin","UserManagement")" asp-controller="Admin" asp-action="UserManagement">User Management</a>
-            <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement">Staff Management</a>
+            <a class="@Active("Admin","StaffManagement")" asp-controller="Admin" asp-action="StaffManagement">Staff Management @if(pendingStaffApprovals > 0){<em title="Pending Staff requests">@pendingStaffApprovals</em>}</a>
             <a class="@Active("Admin","ClientManagement")" asp-controller="Admin" asp-action="ClientManagement">Client Management @if(pendingClientApprovals > 0){<em title="Pending signup requests">@pendingClientApprovals</em>}</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
             <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>

@@ -1,0 +1,33 @@
+@model SocialExposure.ViewModels.StaffAccessRequestViewModel
+@{ ViewData["Title"] = "Request Staff Access"; ViewData["CompactHeader"] = true; }
+<section class="auth-page register-page">
+    <div class="auth-card signup-card">
+        <div class="auth-icon">♢</div>
+        <h1>Request Staff Access</h1>
+        <p class="lead">Verify your work email, then an administrator will review your request.</p>
+        <div class="auth-tip">This form creates a Staff request only. Administrator access cannot be requested publicly.</div>
+        <div asp-validation-summary="ModelOnly"></div>
+        <form asp-action="RequestStaffAccess" method="post">
+            <div class="auth-field-grid">
+                <div class="field"><label asp-for="FullName">Full Name</label><input asp-for="FullName" autocomplete="name" placeholder="Your full name"/><span asp-validation-for="FullName"></span></div>
+                <div class="field"><label asp-for="Email">Work Email</label><input asp-for="Email" autocomplete="email" placeholder="name@company.com"/><span asp-validation-for="Email"></span></div>
+                <div class="field"><label asp-for="CompanyName">Department / Organisation</label><input asp-for="CompanyName" autocomplete="organization" placeholder="Your team or organisation"/><span asp-validation-for="CompanyName"></span></div>
+                <div class="field"><label asp-for="PhoneNumber">Phone Number</label><input asp-for="PhoneNumber" type="tel" autocomplete="tel" placeholder="Your contact number"/><span asp-validation-for="PhoneNumber"></span></div>
+                <div class="field"><label asp-for="JobTitle">Job Title</label><input asp-for="JobTitle" autocomplete="organization-title" placeholder="Your role"/><span asp-validation-for="JobTitle"></span></div>
+                <div class="field"><label asp-for="PreferredContactMethod">Preferred Contact Method</label><select asp-for="PreferredContactMethod"><option value="Email">Email</option><option value="Phone">Phone</option></select><span asp-validation-for="PreferredContactMethod"></span></div>
+                <div class="field full-width"><label asp-for="AccessReason">Reason for Staff Access</label><textarea asp-for="AccessReason" rows="4" maxlength="500" placeholder="Explain why you need access and what work you will perform"></textarea><span asp-validation-for="AccessReason"></span></div>
+                <div class="field"><label asp-for="Password">Password</label><input asp-for="Password" autocomplete="new-password" placeholder="At least 8 characters"/><span asp-validation-for="Password"></span></div>
+                <div class="field"><label asp-for="ConfirmPassword">Confirm Password</label><input asp-for="ConfirmPassword" autocomplete="new-password" placeholder="Repeat your password"/><span asp-validation-for="ConfirmPassword"></span></div>
+            </div>
+            <div class="terms-list">
+                <label class="terms"><input asp-for="AcceptTerms" required/><span>I agree to the Terms &amp; Conditions</span></label>
+                <span asp-validation-for="AcceptTerms"></span>
+                <label class="terms"><input asp-for="AcceptPrivacy" required/><span>I agree to the <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></span></label>
+                <span asp-validation-for="AcceptPrivacy"></span>
+            </div>
+            <button class="se-button auth-submit" type="submit">Send Verification Code</button>
+        </form>
+    </div>
+    <a class="auth-back" asp-action="StaffLogin">← Back to Staff / Admin Login</a>
+</section>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
