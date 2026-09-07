@@ -68,7 +68,7 @@
         else
         {
             <a class="@(controller is "Client" or "Events" ? "active" : "")" asp-controller="Client" asp-action="Dashboard">Events</a>
-            <a class="@Active("Design","Upload")" asp-controller="Design" asp-action="Upload">Upload</a>
+            <a class="@Active("Design")" asp-controller="Design" asp-action="Index">Designs</a>
             <a class="@Active("Notification")" asp-controller="Notification" asp-action="Index">Notifications @if(unreadNotifications > 0){<em>@unreadNotifications</em>}</a>
             <a class="@Active("Message")" asp-controller="Message" asp-action="Index">Messages @if(unreadMessages > 0){<em>@unreadMessages</em>}</a>
             <a class="@Active("Account","Profile")" asp-controller="Account" asp-action="Profile">Profile</a>

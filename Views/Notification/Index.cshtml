@@ -38,7 +38,7 @@
         @foreach (var item in Model.Notifications)
         {
             var kind = (item.Type ?? "").ToLowerInvariant();
-            var icon = kind switch { "message" => "♧", "project" => "⇧", "alert" => "◷", _ => "✓" };
+            var icon = kind switch { "message" => "♧", "project" => "⇧", "alert" => "◷", "account" => "♙", _ => "✓" };
             <article class="notification-card @(!item.IsRead ? "unread" : "")">
                 <div class="type @kind">@icon</div>
                 <div class="copy">

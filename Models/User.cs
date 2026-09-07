@@ -22,5 +22,9 @@ namespace SocialExposure.Models
         public bool IsVerified { get; set; } = false;
 
         public bool IsActive { get; set; } = true;
+
+        // Self-registered clients must be approved by an administrator.
+        // Existing and administrator-created accounts default to approved.
+        public bool IsApproved { get; set; } = true;
     }
 }

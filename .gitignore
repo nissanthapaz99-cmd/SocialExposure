@@ -430,6 +430,7 @@ FodyWeavers.xsd
 
 .fake
 .keys/
+App_Data/DesignUploads/
 
 # SQLite test database is intentionally shared; never commit live WAL files
 *.db
