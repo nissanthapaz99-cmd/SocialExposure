@@ -57,6 +57,12 @@
 
     var isStaff =
         role == UserRoles.Staff;
+    var pendingClientApprovals = isAdmin
+        ? Db.Users.Count(x => x.Role == UserRoles.Client && x.IsVerified && x.IsActive && !x.IsApproved)
+        : 0;
+    var pendingStaffApprovals = isAdmin
+        ? Db.Users.Count(x => x.Role == UserRoles.Staff && x.IsVerified && x.IsActive && !x.IsApproved)
+        : 0;
 
     string Active(
         string targetController,
@@ -80,7 +86,7 @@
     <meta charset="utf-8" />
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1" />
+          content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
     <title>
         @title - Social Exposure
@@ -216,7 +222,7 @@
                    asp-controller="Admin"
                    asp-action="StaffManagement">
 
-                    Staff Management
+                    Staff Management @if(pendingStaffApprovals > 0){<em title="Pending Staff requests">@pendingStaffApprovals</em>}
 
                 </a>
 
@@ -225,7 +231,7 @@
                    asp-controller="Admin"
                    asp-action="ClientManagement">
 
-                    Client Management
+                    Client Management @if(pendingClientApprovals > 0){<em title="Pending signup requests">@pendingClientApprovals</em>}
 
                 </a>
 

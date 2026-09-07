@@ -3,14 +3,27 @@
     <div class="auth-switch"><a asp-action="Login">Client Login</a><a class="staff-active" asp-action="StaffLogin">Staff / Admin</a></div>
     <div class="auth-card">
        <h1>Staff / Admin Login</h1><p class="lead">Enter your credentials to access the system</p>
-        <div class="auth-tip">Staff and administrator accounts are created and approved by an administrator.</div>
+        <div class="auth-tip">Staff requests must be email-verified and approved. Administrator accounts are created by an administrator.</div>
         <div asp-validation-summary="ModelOnly"></div>
         <form asp-action="StaffLogin" method="post">
-            <div class="field"><label for="email">Username or Email</label><input id="email" name="email" type="email" placeholder="admin@company.com" required/></div>
+            <div class="field"><label for="email">Username or Email</label><input id="email" name="email" type="email" value="@ViewBag.RememberedEmail" autocomplete="email" placeholder="admin@company.com" required/></div>
             <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="••••••••" required/></div>
-            <div class="auth-options"><label class="remember"><input type="checkbox" name="rememberMe" value="true" /> Remember me for 30 days</label></div>
+            <div class="auth-options">
+                <label class="remember">
+                    @if (ViewBag.RememberEmail == true)
+                    {
+                        <input type="checkbox" name="rememberMe" value="true" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="rememberMe" value="true" />
+                    }
+                    Remember my email
+                </label>
+            </div>
             <button class="se-button auth-submit" type="submit">Login</button>
         </form>
+        <p class="auth-request">Need a Staff account? <a asp-action="RequestStaffAccess">Request access</a></p>
     </div>
     <a class="auth-back" asp-controller="Home" asp-action="Index">← Back to Homepage</a>
 </section>

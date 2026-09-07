@@ -1,0 +1,52 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SocialExposure.ViewModels;
+
+public class StaffAccessRequestViewModel
+{
+    [Required(ErrorMessage = "Full name is required.")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Enter a valid full name.")]
+    public string FullName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Work email is required.")]
+    [EmailAddress(ErrorMessage = "Enter a valid work email address.")]
+    [StringLength(254)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Department or organisation is required.")]
+    [StringLength(150, MinimumLength = 2)]
+    public string CompanyName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Phone number is required.")]
+    [Phone(ErrorMessage = "Enter a valid phone number.")]
+    [StringLength(30, MinimumLength = 7)]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Job title is required.")]
+    [StringLength(100, MinimumLength = 2)]
+    public string JobTitle { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Tell the administrator why you need staff access.")]
+    [StringLength(500, MinimumLength = 10, ErrorMessage = "Enter between 10 and 500 characters.")]
+    public string AccessReason { get; set; } = string.Empty;
+
+    [Required]
+    [RegularExpression("^(Email|Phone)$", ErrorMessage = "Select email or phone as your preferred contact method.")]
+    public string PreferredContactMethod { get; set; } = "Email";
+
+    [Required(ErrorMessage = "Password is required.")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
+    [DataType(DataType.Password)]
+    public string Password { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Confirm your password.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Range(typeof(bool), "true", "true", ErrorMessage = "You must agree to the Terms & Conditions.")]
+    public bool AcceptTerms { get; set; }
+
+    [Range(typeof(bool), "true", "true", ErrorMessage = "You must agree to the Privacy Policy.")]
+    public bool AcceptPrivacy { get; set; }
+}

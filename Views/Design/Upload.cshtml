@@ -7,8 +7,8 @@
     var clients = ViewBag.Clients as List<SocialExposure.Models.User>
                   ?? new List<SocialExposure.Models.User>();
 
-    var selectedEventId = ViewBag.SelectedEventId;
-    var selectedClientId = ViewBag.SelectedClientId;
+    var selectedEventId = ViewBag.SelectedEventId is int eventId ? eventId : (int?)null;
+    var selectedClientId = ViewBag.SelectedClientId is int clientId ? clientId : (int?)null;
 }
 
 <div class="form-card">
@@ -91,8 +91,7 @@
 
                 @foreach (var eventItem in events)
                 {
-                    if (selectedEventId != null &&
-                        selectedEventId.ToString() == eventItem.Id.ToString())
+                    if (selectedEventId == eventItem.Id)
                     {
                         <option value="@eventItem.Id" selected>
                             @eventItem.EventName
@@ -135,8 +134,7 @@
 
                 @foreach (var client in clients)
                 {
-                    if (selectedClientId != null &&
-                        selectedClientId.ToString() == client.Id.ToString())
+                    if (selectedClientId == client.Id)
                     {
                         <option value="@client.Id" selected>
                             @client.FullName (@client.Email)

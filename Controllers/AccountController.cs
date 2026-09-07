@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SocialExposure.Data;
 using SocialExposure.Models;
 using SocialExposure.Services;
@@ -13,6 +14,7 @@ namespace SocialExposure.Controllers
 {
     public class AccountController : Controller
     {
+        private const string RememberedStaffEmailCookie = "SocialExposure.RememberedStaffEmail";
         private readonly ApplicationDbContext _context;
         private readonly OTPService _otpService;
         private readonly EmailService _emailService;
@@ -57,6 +59,13 @@ namespace SocialExposure.Controllers
                     "You must agree to the Terms & Conditions to sign up.");
             }
 
+            if (!model.AcceptPrivacy)
+            {
+                ModelState.AddModelError(
+                    nameof(model.AcceptPrivacy),
+                    "You must agree to the Privacy Policy to sign up.");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -74,6 +83,14 @@ namespace SocialExposure.Controllers
             {
                 FullName = model.FullName.Trim(),
                 Email = normalizedEmail,
+                CompanyName = model.CompanyName.Trim(),
+                PhoneNumber = model.PhoneNumber.Trim(),
+                JobTitle = string.IsNullOrWhiteSpace(model.JobTitle) ? null : model.JobTitle.Trim(),
+                AccessReason = model.AccessReason.Trim(),
+                PreferredContactMethod = model.PreferredContactMethod,
+                CreatedAt = DateTime.UtcNow,
+                TermsAcceptedAt = DateTime.UtcNow,
+                PrivacyAcceptedAt = DateTime.UtcNow,
                 Role = UserRoles.Client,
                 Password = null,
                 IsVerified = false,
@@ -95,6 +112,74 @@ namespace SocialExposure.Controllers
                 "VerifyOTP",
                 new { email = user.Email }
             );
+        }
+
+
+        // ==========================
+        // STAFF ACCESS REQUEST
+        // ==========================
+
+        [HttpGet]
+        public IActionResult RequestStaffAccess()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestStaffAccess(StaffAccessRequestViewModel model)
+        {
+            if (!model.AcceptTerms)
+                ModelState.AddModelError(nameof(model.AcceptTerms), "You must agree to the Terms & Conditions.");
+            if (!model.AcceptPrivacy)
+                ModelState.AddModelError(nameof(model.AcceptPrivacy), "You must agree to the Privacy Policy.");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            var existingUser = await _context.Users.FirstOrDefaultAsync(x =>
+                x.Email.ToLower() == normalizedEmail);
+
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Email),
+                    existingUser.Role == UserRoles.Staff && !existingUser.IsApproved
+                        ? "A Staff access request already exists for this email."
+                        : "An account with this email already exists.");
+                return View(model);
+            }
+
+            var now = DateTime.UtcNow;
+            var user = new User
+            {
+                FullName = model.FullName.Trim(),
+                Email = normalizedEmail,
+                CompanyName = model.CompanyName.Trim(),
+                PhoneNumber = model.PhoneNumber.Trim(),
+                JobTitle = model.JobTitle.Trim(),
+                AccessReason = model.AccessReason.Trim(),
+                PreferredContactMethod = model.PreferredContactMethod,
+                CreatedAt = now,
+                TermsAcceptedAt = now,
+                PrivacyAcceptedAt = now,
+                Role = UserRoles.Staff,
+                IsVerified = false,
+                IsActive = true,
+                IsApproved = false
+            };
+            user.Password = _passwordHasher.HashPassword(user, model.Password);
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var otp = _otpService.GenerateOTP();
+            await _otpService.SaveOTPAsync(user.Email, otp);
+            var emailSent = await _emailService.SendOTPAsync(user.Email, otp);
+            SetDevelopmentOtp(otp, emailSent);
+
+            return RedirectToAction(nameof(VerifyOTP), new { email = user.Email });
         }
 
 
@@ -188,11 +273,12 @@ namespace SocialExposure.Controllers
 
             var normalizedEmail = model.Email.Trim().ToLowerInvariant();
             var user = _context.Users.FirstOrDefault(x =>
-                x.Role == UserRoles.Client && x.Email.ToLower() == normalizedEmail);
+                (x.Role == UserRoles.Client || x.Role == UserRoles.Staff) &&
+                x.Email.ToLower() == normalizedEmail);
 
             if (user == null || !user.IsActive)
             {
-                ModelState.AddModelError("", "This Client account is not available.");
+                ModelState.AddModelError("", "This account is not available.");
                 return View(model);
             }
 
@@ -219,28 +305,29 @@ namespace SocialExposure.Controllers
                 await _notificationService.QueueForUserAsync(
                     user.Id,
                     "Email verified",
-                    "Your registration is waiting for administrator approval.",
+                    $"Your {user.Role} access request is waiting for administrator approval.",
                     "account");
                 await _notificationService.QueueForRoleAsync(
                     UserRoles.Admin,
-                    "Client approval requested",
-                    $"{user.FullName} verified {user.Email} and is waiting for approval.",
+                    $"{user.Role} approval requested",
+                    $"{user.FullName} from {(string.IsNullOrWhiteSpace(user.CompanyName) ? "an unspecified company" : user.CompanyName)} verified {user.Email} and is waiting for approval.",
                     "account",
-                    Url.Action("ClientManagement", "Admin"));
+                    Url.Action(user.Role == UserRoles.Staff ? "StaffManagement" : "ClientManagement", "Admin"));
             }
 
             await _context.SaveChangesAsync();
 
             if (!user.IsApproved)
-                return RedirectToAction(nameof(PendingApproval));
+                return RedirectToAction(nameof(PendingApproval), new { role = user.Role });
 
             await SignInUserAsync(user);
             return RedirectToRoleDashboard(user);
         }
 
         [HttpGet]
-        public IActionResult PendingApproval()
+        public IActionResult PendingApproval(string? role)
         {
+            ViewBag.AccountRole = role == UserRoles.Staff ? UserRoles.Staff : UserRoles.Client;
             return View();
         }
 
@@ -252,6 +339,9 @@ namespace SocialExposure.Controllers
         [HttpGet]
         public IActionResult StaffLogin()
         {
+            var rememberedEmail = Request.Cookies[RememberedStaffEmailCookie];
+            ViewBag.RememberedEmail = rememberedEmail ?? string.Empty;
+            ViewBag.RememberEmail = !string.IsNullOrWhiteSpace(rememberedEmail);
             return View();
         }
 [HttpPost]
@@ -261,9 +351,7 @@ public async Task<IActionResult> StaffLogin(string email, string password, bool 
     var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
     var user = _context.Users.FirstOrDefault(
         x => x.Email.ToLower() == normalizedEmail &&
-             (x.Role == UserRoles.Staff || x.Role == UserRoles.Admin) &&
-             x.IsActive &&
-             x.IsApproved);
+             (x.Role == UserRoles.Staff || x.Role == UserRoles.Admin));
 
     if (user == null || !VerifyStaffPassword(user, password))
     {
@@ -272,10 +360,60 @@ public async Task<IActionResult> StaffLogin(string email, string password, bool 
             "Invalid staff/admin credentials."
         );
 
+        ViewBag.RememberedEmail = normalizedEmail;
+        ViewBag.RememberEmail = rememberMe;
         return View();
     }
 
-    await SignInUserAsync(user, rememberMe);
+    if (!user.IsActive)
+    {
+        ModelState.AddModelError(
+            "",
+            user.IsApproved
+                ? "This account has been suspended."
+                : "This Staff access request was not approved.");
+        ViewBag.RememberedEmail = normalizedEmail;
+        ViewBag.RememberEmail = rememberMe;
+        return View();
+    }
+
+    if (!user.IsVerified)
+    {
+        var otp = _otpService.GenerateOTP();
+        await _otpService.SaveOTPAsync(user.Email, otp);
+        var emailSent = await _emailService.SendOTPAsync(user.Email, otp);
+        SetDevelopmentOtp(otp, emailSent);
+        return RedirectToAction(nameof(VerifyOTP), new { email = user.Email });
+    }
+
+    if (!user.IsApproved)
+        return RedirectToAction(nameof(PendingApproval), new { role = user.Role });
+
+    if (rememberMe)
+    {
+        Response.Cookies.Append(
+            RememberedStaffEmailCookie,
+            normalizedEmail,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                IsEssential = true,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(30)
+            });
+    }
+    else
+    {
+        Response.Cookies.Delete(
+            RememberedStaffEmailCookie,
+            new CookieOptions { Path = "/" });
+    }
+
+    // The checkbox remembers only the email address. Authentication still ends
+    // with the normal session instead of keeping the user signed in for 30 days.
+    await SignInUserAsync(user);
     return RedirectToRoleDashboard(user);
 }
 
@@ -307,7 +445,7 @@ public async Task<IActionResult> Profile()
     return user == null ? RedirectToAction(nameof(Login)) : View(user);
 }
 
-private async Task SignInUserAsync(User user, bool rememberMe = false)
+private async Task SignInUserAsync(User user)
 {
     var claims = new List<Claim>
     {
@@ -326,10 +464,8 @@ private async Task SignInUserAsync(User user, bool rememberMe = false)
         new ClaimsPrincipal(identity),
         new AuthenticationProperties
         {
-            IsPersistent = rememberMe,
-            ExpiresUtc = rememberMe
-                ? DateTimeOffset.UtcNow.AddDays(30)
-                : DateTimeOffset.UtcNow.AddHours(8)
+            IsPersistent = false,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
         });
 }
 

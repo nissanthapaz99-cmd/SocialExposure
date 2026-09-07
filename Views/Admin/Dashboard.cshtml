@@ -19,8 +19,10 @@
                 @foreach (var pendingUser in pendingApprovals.Take(5))
                 {
                     <div class="approval-card">
-                        <h4>@pendingUser.FullName</h4>
-                        <p>@pendingUser.Email<br />Verified Client</p>
+                        <h4>@pendingUser.FullName <span class="role-badge @pendingUser.Role.ToLowerInvariant()">@pendingUser.Role</span></h4>
+                        <p><strong>@(string.IsNullOrWhiteSpace(pendingUser.CompanyName) ? "Company not provided" : pendingUser.CompanyName)</strong><br />@pendingUser.Email<br />@(string.IsNullOrWhiteSpace(pendingUser.PhoneNumber) ? "Phone not provided" : pendingUser.PhoneNumber)</p>
+                        <p class="approval-reason">@(string.IsNullOrWhiteSpace(pendingUser.AccessReason) ? "No access reason provided." : pendingUser.AccessReason)</p>
+                        <small class="approval-date">Registered @(pendingUser.CreatedAt.HasValue ? pendingUser.CreatedAt.Value.ToLocalTime().ToString("dd MMM yyyy") : "before profile details were added")</small>
                         <div class="approval-actions">
                             <form asp-action="ApproveUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@pendingUser.Id" /><button type="submit">✓ Approve</button></form>
                             <form asp-action="RejectUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@pendingUser.Id" /><button class="reject" type="submit">⊗ Reject</button></form>
@@ -29,7 +31,7 @@
                 }
                 @if (!pendingApprovals.Any())
                 {
-                    <div class="empty-state"><i>✓</i><h3>No approvals waiting</h3><p>Verified Client requests will appear here.</p></div>
+                    <div class="empty-state"><i>✓</i><h3>No approvals waiting</h3><p>Verified Client and Staff requests will appear here.</p></div>
                 }
             </section>
             <section class="panel" style="margin-top:16px"><div class="panel-heading"><h3>System Alerts</h3></div><div class="task-list"><a asp-action="UserManagement"><b>Account review</b><span>Check suspended, pending, and unverified users</span></a></div></section>

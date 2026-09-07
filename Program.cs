@@ -84,7 +84,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
-    EnsureUserApprovalColumn(context);
+    EnsureUserProfileColumns(context);
 
     if (app.Environment.IsDevelopment())
     {
@@ -150,16 +150,18 @@ static void SeedDevelopmentUser(
         FullName = fullName,
         Email = normalizedEmail,
         Role = role,
+        CreatedAt = DateTime.UtcNow,
         IsVerified = true,
         IsActive = true,
-        IsApproved = true
+        IsApproved = true,
+        ApprovedAt = DateTime.UtcNow
     };
 
     user.Password = passwordHasher.HashPassword(user, developmentPassword);
     context.Users.Add(user);
 }
 
-static void EnsureUserApprovalColumn(ApplicationDbContext context)
+static void EnsureUserProfileColumns(ApplicationDbContext context)
 {
     var connection = context.Database.GetDbConnection();
     var shouldClose = connection.State != ConnectionState.Open;
@@ -168,26 +170,37 @@ static void EnsureUserApprovalColumn(ApplicationDbContext context)
 
     try
     {
-        var columnExists = false;
+        var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         using (var command = connection.CreateCommand())
         {
             command.CommandText = "PRAGMA table_info(\"Users\");";
             using var reader = command.ExecuteReader();
             while (reader.Read())
-            {
-                if (string.Equals(reader.GetString(1), "IsApproved", StringComparison.OrdinalIgnoreCase))
-                {
-                    columnExists = true;
-                    break;
-                }
-            }
+                existingColumns.Add(reader.GetString(1));
         }
 
-        if (!columnExists)
+        var requiredColumns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            ["IsApproved"] = "INTEGER NOT NULL DEFAULT 1",
+            ["CompanyName"] = "TEXT NULL",
+            ["PhoneNumber"] = "TEXT NULL",
+            ["JobTitle"] = "TEXT NULL",
+            ["AccessReason"] = "TEXT NULL",
+            ["PreferredContactMethod"] = "TEXT NULL",
+            ["CreatedAt"] = "TEXT NULL",
+            ["TermsAcceptedAt"] = "TEXT NULL",
+            ["PrivacyAcceptedAt"] = "TEXT NULL",
+            ["ApprovedAt"] = "TEXT NULL",
+            ["ApprovedByUserId"] = "INTEGER NULL"
+        };
+
+        foreach (var column in requiredColumns)
+        {
+            if (existingColumns.Contains(column.Key))
+                continue;
+
             using var command = connection.CreateCommand();
-            command.CommandText =
-                "ALTER TABLE \"Users\" ADD COLUMN \"IsApproved\" INTEGER NOT NULL DEFAULT 1;";
+            command.CommandText = $"ALTER TABLE \"Users\" ADD COLUMN \"{column.Key}\" {column.Value};";
             command.ExecuteNonQuery();
         }
     }
