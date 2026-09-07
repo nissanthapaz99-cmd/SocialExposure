@@ -13,6 +13,7 @@ namespace SocialExposure.Controllers
 {
     public class AccountController : Controller
     {
+        private const string RememberedStaffEmailCookie = "SocialExposure.RememberedStaffEmail";
         private readonly ApplicationDbContext _context;
         private readonly OTPService _otpService;
         private readonly EmailService _emailService;
@@ -252,6 +253,9 @@ namespace SocialExposure.Controllers
         [HttpGet]
         public IActionResult StaffLogin()
         {
+            var rememberedEmail = Request.Cookies[RememberedStaffEmailCookie];
+            ViewBag.RememberedEmail = rememberedEmail ?? string.Empty;
+            ViewBag.RememberEmail = !string.IsNullOrWhiteSpace(rememberedEmail);
             return View();
         }
 [HttpPost]
@@ -272,10 +276,36 @@ public async Task<IActionResult> StaffLogin(string email, string password, bool 
             "Invalid staff/admin credentials."
         );
 
+        ViewBag.RememberedEmail = normalizedEmail;
+        ViewBag.RememberEmail = rememberMe;
         return View();
     }
 
-    await SignInUserAsync(user, rememberMe);
+    if (rememberMe)
+    {
+        Response.Cookies.Append(
+            RememberedStaffEmailCookie,
+            normalizedEmail,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                IsEssential = true,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(30)
+            });
+    }
+    else
+    {
+        Response.Cookies.Delete(
+            RememberedStaffEmailCookie,
+            new CookieOptions { Path = "/" });
+    }
+
+    // The checkbox remembers only the email address. Authentication still ends
+    // with the normal session instead of keeping the user signed in for 30 days.
+    await SignInUserAsync(user);
     return RedirectToRoleDashboard(user);
 }
 
@@ -307,7 +337,7 @@ public async Task<IActionResult> Profile()
     return user == null ? RedirectToAction(nameof(Login)) : View(user);
 }
 
-private async Task SignInUserAsync(User user, bool rememberMe = false)
+private async Task SignInUserAsync(User user)
 {
     var claims = new List<Claim>
     {
@@ -326,10 +356,8 @@ private async Task SignInUserAsync(User user, bool rememberMe = false)
         new ClaimsPrincipal(identity),
         new AuthenticationProperties
         {
-            IsPersistent = rememberMe,
-            ExpiresUtc = rememberMe
-                ? DateTimeOffset.UtcNow.AddDays(30)
-                : DateTimeOffset.UtcNow.AddHours(8)
+            IsPersistent = false,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
         });
 }
 
