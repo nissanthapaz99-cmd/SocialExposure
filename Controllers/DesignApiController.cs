@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using SocialExposure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialExposure.Models;
+using SocialExposure.Services;
 
 namespace SocialExposure.Controllers
 {
@@ -12,11 +14,25 @@ namespace SocialExposure.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly OTPService _otpService;
+        private readonly EmailService _emailService;
+        private readonly NotificationService _notificationService;
+        private readonly IWebHostEnvironment _environment;
 
-        public DesignApiController(ApplicationDbContext context, IPasswordHasher<User> passwordHasher)
+        public DesignApiController(
+            ApplicationDbContext context,
+            IPasswordHasher<User> passwordHasher,
+            OTPService otpService,
+            EmailService emailService,
+            NotificationService notificationService,
+            IWebHostEnvironment environment)
         {
             _context = context;
             _passwordHasher = passwordHasher;
+            _otpService = otpService;
+            _emailService = emailService;
+            _notificationService = notificationService;
+            _environment = environment;
         }
 
         // GET: api/designapi/test
@@ -34,12 +50,28 @@ namespace SocialExposure.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.FullName))
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password) ||
+                string.IsNullOrWhiteSpace(request.FullName))
             {
                 return BadRequest(new { error = "Full name, email, and password are required." });
             }
 
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (!request.AcceptTerms)
+            {
+                return BadRequest(new
+                {
+                    error = "You must agree to the Terms & Conditions to sign up."
+                });
+            }
+
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            if (!new EmailAddressAttribute().IsValid(normalizedEmail))
+                return BadRequest(new { error = "Enter a valid email address." });
+
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Email.ToLower() == normalizedEmail);
             if (existingUser != null)
             {
                 return BadRequest(new { error = "An account with this email already exists." });
@@ -47,11 +79,12 @@ namespace SocialExposure.Controllers
 
             var newUser = new User
             {
-                FullName = request.FullName,
-                Email = request.Email,
+                FullName = request.FullName.Trim(),
+                Email = normalizedEmail,
                 Role = UserRoles.Client,
-                IsVerified = true,
-                IsActive = true
+                IsVerified = false,
+                IsActive = true,
+                IsApproved = false
             };
 
             newUser.Password = _passwordHasher.HashPassword(newUser, request.Password);
@@ -59,11 +92,18 @@ namespace SocialExposure.Controllers
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            return Ok(new { 
-                message = "Account successfully registered and saved to SocialExposure.db.",
+            var otp = _otpService.GenerateOTP();
+            await _otpService.SaveOTPAsync(newUser.Email, otp);
+            var emailSent = await _emailService.SendOTPAsync(newUser.Email, otp);
+
+            return Accepted(new {
+                message = "Account registered. Verify the email, then wait for administrator approval.",
                 email = newUser.Email,
                 fullName = newUser.FullName,
-                role = newUser.Role
+                role = newUser.Role,
+                requiresEmailVerification = true,
+                requiresAdminApproval = true,
+                developmentOtp = _environment.IsDevelopment() && !emailSent ? otp : null
             });
         }
 
@@ -76,11 +116,16 @@ namespace SocialExposure.Controllers
                 return BadRequest(new { error = "Email and password are required." });
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Role == UserRoles.Client && u.Email.ToLower() == normalizedEmail);
 
-            if (user == null || !user.IsActive)
+            if (user == null || !user.IsActive || !user.IsVerified || !user.IsApproved)
             {
-                return Unauthorized(new { error = "Invalid email or password." });
+                return Unauthorized(new
+                {
+                    error = "The Client account is unavailable, unverified, or waiting for approval."
+                });
             }
 
             var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Password ?? string.Empty, request.Password);
@@ -100,13 +145,48 @@ namespace SocialExposure.Controllers
 
         // POST: api/designapi/verify-otp
         [HttpPost("verify-otp")]
-        public IActionResult VerifyOtp([FromBody] OtpRequest request)
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpRequest request)
         {
-            if (request?.OtpCode == "123456")
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.OtpCode))
             {
-                return Ok(new { status = "Success", message = "OTP verified successfully." });
+                return BadRequest(new { error = "Email and OTP code are required." });
             }
-            return BadRequest(new { error = "Invalid OTP code." });
+
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var user = await _context.Users.FirstOrDefaultAsync(x =>
+                x.Role == UserRoles.Client && x.Email.ToLower() == normalizedEmail);
+
+            if (user == null || !user.IsActive)
+                return BadRequest(new { error = "This Client account is not available." });
+
+            if (!_otpService.VerifyOTP(normalizedEmail, request.OtpCode))
+                return BadRequest(new { error = "Invalid or expired OTP code." });
+
+            var wasVerified = user.IsVerified;
+            user.IsVerified = true;
+
+            if (!wasVerified && !user.IsApproved)
+            {
+                await _notificationService.QueueForUserAsync(
+                    user.Id,
+                    "Email verified",
+                    "Your registration is waiting for administrator approval.",
+                    "account");
+                await _notificationService.QueueForRoleAsync(
+                    UserRoles.Admin,
+                    "Client approval requested",
+                    $"{user.FullName} verified {user.Email} and is waiting for approval.",
+                    "account",
+                    Url.Action("ClientManagement", "Admin"));
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new
+            {
+                status = "PendingApproval",
+                message = "Email verified. The account is waiting for administrator approval."
+            });
         }
 
         // POST: api/designapi/upload
@@ -177,9 +257,21 @@ namespace SocialExposure.Controllers
     // Request Models
     public class RegisterRequest
     {
+        [Required]
+        [StringLength(100, MinimumLength = 2)]
         public string FullName { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        [StringLength(254)]
         public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(8)]
         public string Password { get; set; } = string.Empty;
+
+        [Range(typeof(bool), "true", "true")]
+        public bool AcceptTerms { get; set; }
     }
 
     public class LoginRequest
@@ -190,6 +282,12 @@ namespace SocialExposure.Controllers
 
     public class OtpRequest
     {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [RegularExpression("^[0-9]{6}$")]
         public string OtpCode { get; set; } = string.Empty;
     }
 
