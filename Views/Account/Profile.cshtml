@@ -12,14 +12,7 @@
                 <div class="detail-row"><b>Phone Number</b><span>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</span></div>
                 <div class="detail-row"><b>Job Title</b><span>@(string.IsNullOrWhiteSpace(Model.JobTitle) ? "Not provided" : Model.JobTitle)</span></div>
                 <div class="detail-row"><b>Preferred Contact</b><span>@(string.IsNullOrWhiteSpace(Model.PreferredContactMethod) ? "Email" : Model.PreferredContactMethod)</span></div>
-                <div class="detail-row"><b>Reason for Access</b><span class="detail-long-text">@(string.IsNullOrWhiteSpace(Model.AccessReason) ? "Not provided" : Model.AccessReason)</span></div>
-            }
-            <div class="detail-row"><b>Account Status</b><span>@(Model.IsActive ? "Active" : "Suspended")</span></div>
-            <div class="detail-row"><b>Verification</b><span>@(Model.IsVerified ? "Verified" : "Pending")</span></div>
-            @if (Model.Role == UserRoles.Client || Model.Role == UserRoles.Staff)
-            {
-                <div class="detail-row"><b>Approval</b><span>@(Model.IsApproved ? "Approved" : "Pending administrator approval")</span></div>
-                <div class="detail-row"><b>Registered</b><span>@(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToLocalTime().ToString("dd MMM yyyy") : "Existing account")</span></div>
+               
             }
         </div>
     </div>
