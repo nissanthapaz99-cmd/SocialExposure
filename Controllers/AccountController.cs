@@ -83,7 +83,9 @@ namespace SocialExposure.Controllers
             {
                 FullName = model.FullName.Trim(),
                 Email = normalizedEmail,
+                CompanyName = model.CompanyName.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
+                JobTitle = string.IsNullOrWhiteSpace(model.JobTitle) ? null : model.JobTitle.Trim(),
                 AccessReason = model.AccessReason.Trim(),
                 PreferredContactMethod = model.PreferredContactMethod,
                 CreatedAt = DateTime.UtcNow,

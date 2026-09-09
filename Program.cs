@@ -76,23 +76,6 @@ builder.Services.AddScoped<OTPService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.Configure<AirtableOptions>(
-    builder.Configuration.GetSection(AirtableOptions.SectionName));
-builder.Services.AddHttpClient<AirtableApiClient>((serviceProvider, client) =>
-{
-    var options = serviceProvider
-        .GetRequiredService<Microsoft.Extensions.Options.IOptions<AirtableOptions>>()
-        .Value;
-    var apiBaseUrl = Uri.TryCreate(options.ApiBaseUrl, UriKind.Absolute, out var configuredUrl) &&
-        configuredUrl.Scheme is "http" or "https"
-            ? configuredUrl
-            : new Uri("https://api.airtable.com/v0/");
-    client.BaseAddress = apiBaseUrl;
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-builder.Services.AddScoped<AirtableSyncService>();
-builder.Services.AddSingleton<AirtableSyncState>();
-builder.Services.AddHostedService<AirtableSyncBackgroundService>();
 
 var app = builder.Build();
 
@@ -102,7 +85,6 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
     EnsureUserProfileColumns(context);
-    EnsureAirtableColumns(context);
 
     if (app.Environment.IsDevelopment())
     {
@@ -220,45 +202,6 @@ static void EnsureUserProfileColumns(ApplicationDbContext context)
             using var command = connection.CreateCommand();
             command.CommandText = $"ALTER TABLE \"Users\" ADD COLUMN \"{column.Key}\" {column.Value};";
             command.ExecuteNonQuery();
-        }
-    }
-    finally
-    {
-        if (shouldClose)
-            connection.Close();
-    }
-}
-
-static void EnsureAirtableColumns(ApplicationDbContext context)
-{
-    var connection = context.Database.GetDbConnection();
-    var shouldClose = connection.State != ConnectionState.Open;
-    if (shouldClose)
-        connection.Open();
-
-    try
-    {
-        foreach (var tableName in new[] { "Users", "Events", "Designs" })
-        {
-            var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = $"PRAGMA table_info(\"{tableName}\");";
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                    existingColumns.Add(reader.GetString(1));
-            }
-
-            foreach (var columnName in new[] { "AirtableRecordId", "AirtableSyncHash" })
-            {
-                if (existingColumns.Contains(columnName))
-                    continue;
-
-                using var command = connection.CreateCommand();
-                command.CommandText =
-                    $"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" TEXT NULL;";
-                command.ExecuteNonQuery();
-            }
         }
     }
     finally
