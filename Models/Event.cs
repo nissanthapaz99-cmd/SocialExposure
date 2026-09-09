@@ -27,5 +27,11 @@ namespace SocialExposure.Models
         public DateTime Deadline { get; set; }
 
         public string Status { get; set; } = "Pending";
+
+        [StringLength(40)]
+        public string? AirtableRecordId { get; set; }
+
+        [StringLength(64)]
+        public string? AirtableSyncHash { get; set; }
     }
 }

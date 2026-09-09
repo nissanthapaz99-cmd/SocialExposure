@@ -7,10 +7,8 @@
         <form asp-action="Register" method="post">
             <div class="auth-field-grid">
                 <div class="field"><label asp-for="FullName">Full Name</label><input asp-for="FullName" autocomplete="name" placeholder="Your full name"/><span asp-validation-for="FullName"></span></div>
-                <div class="field"><label asp-for="CompanyName">Company / Organisation</label><input asp-for="CompanyName" autocomplete="organization" placeholder="Company name or Individual"/><span asp-validation-for="CompanyName"></span></div>
                 <div class="field"><label asp-for="Email">Email Address</label><input asp-for="Email" autocomplete="email" placeholder="your.email@company.com"/><span asp-validation-for="Email"></span></div>
                 <div class="field"><label asp-for="PhoneNumber">Phone Number</label><input asp-for="PhoneNumber" type="tel" autocomplete="tel" placeholder="Your contact number"/><span asp-validation-for="PhoneNumber"></span></div>
-                <div class="field"><label asp-for="JobTitle">Job Title <small>(optional)</small></label><input asp-for="JobTitle" autocomplete="organization-title" placeholder="e.g. Marketing Manager"/><span asp-validation-for="JobTitle"></span></div>
                 <div class="field"><label asp-for="PreferredContactMethod">Preferred Contact Method</label><select asp-for="PreferredContactMethod"><option value="Email">Email</option><option value="Phone">Phone</option></select><span asp-validation-for="PreferredContactMethod"></span></div>
                 <div class="field full-width"><label asp-for="AccessReason">Reason for Access</label><textarea asp-for="AccessReason" rows="4" maxlength="500" placeholder="Briefly tell us how you plan to use the platform"></textarea><span asp-validation-for="AccessReason"></span></div>
             </div>

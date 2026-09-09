@@ -39,6 +39,12 @@ namespace SocialExposure.Models
 
         public int? ApprovedByUserId { get; set; }
 
+        [StringLength(40)]
+        public string? AirtableRecordId { get; set; }
+
+        [StringLength(64)]
+        public string? AirtableSyncHash { get; set; }
+
         // Client doesn't need a password
         public string? Password { get; set; }
 

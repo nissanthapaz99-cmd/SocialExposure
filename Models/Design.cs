@@ -32,5 +32,11 @@ namespace SocialExposure.Models
 
         // Review status
         public string Status { get; set; } = "Pending Review";
+
+        [StringLength(40)]
+        public string? AirtableRecordId { get; set; }
+
+        [StringLength(64)]
+        public string? AirtableSyncHash { get; set; }
     }
 }
