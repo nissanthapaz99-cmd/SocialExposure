@@ -46,12 +46,6 @@
             : Db.Notifications.Count(
                 x => x.UserId == userId && !x.IsRead);
 
-    var unreadMessages =
-        userId == 0
-            ? 0
-            : Db.Messages.Count(
-                x => x.ReceiverId == userId && !x.IsRead);
-
     var isAdmin =
         role == UserRoles.Admin;
 
@@ -252,29 +246,6 @@
                 </a>
 
 
-                <a class="@Active("Message")"
-                   asp-controller="Message"
-                   asp-action="Index">
-
-                    Messages
-
-                    @if (unreadMessages > 0)
-                    {
-                        <em>
-                            @unreadMessages
-                        </em>
-                    }
-
-                </a>
-
-
-                <a class="@Active("Admin", "ActivityLogs")"
-                   asp-controller="Admin"
-                   asp-action="ActivityLogs">
-
-                    Activity Logs
-
-                </a>
             }
 
 
@@ -327,20 +298,6 @@
                 </a>
 
 
-             <!--   <a class="@Active("Message")"
-                   asp-controller="Message"
-                   asp-action="Index">
-
-                    Messages
-
-                    @if (unreadMessages > 0)
-                    {
-                        <em>
-                            @unreadMessages
-                        </em>
-                    }
-
-                </a> -->
             }
 
 
@@ -390,24 +347,6 @@
                     }
 
                 </a>
-
-
-                <!-- MESSAGES -->
-
-            <!--    <a class="@Active("Message")"
-                   asp-controller="Message"
-                   asp-action="Index">
-
-                    Messages
-
-                    @if (unreadMessages > 0)
-                    {
-                        <em>
-                            @unreadMessages
-                        </em>
-                    }
-
-                </a> -->
 
 
                 <!-- PROFILE -->

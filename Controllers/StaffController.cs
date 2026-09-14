@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialExposure.Models;
@@ -25,17 +24,7 @@ namespace SocialExposure.Controllers
                 .OrderByDescending(e => e.Id)
                 .ToList();
 
-            var userId = int.TryParse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier),
-                out var id) ? id : 0;
-
             ViewBag.PendingApprovals = events.Count(e => e.Status == "Pending");
-
-            ViewBag.FeedbackReceived = userId == 0
-                ? 0
-                : _context.Messages.Count(m =>
-                    m.ReceiverId == userId &&
-                    !m.IsRead);
 
             ViewBag.OverdueTasks = events.Count(e =>
                 e.Deadline.Date < DateTime.Today &&

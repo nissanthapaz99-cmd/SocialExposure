@@ -16,10 +16,9 @@
         <a asp-controller="Events" asp-action="Create">＋ Create Events</a>
       <!--<a class="gold" asp-controller="Project" asp-action="Index">➤ Send for Approval</a> -->
     </div>
-<div class="stat-grid four">
+<div class="stat-grid three">
     <article><i class="bi bi-calendar-event"></i><b>@activeEvents</b><span>Active Events</span></article>
     <article><i class="bi bi-clock"></i><b>@ViewBag.PendingApprovals</b><span>Pending Approvals</span></article>
-<article><i class="bi bi-chat-square-text"></i><b>@ViewBag.FeedbackReceived</b><span>Feedback Received</span></article>
 <article><i class="bi bi-exclamation-circle"></i><b>@ViewBag.OverdueTasks</b><span>Overdue Tasks</span></article>
     </div>
 
@@ -58,7 +57,6 @@
             <div class="panel-heading"><h3>Pending Tasks</h3></div>
             <div class="task-list">
                 <a asp-controller="Design" asp-action="Index"><b>Upload Design</b><span>Add the next design version</span></a>
-                <a asp-controller="Message" asp-action="Index"><b>Respond to Messages</b><span>Check client conversations</span></a>
                 <a asp-controller="Notification" asp-action="Index"><b>Review Updates</b><span>Open notifications</span></a>
             </div>
         </aside>
