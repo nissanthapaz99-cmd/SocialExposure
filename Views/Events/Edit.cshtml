@@ -1,22 +1,298 @@
 @model SocialExposure.Models.Event
-@{ ViewData["Title"] = "Edit Event"; }
+
+@{
+    ViewData["Title"] = "Edit Event";
+
+    var staff = ViewBag.Staff as IEnumerable<SocialExposure.Models.User>
+                 ?? Enumerable.Empty<SocialExposure.Models.User>();
+
+    var selectedStaffIds = ViewBag.SelectedStaffIds as IEnumerable<int>
+                           ?? Enumerable.Empty<int>();
+}
+
 <div class="form-card">
-    <div class="form-card-header"><h2>Edit Event</h2><p>Update event details, schedule and status.</p></div>
+
+    <div class="form-card-header">
+        <h2>Edit Event</h2>
+        <p>
+            Update event details, schedule, status and assigned staff members.
+        </p>
+    </div>
+
     <form asp-action="Edit" method="post">
-        @Html.AntiForgeryToken()<input type="hidden" asp-for="Id" />
-        <div asp-validation-summary="ModelOnly" class="field-error"></div>
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="field-error"></div>
+
+        <!-- EVENT NAME AND CLIENT NAME -->
+
         <div class="field-grid">
-            <div class="field"><label asp-for="EventName">Event Name</label><input asp-for="EventName" /><span asp-validation-for="EventName" class="field-error"></span></div>
-            <div class="field"><label asp-for="ClientName">Client Name</label><input asp-for="ClientName" /><span asp-validation-for="ClientName" class="field-error"></span></div>
+
+            <div class="field">
+
+                <label asp-for="EventName">
+                    Event Name
+                </label>
+
+                <input asp-for="EventName"
+                       placeholder="Enter event name" />
+
+                <span asp-validation-for="EventName"
+                      class="field-error"></span>
+
+            </div>
+
+            <div class="field">
+
+                <label asp-for="ClientName">
+                    Client Name
+                </label>
+
+                <input asp-for="ClientName"
+                       placeholder="Enter client name" />
+
+                <span asp-validation-for="ClientName"
+                      class="field-error"></span>
+
+            </div>
+
         </div>
-        <div class="field"><label asp-for="ClientEmail">Client Email</label><input asp-for="ClientEmail" /><span asp-validation-for="ClientEmail" class="field-error"></span></div>
-        <div class="field"><label asp-for="Description">Description</label><textarea asp-for="Description"></textarea><span asp-validation-for="Description" class="field-error"></span></div>
+
+        <!-- CLIENT EMAIL -->
+
+        <div class="field">
+
+            <label asp-for="ClientEmail">
+                Client Email
+            </label>
+
+            <input asp-for="ClientEmail"
+                   placeholder="client@company.com" />
+
+            <span asp-validation-for="ClientEmail"
+                  class="field-error"></span>
+
+        </div>
+
+        <!-- DESCRIPTION -->
+
+        <div class="field">
+
+            <label asp-for="Description">
+                Description
+            </label>
+
+            <textarea asp-for="Description"
+                      placeholder="Describe the event and deliverables"></textarea>
+
+            <span asp-validation-for="Description"
+                  class="field-error"></span>
+
+        </div>
+
+        <!-- STAFF ASSIGNMENT -->
+
+        <div class="field">
+
+            <label>Assigned Staff Members</label>
+
+            <small class="field-note">
+                Select one or more staff members responsible for this event.
+                Existing assignments are already selected.
+            </small>
+
+            @if (staff.Any())
+            {
+                <div class="staff-selection">
+
+                    @foreach (var member in staff)
+                    {
+                        <label class="staff-option">
+
+                            <input type="checkbox"
+                                   name="staffIds"
+                                   value="@member.Id"
+                                   @(selectedStaffIds.Contains(member.Id)
+                                       ? "checked"
+                                       : "") />
+
+                            <span class="staff-option-content">
+
+                                <strong>
+                                    @member.FullName
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(member.Email))
+                                {
+                                    <small>
+                                        @member.Email
+                                    </small>
+                                }
+
+                            </span>
+
+                        </label>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="field-note">
+                    No active staff members are currently available.
+                </div>
+            }
+
+        </div>
+
+        <!-- START DATE AND DEADLINE -->
+
         <div class="field-grid">
-            <div class="field"><label asp-for="StartDate">Start Date</label><input asp-for="StartDate" type="date" /></div>
-            <div class="field"><label asp-for="Deadline">Deadline</label><input asp-for="Deadline" type="date" /></div>
+
+            <div class="field">
+
+                <label asp-for="StartDate">
+                    Start Date
+                </label>
+
+                <input asp-for="StartDate"
+                       type="date" />
+
+                <span asp-validation-for="StartDate"
+                      class="field-error"></span>
+
+            </div>
+
+            <div class="field">
+
+                <label asp-for="Deadline">
+                    Deadline
+                </label>
+
+                <input asp-for="Deadline"
+                       type="date" />
+
+                <span asp-validation-for="Deadline"
+                      class="field-error"></span>
+
+            </div>
+
         </div>
-        <div class="field"><label asp-for="Status">Status</label><select asp-for="Status"><option>Pending</option><option>Completed</option></select></div>
-        <div class="form-actions"><button class="action-button" type="submit">Save Changes</button><a class="action-button secondary" asp-action="ViewStaff">Cancel</a></div>
+
+        <!-- STATUS -->
+
+        <div class="field">
+
+            <label asp-for="Status">
+                Status
+            </label>
+
+            <select asp-for="Status">
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="In Progress">
+                    In Progress
+                </option>
+
+                <option value="Completed">
+                    Completed
+                </option>
+
+            </select>
+
+            <span asp-validation-for="Status"
+                  class="field-error"></span>
+
+        </div>
+
+        <!-- FORM ACTIONS -->
+
+        <div class="form-actions">
+
+            <button class="action-button"
+                    type="submit">
+                Save Changes
+            </button>
+
+            <a class="action-button secondary"
+               asp-action="ViewStaff">
+                Cancel
+            </a>
+
+        </div>
+
     </form>
+
 </div>
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+
+<style>
+
+    .staff-selection {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .staff-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .staff-option:hover {
+        border-color: #D88B2A;
+        background: #fffaf5;
+    }
+
+    .staff-option input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .staff-option-content {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .staff-option-content strong {
+        font-size: 15px;
+        color: #1F2937;
+    }
+
+    .staff-option-content small {
+        font-size: 13px;
+        color: #6B7280;
+    }
+
+    @@media (max-width: 700px) {
+
+        .staff-selection {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+</style>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

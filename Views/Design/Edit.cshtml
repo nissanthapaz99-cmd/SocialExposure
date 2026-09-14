@@ -1,0 +1,758 @@
+@model SocialExposure.Models.Design
+
+@{
+    ViewData["Title"] = "Edit Design";
+}
+
+<div class="design-edit-page">
+
+    <!-- PAGE HEADER -->
+    <div class="design-edit-header">
+
+        <div class="design-edit-heading">
+
+            <span class="page-label">
+                DESIGN WORKFLOW
+            </span>
+
+            <h1>
+                Update Design
+            </h1>
+
+            <p>
+                Upload a reference file or revised version for this design.
+                The assigned staff members will be notified automatically.
+            </p>
+
+        </div>
+
+        <a asp-action="Index"
+           class="back-button">
+            ← Back to Designs
+        </a>
+
+    </div>
+
+
+    <!-- CURRENT DESIGN -->
+    <div class="current-design-card">
+
+        <div class="current-design-icon">
+            ▤
+        </div>
+
+        <div class="current-design-info">
+
+            <span class="current-label">
+                CURRENT DESIGN
+            </span>
+
+            <h2>
+                @Model.FileName
+            </h2>
+
+            @if (Model.Event != null)
+            {
+                <p>
+                    Project:
+                    <strong>@Model.Event.EventName</strong>
+                </p>
+            }
+
+            <div class="current-meta">
+
+                <span>
+                    Version @Model.Version
+                </span>
+
+                <span>
+                    Uploaded
+                    @Model.UploadedAt.ToString("dd MMM yyyy")
+                </span>
+
+                <span class="current-status">
+                    @Model.Status
+                </span>
+
+            </div>
+
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+        {
+            <div class="current-design-action">
+
+                <a href="@Model.FilePath"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="preview-button">
+
+                    👁 Preview Current File
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- UPLOAD CARD -->
+    <div class="upload-card">
+
+        <div class="upload-card-header">
+
+            <h2>
+                Submit a File
+            </h2>
+
+            <p>
+                Add a reference file or submit a revised version of your design.
+            </p>
+
+        </div>
+
+
+        <form asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.Id" />
+
+
+            <!-- VALIDATION -->
+            <div asp-validation-summary="ModelOnly"
+                 class="field-error">
+            </div>
+
+
+            <!-- SUBMISSION TYPE -->
+            <div class="field">
+
+                <label for="submissionType">
+                    File Type
+                </label>
+
+                <select id="submissionType"
+                        name="submissionType"
+                        class="form-input">
+
+                    <option value="Revised">
+                        Revised Design
+                    </option>
+
+                    <option value="Reference">
+                        Reference File
+                    </option>
+
+                </select>
+
+                <small class="field-note">
+                    Choose "Revised Design" when submitting an updated
+                    version of the design. Choose "Reference File" when
+                    providing additional examples, images or materials.
+                </small>
+
+            </div>
+
+
+            <!-- FILE -->
+            <div class="field">
+
+                <label for="designFile">
+                    Upload File
+                </label>
+
+                <div class="file-upload-box">
+
+                    <input type="file"
+                           id="designFile"
+                           name="designFile"
+                           required
+                           accept=".jpg,.jpeg,.png,.pdf,.zip,.psd,.ai,.fig,.xd" />
+
+                    <div class="file-upload-text">
+
+                        <strong>
+                            Choose a file
+                        </strong>
+
+                        <span>
+                            JPG, PNG, PDF, ZIP, PSD, AI, FIG or XD
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="field-error">
+                    @ViewData.ModelState["designFile"]?.Errors.FirstOrDefault()?.ErrorMessage
+                </span>
+
+            </div>
+
+
+            <!-- NOTES -->
+            <div class="field">
+
+                <label for="description">
+                    Notes
+                </label>
+
+                <textarea id="description"
+                          name="description"
+                          class="form-input textarea-input"
+                          rows="5"
+                          placeholder="Add any notes or instructions for the design team..."></textarea>
+
+                <small class="field-note">
+                    These notes will be visible to the assigned staff members.
+                </small>
+
+            </div>
+
+
+            <!-- AUTOMATIC ROUTING -->
+            <div class="routing-information">
+
+                <div class="routing-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Automatic Staff Notification
+                    </strong>
+
+                    <p>
+                        You do not need to select a staff member.
+                        Your file will automatically be connected to
+                        the staff members assigned to this project.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+
+                <a asp-action="Index"
+                   class="action-button secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="action-button">
+                    Upload File
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    /* =====================================================
+       PAGE
+       ===================================================== */
+
+    .design-edit-page {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 10px 0 50px;
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
+    .design-edit-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 25px;
+        margin-bottom: 28px;
+    }
+
+    .design-edit-heading {
+        min-width: 0;
+    }
+
+    .page-label {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #971B1B;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+    .design-edit-header h1 {
+        margin: 0 0 8px;
+        color: #1F2937;
+        font-size: 42px;
+        font-weight: 750;
+        line-height: 1.15;
+    }
+
+    .design-edit-header p {
+        margin: 0;
+        max-width: 720px;
+        color: #6B7280;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 17px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #374151;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+        color: #971B1B;
+        border-color: #971B1B;
+        text-decoration: none;
+    }
+
+
+    /* =====================================================
+       CURRENT DESIGN CARD
+       ===================================================== */
+
+    .current-design-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px;
+        margin-bottom: 24px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+    }
+
+    .current-design-icon {
+        width: 58px;
+        height: 58px;
+        flex: 0 0 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #FBF4EF;
+        color: #971B1B;
+        font-size: 25px;
+    }
+
+    .current-design-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .current-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #971B1B;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .current-design-info h2 {
+        margin: 0 0 5px;
+        color: #1F2937;
+        font-size: 19px;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .current-design-info p {
+        margin: 0 0 10px;
+        color: #6B7280;
+        font-size: 14px;
+    }
+
+    .current-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: #6B7280;
+        font-size: 13px;
+    }
+
+    .current-status {
+        padding: 5px 9px;
+        border-radius: 8px;
+        background: #FFF7E8;
+        color: #A16207;
+        font-weight: 600;
+    }
+
+    .current-design-action {
+        flex: 0 0 auto;
+    }
+
+    .preview-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #374151;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .preview-button:hover {
+        color: #971B1B;
+        border-color: #971B1B;
+        text-decoration: none;
+    }
+
+
+    /* =====================================================
+       UPLOAD CARD
+       ===================================================== */
+
+    .upload-card {
+        padding: 30px;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 20px;
+    }
+
+    .upload-card-header {
+        margin-bottom: 25px;
+    }
+
+    .upload-card-header h2 {
+        margin: 0 0 6px;
+        color: #1F2937;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .upload-card-header p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+       FORM FIELDS
+       ===================================================== */
+
+    .field {
+        margin-bottom: 22px;
+    }
+
+    .field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #1F2937;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .form-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid #D1D5DB;
+        border-radius: 11px;
+        background: #FFFFFF;
+        color: #1F2937;
+        font-family: inherit;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+        border-color: #971B1B;
+        box-shadow: 0 0 0 3px rgba(151, 27, 27, 0.08);
+    }
+
+    .textarea-input {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.5;
+    }
+
+    .field-note {
+        display: block;
+        margin-top: 7px;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .field-error {
+        display: block;
+        margin-top: 6px;
+        color: #B42318;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       FILE UPLOAD
+       ===================================================== */
+
+    .file-upload-box {
+        position: relative;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border: 2px dashed #D1D5DB;
+        border-radius: 14px;
+        background: #FAFAFA;
+        text-align: center;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .file-upload-box:hover {
+        border-color: #971B1B;
+        background: #FFFDFB;
+    }
+
+    .file-upload-box input[type="file"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-upload-text {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        pointer-events: none;
+    }
+
+    .file-upload-text strong {
+        color: #1F2937;
+        font-size: 15px;
+    }
+
+    .file-upload-text span {
+        color: #6B7280;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       AUTOMATIC ROUTING INFORMATION
+       ===================================================== */
+
+    .routing-information {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin: 25px 0;
+        padding: 16px 18px;
+        border-radius: 12px;
+        background: #F8F5F2;
+    }
+
+    .routing-icon {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #971B1B;
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .routing-information strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #1F2937;
+        font-size: 14px;
+    }
+
+    .routing-information p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       FORM ACTIONS
+       ===================================================== */
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 5px;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 21px;
+        border: none;
+        border-radius: 11px;
+        background: #971B1B;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .action-button:hover {
+        background: #821717;
+        color: #FFFFFF;
+        text-decoration: none;
+    }
+
+    .action-button.secondary {
+        border: 1px solid #D1D5DB;
+        background: #FFFFFF;
+        color: #374151;
+    }
+
+    .action-button.secondary:hover {
+        border-color: #971B1B;
+        background: #FFFFFF;
+        color: #971B1B;
+    }
+
+
+    /* =====================================================
+       TABLET
+       ===================================================== */
+
+    @@media (max-width: 750px) {
+
+        .design-edit-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .current-design-card {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .current-design-action {
+            width: 100%;
+        }
+
+        .preview-button {
+            width: 100%;
+        }
+
+        .upload-card {
+            padding: 22px;
+        }
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @@media (max-width: 600px) {
+
+        .design-edit-page {
+            padding-top: 5px;
+        }
+
+        .design-edit-header h1 {
+            font-size: 32px;
+        }
+
+        .back-button {
+            width: 100%;
+        }
+
+        .current-design-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .current-design-info {
+            width: 100%;
+        }
+
+        .current-design-action {
+            width: 100%;
+        }
+
+        .upload-card {
+            padding: 18px;
+        }
+
+        .routing-information {
+            padding: 14px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .action-button {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

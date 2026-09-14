@@ -20,6 +20,7 @@ builder.Logging.AddDebug();
 
 // Add MVC
 builder.Services.AddControllersWithViews();
+
 builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = DesignUploadPolicy.RequestMaxBytes);
 
@@ -27,51 +28,75 @@ builder.Services
     .AddDataProtection()
     .SetApplicationName("SocialExposure")
     .PersistKeysToFileSystem(
-        new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")));
+        new DirectoryInfo(
+            Path.Combine(
+                builder.Environment.ContentRootPath,
+                ".keys")));
 
+// Authentication
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddAuthentication(
+        CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+
         options.Events.OnValidatePrincipal = async context =>
         {
-            var idValue = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
-            var claimedRole = context.Principal?.FindFirstValue(ClaimTypes.Role);
+            var idValue =
+                context.Principal?.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            var claimedRole =
+                context.Principal?.FindFirstValue(
+                    ClaimTypes.Role);
 
             if (!int.TryParse(idValue, out var userId))
             {
                 context.RejectPrincipal();
+
                 await context.HttpContext.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme);
+
                 return;
             }
 
-            var db = context.HttpContext.RequestServices
-                .GetRequiredService<ApplicationDbContext>();
-            var user = await db.Users.AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == userId);
+            var db =
+                context.HttpContext.RequestServices
+                    .GetRequiredService<ApplicationDbContext>();
 
-            if (user == null || !user.IsActive || !user.IsApproved ||
-                !string.Equals(user.Role, claimedRole, StringComparison.Ordinal))
+            var user =
+                await db.Users
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(
+                        x => x.Id == userId);
+
+            if (user == null ||
+                !user.IsActive ||
+                !user.IsApproved ||
+                !string.Equals(
+                    user.Role,
+                    claimedRole,
+                    StringComparison.Ordinal))
             {
                 context.RejectPrincipal();
+
                 await context.HttpContext.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme);
             }
         };
     });
 
-// Add SQLite database
+// SQLite database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection")));
 
-// Register services used by AccountController
+// Services
 builder.Services.AddScoped<OTPService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificationService>();
@@ -79,16 +104,32 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var app = builder.Build();
 
-// Create database/tables if they don't exist
+// =========================================
+// CREATE DATABASE / TABLES
+// =========================================
+
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var context =
+        scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+
+    // Create the database and any missing tables
+    // when the database does not already exist.
     context.Database.EnsureCreated();
+
+    // Add/update required User profile columns.
     EnsureUserProfileColumns(context);
+
+    // Add EventStaff table for multiple staff members
+    // assigned to the same event.
+    EnsureEventStaffTable(context);
 
     if (app.Environment.IsDevelopment())
     {
-        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+        var passwordHasher =
+            scope.ServiceProvider
+                .GetRequiredService<IPasswordHasher<User>>();
 
         SeedDevelopmentUser(
             context,
@@ -110,7 +151,10 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure HTTP request pipeline
+// =========================================
+// HTTP REQUEST PIPELINE
+// =========================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -133,6 +177,10 @@ app.MapControllerRoute(
 
 app.Run();
 
+// =========================================
+// DEVELOPMENT USER
+// =========================================
+
 static void SeedDevelopmentUser(
     ApplicationDbContext context,
     IPasswordHasher<User> passwordHasher,
@@ -141,9 +189,14 @@ static void SeedDevelopmentUser(
     string role,
     string developmentPassword)
 {
-    var normalizedEmail = email.Trim().ToLowerInvariant();
-    if (context.Users.Any(x => x.Email.ToLower() == normalizedEmail))
+    var normalizedEmail =
+        email.Trim().ToLowerInvariant();
+
+    if (context.Users.Any(
+        x => x.Email.ToLower() == normalizedEmail))
+    {
         return;
+    }
 
     var user = new User
     {
@@ -157,56 +210,206 @@ static void SeedDevelopmentUser(
         ApprovedAt = DateTime.UtcNow
     };
 
-    user.Password = passwordHasher.HashPassword(user, developmentPassword);
+    user.Password =
+        passwordHasher.HashPassword(
+            user,
+            developmentPassword);
+
     context.Users.Add(user);
 }
 
-static void EnsureUserProfileColumns(ApplicationDbContext context)
+// =========================================
+// ENSURE USER PROFILE COLUMNS
+// =========================================
+
+static void EnsureUserProfileColumns(
+    ApplicationDbContext context)
 {
-    var connection = context.Database.GetDbConnection();
-    var shouldClose = connection.State != ConnectionState.Open;
+    var connection =
+        context.Database.GetDbConnection();
+
+    var shouldClose =
+        connection.State != ConnectionState.Open;
+
     if (shouldClose)
+    {
         connection.Open();
+    }
 
     try
     {
-        var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        using (var command = connection.CreateCommand())
+        var existingColumns =
+            new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+
+        using (var command =
+               connection.CreateCommand())
         {
-            command.CommandText = "PRAGMA table_info(\"Users\");";
-            using var reader = command.ExecuteReader();
+            command.CommandText =
+                "PRAGMA table_info(\"Users\");";
+
+            using var reader =
+                command.ExecuteReader();
+
             while (reader.Read())
-                existingColumns.Add(reader.GetString(1));
+            {
+                existingColumns.Add(
+                    reader.GetString(1));
+            }
         }
 
-        var requiredColumns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["IsApproved"] = "INTEGER NOT NULL DEFAULT 1",
-            ["CompanyName"] = "TEXT NULL",
-            ["PhoneNumber"] = "TEXT NULL",
-            ["JobTitle"] = "TEXT NULL",
-            ["AccessReason"] = "TEXT NULL",
-            ["PreferredContactMethod"] = "TEXT NULL",
-            ["CreatedAt"] = "TEXT NULL",
-            ["TermsAcceptedAt"] = "TEXT NULL",
-            ["PrivacyAcceptedAt"] = "TEXT NULL",
-            ["ApprovedAt"] = "TEXT NULL",
-            ["ApprovedByUserId"] = "INTEGER NULL"
-        };
+        var requiredColumns =
+            new Dictionary<string, string>(
+                StringComparer.OrdinalIgnoreCase)
+            {
+                ["IsApproved"] =
+                    "INTEGER NOT NULL DEFAULT 1",
+
+                ["CompanyName"] =
+                    "TEXT NULL",
+
+                ["PhoneNumber"] =
+                    "TEXT NULL",
+
+                ["JobTitle"] =
+                    "TEXT NULL",
+
+                ["AccessReason"] =
+                    "TEXT NULL",
+
+                ["PreferredContactMethod"] =
+                    "TEXT NULL",
+
+                ["CreatedAt"] =
+                    "TEXT NULL",
+
+                ["TermsAcceptedAt"] =
+                    "TEXT NULL",
+
+                ["PrivacyAcceptedAt"] =
+                    "TEXT NULL",
+
+                ["ApprovedAt"] =
+                    "TEXT NULL",
+
+                ["ApprovedByUserId"] =
+                    "INTEGER NULL"
+            };
 
         foreach (var column in requiredColumns)
         {
             if (existingColumns.Contains(column.Key))
+            {
                 continue;
+            }
 
-            using var command = connection.CreateCommand();
-            command.CommandText = $"ALTER TABLE \"Users\" ADD COLUMN \"{column.Key}\" {column.Value};";
+            using var command =
+                connection.CreateCommand();
+
+            command.CommandText =
+                $"ALTER TABLE \"Users\" " +
+                $"ADD COLUMN \"{column.Key}\" {column.Value};";
+
             command.ExecuteNonQuery();
         }
     }
     finally
     {
         if (shouldClose)
+        {
             connection.Close();
+        }
+    }
+}
+
+// =========================================
+// ENSURE EVENT STAFF TABLE
+// =========================================
+
+static void EnsureEventStaffTable(
+    ApplicationDbContext context)
+{
+    var connection =
+        context.Database.GetDbConnection();
+
+    var shouldClose =
+        connection.State != ConnectionState.Open;
+
+    if (shouldClose)
+    {
+        connection.Open();
+    }
+
+    try
+    {
+        // Create EventStaff table if it does not exist.
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText = @"
+                CREATE TABLE IF NOT EXISTS ""EventStaff"" (
+                    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_EventStaff"" PRIMARY KEY AUTOINCREMENT,
+                    ""EventId"" INTEGER NOT NULL,
+                    ""StaffId"" INTEGER NOT NULL,
+                    CONSTRAINT ""FK_EventStaff_Events_EventId""
+                        FOREIGN KEY (""EventId"")
+                        REFERENCES ""Events"" (""Id"")
+                        ON DELETE CASCADE,
+                    CONSTRAINT ""FK_EventStaff_Users_StaffId""
+                        FOREIGN KEY (""StaffId"")
+                        REFERENCES ""Users"" (""Id"")
+                        ON DELETE RESTRICT
+                );
+            ";
+
+            command.ExecuteNonQuery();
+        }
+
+        // Prevent the same staff member from being
+        // assigned to the same event more than once.
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText = @"
+                CREATE UNIQUE INDEX IF NOT EXISTS
+                ""IX_EventStaff_EventId_StaffId""
+                ON ""EventStaff"" (""EventId"", ""StaffId"");
+            ";
+
+            command.ExecuteNonQuery();
+        }
+
+        // Index EventId for faster event/staff lookups.
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText = @"
+                CREATE INDEX IF NOT EXISTS
+                ""IX_EventStaff_EventId""
+                ON ""EventStaff"" (""EventId"");
+            ";
+
+            command.ExecuteNonQuery();
+        }
+
+        // Index StaffId for faster staff/event lookups.
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText = @"
+                CREATE INDEX IF NOT EXISTS
+                ""IX_EventStaff_StaffId""
+                ON ""EventStaff"" (""StaffId"");
+            ";
+
+            command.ExecuteNonQuery();
+        }
+    }
+    finally
+    {
+        if (shouldClose)
+        {
+            connection.Close();
+        }
     }
 }

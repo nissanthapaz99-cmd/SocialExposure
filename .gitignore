@@ -441,3 +441,6 @@ App_Data/DesignUploads/
 # Archived nested sample project; the root SocialExposure project is the app
 SocialExposurePortal/
 *.db
+.DS_Store
+SocialExposure.db
+wwwroot/uploads/designs/

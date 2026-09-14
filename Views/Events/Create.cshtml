@@ -1,22 +1,610 @@
 @model SocialExposure.Models.Event
-@{ ViewData["Title"] = "Create Event"; }
+
+@{
+    ViewData["Title"] = "Create Event";
+
+    var staff = ViewBag.Staff as IEnumerable<SocialExposure.Models.User>
+                 ?? Enumerable.Empty<SocialExposure.Models.User>();
+
+    var selectedStaffIds = ViewBag.SelectedStaffIds as IEnumerable<int>
+                           ?? Enumerable.Empty<int>();
+}
 
 <div class="form-card">
-    <div class="form-card-header"><h2>Create Event</h2><p>Add an event and connect it with a client.</p></div>
-    <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="field-error"></div>
-        <div class="field-grid">
-            <div class="field"><label asp-for="EventName">Event Name</label><input asp-for="EventName" placeholder="Enter event name" /><span asp-validation-for="EventName" class="field-error"></span></div>
-            <div class="field"><label asp-for="ClientName">Client Name</label><input asp-for="ClientName" placeholder="Enter client name" /><span asp-validation-for="ClientName" class="field-error"></span></div>
-        </div>
-        <div class="field"><label asp-for="ClientEmail">Client Email</label><input asp-for="ClientEmail" placeholder="client@company.com" /><small class="field-note">The event will be shown to the client who uses this email.</small><span asp-validation-for="ClientEmail" class="field-error"></span></div>
-        <div class="field"><label asp-for="Description">Description</label><textarea asp-for="Description" placeholder="Describe the event and deliverables"></textarea><span asp-validation-for="Description" class="field-error"></span></div>
-        <div class="field-grid">
-            <div class="field"><label asp-for="StartDate">Start Date</label><input asp-for="StartDate" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" /><span asp-validation-for="StartDate" class="field-error"></span></div>
 
-<div class="field"><label asp-for="Deadline">Deadline</label><input asp-for="Deadline" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" /><span asp-validation-for="Deadline" class="field-error"></span></div>
-        <div class="form-actions"><button class="action-button" type="submit">Create Event</button><a class="action-button secondary" asp-action="Index">Cancel</a></div>
+    <div class="form-card-header">
+        <h2>Create Event</h2>
+        <p>
+            Add an event, connect it with a client, and assign the staff members
+            responsible for the work.
+        </p>
+    </div>
+
+    <form asp-action="Create" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="field-error"></div>
+
+        <!-- EVENT NAME AND CLIENT NAME -->
+
+        <div class="field-grid">
+
+            <div class="field">
+                <label asp-for="EventName">Event Name</label>
+
+                <input asp-for="EventName"
+                       placeholder="Enter event name" />
+
+                <span asp-validation-for="EventName"
+                      class="field-error"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="ClientName">Client Name</label>
+
+                <input asp-for="ClientName"
+                       placeholder="Enter client name" />
+
+                <span asp-validation-for="ClientName"
+                      class="field-error"></span>
+            </div>
+
+        </div>
+
+        <!-- CLIENT EMAIL -->
+
+        <div class="field">
+
+            <label asp-for="ClientEmail">Client Email</label>
+
+            <input asp-for="ClientEmail"
+                   placeholder="client@company.com" />
+
+            <small class="field-note">
+                The event will be shown to the client who uses this email.
+            </small>
+
+            <span asp-validation-for="ClientEmail"
+                  class="field-error"></span>
+
+        </div>
+
+        <!-- DESCRIPTION -->
+
+        <div class="field">
+
+            <label asp-for="Description">Description</label>
+
+            <textarea asp-for="Description"
+                      placeholder="Describe the event and deliverables"></textarea>
+
+            <span asp-validation-for="Description"
+                  class="field-error"></span>
+
+        </div>
+
+        <!-- STAFF ASSIGNMENT -->
+
+        <div class="field">
+
+            <label for="staffSearch">
+                Assign Staff Members
+            </label>
+
+            <small class="field-note">
+                Search and select one or more staff members responsible for this event.
+            </small>
+
+            <div class="staff-dropdown">
+
+                <button type="button"
+                        class="staff-dropdown-button"
+                        id="staffDropdownButton">
+
+                    <span id="staffDropdownText">
+                        Select staff members
+                    </span>
+
+                    <span class="dropdown-arrow">
+                        ▾
+                    </span>
+
+                </button>
+
+                <div class="staff-dropdown-menu"
+                     id="staffDropdownMenu">
+
+                    <div class="staff-search">
+
+                        <input type="text"
+                               id="staffSearch"
+                               placeholder="Search staff name or email..."
+                               autocomplete="off" />
+
+                    </div>
+
+                    <div class="staff-list"
+                         id="staffList">
+
+                        @if (staff.Any())
+                        {
+                            foreach (var member in staff)
+                            {
+                                var isSelected =
+                                    selectedStaffIds.Contains(member.Id);
+
+                                <label class="staff-dropdown-option"
+                                       data-name="@member.FullName"
+                                       data-email="@member.Email">
+
+                                    <input type="checkbox"
+                                           name="staffIds"
+                                           value="@member.Id"
+                                           @(isSelected ? "checked" : "") />
+
+                                    <span class="staff-checkmark"></span>
+
+                                    <span class="staff-info">
+
+                                        <strong>
+                                            @member.FullName
+                                        </strong>
+
+                                        @if (!string.IsNullOrWhiteSpace(member.Email))
+                                        {
+                                            <small>
+                                                @member.Email
+                                            </small>
+                                        }
+
+                                    </span>
+
+                                </label>
+                            }
+                        }
+                        else
+                        {
+                            <div class="no-staff">
+                                No active staff members available.
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="selected-staff"
+                 id="selectedStaff">
+            </div>
+
+        </div>
+
+        <!-- START DATE AND DEADLINE -->
+
+        <div class="field-grid">
+
+            <div class="field">
+
+                <label asp-for="StartDate">
+                    Start Date
+                </label>
+
+                <input asp-for="StartDate"
+                       type="date"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+                <span asp-validation-for="StartDate"
+                      class="field-error"></span>
+
+            </div>
+
+            <div class="field">
+
+                <label asp-for="Deadline">
+                    Deadline
+                </label>
+
+                <input asp-for="Deadline"
+                       type="date"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+                <span asp-validation-for="Deadline"
+                      class="field-error"></span>
+
+            </div>
+
+        </div>
+
+        <!-- FORM ACTIONS -->
+
+        <div class="form-actions">
+
+            <button class="action-button"
+                    type="submit">
+                Create Event
+            </button>
+
+            <a class="action-button secondary"
+               asp-action="Index">
+                Cancel
+            </a>
+
+        </div>
+
     </form>
+
 </div>
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+
+<style>
+
+    /* =========================
+       STAFF DROPDOWN
+       ========================= */
+
+    .staff-dropdown {
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .staff-dropdown-button {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 16px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+
+        background: #ffffff;
+        color: #1F2937;
+
+        font-size: 15px;
+        text-align: left;
+
+        cursor: pointer;
+    }
+
+    .staff-dropdown-button:hover {
+        border-color: #D88B2A;
+    }
+
+    .dropdown-arrow {
+        font-size: 18px;
+        color: #6B7280;
+    }
+
+    .staff-dropdown-menu {
+        display: none;
+
+        position: absolute;
+        z-index: 1000;
+
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+
+        background: #ffffff;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+
+        overflow: hidden;
+    }
+
+    .staff-dropdown-menu.open {
+        display: block;
+    }
+
+    /* =========================
+       SEARCH
+       ========================= */
+
+    .staff-search {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .staff-search input {
+        width: 100%;
+        height: 42px;
+
+        padding: 10px 12px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+
+        font-size: 14px;
+        outline: none;
+    }
+
+    .staff-search input:focus {
+        border-color: #D88B2A;
+    }
+
+    /* =========================
+       STAFF LIST
+       ========================= */
+
+    .staff-list {
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .staff-dropdown-option {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 12px 14px;
+
+        cursor: pointer;
+
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .staff-dropdown-option:hover {
+        background: #fffaf5;
+    }
+
+    .staff-dropdown-option input {
+        display: none;
+    }
+
+    /* =========================
+       CHECKMARK
+       ========================= */
+
+    .staff-checkmark {
+        width: 18px;
+        height: 18px;
+
+        flex-shrink: 0;
+
+        border: 2px solid #cbd5e1;
+        border-radius: 5px;
+
+        position: relative;
+    }
+
+    .staff-dropdown-option input:checked + .staff-checkmark {
+        background: #D88B2A;
+        border-color: #D88B2A;
+    }
+
+    .staff-dropdown-option input:checked + .staff-checkmark::after {
+        content: "✓";
+
+        position: absolute;
+
+        left: 2px;
+        top: -3px;
+
+        font-size: 15px;
+        font-weight: bold;
+
+        color: #ffffff;
+    }
+
+    /* =========================
+       STAFF INFORMATION
+       ========================= */
+
+    .staff-info {
+        display: flex;
+        flex-direction: column;
+
+        gap: 2px;
+    }
+
+    .staff-info strong {
+        font-size: 14px;
+        color: #1F2937;
+    }
+
+    .staff-info small {
+        font-size: 12px;
+        color: #6B7280;
+    }
+
+    .no-staff {
+        padding: 18px;
+        text-align: center;
+        color: #6B7280;
+        font-size: 14px;
+    }
+
+    /* =========================
+       SELECTED STAFF
+       ========================= */
+
+    .selected-staff {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        margin-top: 10px;
+    }
+
+    .selected-staff-tag {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 6px 10px;
+
+        border-radius: 20px;
+
+        background: #f3f4f6;
+        color: #374151;
+
+        font-size: 13px;
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @@media (max-width: 700px) {
+
+        .staff-dropdown-menu {
+            position: relative;
+            top: auto;
+            margin-top: 6px;
+        }
+
+    }
+
+</style>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const button =
+            document.getElementById("staffDropdownButton");
+
+        const menu =
+            document.getElementById("staffDropdownMenu");
+
+        const search =
+            document.getElementById("staffSearch");
+
+        const staffList =
+            document.getElementById("staffList");
+
+        const selectedStaff =
+            document.getElementById("selectedStaff");
+
+        const dropdownText =
+            document.getElementById("staffDropdownText");
+
+        // Open / close dropdown
+        button.addEventListener("click", function () {
+
+            menu.classList.toggle("open");
+
+            if (menu.classList.contains("open")) {
+                search.focus();
+            }
+
+        });
+
+        // Search staff
+        search.addEventListener("input", function () {
+
+            const searchValue =
+                search.value.toLowerCase().trim();
+
+            const options =
+                staffList.querySelectorAll(
+                    ".staff-dropdown-option");
+
+            options.forEach(function (option) {
+
+                const name =
+                    option.dataset.name.toLowerCase();
+
+                const email =
+                    option.dataset.email.toLowerCase();
+
+                const matches =
+                    name.includes(searchValue) ||
+                    email.includes(searchValue);
+
+                option.style.display =
+                    matches ? "flex" : "none";
+
+            });
+
+        });
+
+        // Update selected staff
+        function updateSelectedStaff() {
+
+            const checked =
+                staffList.querySelectorAll(
+                    "input[type='checkbox']:checked");
+
+            selectedStaff.innerHTML = "";
+
+            if (checked.length === 0) {
+
+                dropdownText.textContent =
+                    "Select staff members";
+
+                return;
+            }
+
+            dropdownText.textContent =
+                checked.length +
+                " staff member" +
+                (checked.length > 1 ? "s" : "") +
+                " selected";
+
+            checked.forEach(function (checkbox) {
+
+                const option =
+                    checkbox.closest(
+                        ".staff-dropdown-option");
+
+                const name =
+                    option.dataset.name;
+
+                const tag =
+                    document.createElement("span");
+
+                tag.className =
+                    "selected-staff-tag";
+
+                tag.textContent =
+                    name;
+
+                selectedStaff.appendChild(tag);
+
+            });
+
+        }
+
+        // Checkbox changes
+        staffList.addEventListener(
+            "change",
+            function () {
+
+                updateSelectedStaff();
+
+            });
+
+        // Close when clicking outside
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                if (!event.target.closest(".staff-dropdown")) {
+
+                    menu.classList.remove("open");
+
+                }
+
+            });
+
+        // Initial selected staff
+        updateSelectedStaff();
+
+    });
+
+</script>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SocialExposure.Models
@@ -27,5 +28,9 @@ namespace SocialExposure.Models
         public DateTime Deadline { get; set; }
 
         public string Status { get; set; } = "Pending";
+
+        // Staff members assigned to this event/project
+        public ICollection<EventStaff> EventStaff { get; set; }
+            = new List<EventStaff>();
     }
 }
