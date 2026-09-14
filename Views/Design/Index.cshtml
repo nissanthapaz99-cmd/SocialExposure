@@ -1,6 +1,5 @@
 @using System.Security.Claims
 @using SocialExposure.Models
-
 @model IEnumerable<Design>
 
 @{
@@ -45,7 +44,6 @@
     <div class="client-design-page">
 
         <!-- HEADER -->
-
         <div class="client-design-header">
 
             <div class="client-design-heading">
@@ -58,21 +56,10 @@
 
             </div>
 
-            <a class="client-upload-button"
-               asp-controller="Design"
-               asp-action="ClientUpload">
-
-                <span class="upload-icon">↑</span>
-
-                Upload Reference File
-
-            </a>
-
         </div>
 
 
         <!-- SEARCH / FILTER -->
-
         <div class="client-design-toolbar">
 
             <form method="get"
@@ -98,18 +85,14 @@
 
                     <option value="All"
                             selected="@(currentStatus == "All")">
-
                         All Status
-
                     </option>
 
                     @foreach (var item in statuses)
                     {
                         <option value="@item"
                                 selected="@(currentStatus == item)">
-
                             @item
-
                         </option>
                     }
 
@@ -118,9 +101,7 @@
 
                 <button type="submit"
                         class="client-search-button">
-
                     Search
-
                 </button>
 
             </form>
@@ -129,7 +110,6 @@
 
 
         <!-- DESIGN SECTION -->
-
         <section class="client-design-section">
 
             <div class="client-section-heading">
@@ -156,7 +136,6 @@
                         <article class="client-design-card">
 
                             <!-- FILE ICON -->
-
                             <div class="client-design-icon">
 
                                 <span>▤</span>
@@ -165,7 +144,6 @@
 
 
                             <!-- DESIGN INFORMATION -->
-
                             <div class="client-design-main">
 
                                 <div class="client-design-title-row">
@@ -214,7 +192,9 @@
                                             ? "status-approved"
                                             : design.Status == "Rejected"
                                                 ? "status-rejected"
-                                                : "status-pending")">
+                                                : design.Status == "Changes Requested"
+                                                    ? "status-changes"
+                                                    : "status-pending")">
 
                                         @design.Status
 
@@ -226,9 +206,9 @@
 
 
                             <!-- CLIENT ACTIONS -->
-
                             <div class="client-design-actions">
 
+                                <!-- PREVIEW -->
                                 @if (!string.IsNullOrWhiteSpace(design.FilePath))
                                 {
                                     <a class="client-preview-button"
@@ -237,47 +217,58 @@
                                        rel="noopener noreferrer"
                                        title="Preview design">
 
-                                        Preview
+                                        👁 Preview
 
                                     </a>
                                 }
 
 
-                                @if (design.Status != "Approved")
+                                <!-- EDIT DESIGN -->
+                                <a class="client-edit-button"
+                                   asp-controller="Design"
+                                   asp-action="Edit"
+                                   asp-route-id="@design.Id"
+                                   title="Edit design">
+
+                                    ✏ Edit Design
+
+                                </a>
+
+
+                                <!-- APPROVE / NOT APPROVED -->
+                                @if (design.Status == "Pending Review" ||
+                                     design.Status == "Changes Requested")
                                 {
+                                    <!-- APPROVE -->
                                     <form asp-controller="Design"
                                           asp-action="Approve"
                                           asp-route-id="@design.Id"
                                           method="post"
-                                          class="client-action-form">
+                                          class="design-action-form">
 
                                         @Html.AntiForgeryToken()
 
                                         <button type="submit"
-                                                class="client-approve-button"
-                                                title="Approve design">
+                                                class="client-approve-button">
 
                                             ✓ Approve
 
                                         </button>
 
                                     </form>
-                                }
 
 
-                                @if (design.Status != "Rejected")
-                                {
+                                    <!-- NOT APPROVED -->
                                     <form asp-controller="Design"
                                           asp-action="NotApproved"
                                           asp-route-id="@design.Id"
                                           method="post"
-                                          class="client-action-form">
+                                          class="design-action-form">
 
                                         @Html.AntiForgeryToken()
 
                                         <button type="submit"
-                                                class="client-reject-button"
-                                                title="Mark design as not approved">
+                                                class="client-reject-button">
 
                                             ✕ Not Approved
 
@@ -312,14 +303,6 @@
                         the design team uploads them.
                     </p>
 
-                    <a class="client-empty-upload-button"
-                       asp-controller="Design"
-                       asp-action="ClientUpload">
-
-                        Upload Reference File
-
-                    </a>
-
                 </div>
             }
 
@@ -336,7 +319,6 @@ else if (isStaffOrAdmin)
     <div class="staff-design-page">
 
         <!-- PAGE HEADER -->
-
         <div class="staff-design-header">
 
             <div class="staff-design-heading">
@@ -345,7 +327,9 @@ else if (isStaffOrAdmin)
                     DESIGN MANAGEMENT
                 </span>
 
-                <h1>Designs</h1>
+                <h1>
+                    Designs
+                </h1>
 
                 <p>
                     Manage design files, review client responses,
@@ -359,7 +343,9 @@ else if (isStaffOrAdmin)
                asp-controller="Design"
                asp-action="Upload">
 
-                <span class="staff-upload-icon">↑</span>
+                <span class="staff-upload-icon">
+                    ↑
+                </span>
 
                 Upload Design
 
@@ -369,7 +355,6 @@ else if (isStaffOrAdmin)
 
 
         <!-- SEARCH / FILTER -->
-
         <div class="staff-design-toolbar">
 
             <form method="get"
@@ -379,7 +364,9 @@ else if (isStaffOrAdmin)
 
                 <div class="staff-search-box">
 
-                    <span class="staff-search-icon">⌕</span>
+                    <span class="staff-search-icon">
+                        ⌕
+                    </span>
 
                     <input type="search"
                            name="search"
@@ -395,18 +382,14 @@ else if (isStaffOrAdmin)
 
                     <option value="All"
                             selected="@(currentStatus == "All")">
-
                         All Status
-
                     </option>
 
                     @foreach (var item in statuses)
                     {
                         <option value="@item"
                                 selected="@(currentStatus == item)">
-
                             @item
-
                         </option>
                     }
 
@@ -435,14 +418,15 @@ else if (isStaffOrAdmin)
 
 
         <!-- DESIGN SECTION -->
-
         <section class="staff-design-section">
 
             <div class="staff-section-header">
 
                 <div>
 
-                    <h2>Recent Design Activity</h2>
+                    <h2>
+                        Recent Design Activity
+                    </h2>
 
                     <p>
                         Recently uploaded designs and their current review status.
@@ -462,7 +446,6 @@ else if (isStaffOrAdmin)
                         <article class="staff-design-card">
 
                             <!-- FILE ICON -->
-
                             <div class="staff-design-file-icon">
 
                                 <span>▤</span>
@@ -471,7 +454,6 @@ else if (isStaffOrAdmin)
 
 
                             <!-- MAIN INFORMATION -->
-
                             <div class="staff-design-content">
 
                                 <div class="staff-design-title-row">
@@ -556,7 +538,6 @@ else if (isStaffOrAdmin)
 
 
                             <!-- VIEW FILE -->
-
                             <div class="staff-design-action">
 
                                 @if (!string.IsNullOrWhiteSpace(design.FilePath))
@@ -566,7 +547,9 @@ else if (isStaffOrAdmin)
                                        target="_blank"
                                        rel="noopener noreferrer">
 
-                                        <span>◉</span>
+                                        <span>
+                                            ◉
+                                        </span>
 
                                         View File
 
@@ -640,7 +623,6 @@ else if (isStaffOrAdmin)
         margin-bottom: 30px;
     }
 
-
     .client-design-heading h1 {
         margin: 0 0 8px;
         font-size: 42px;
@@ -649,47 +631,10 @@ else if (isStaffOrAdmin)
         color: #1F2937;
     }
 
-
     .client-design-heading p {
         margin: 0;
         font-size: 16px;
         color: #6B7280;
-    }
-
-
-    /* =====================================================
-       CLIENT UPLOAD BUTTON
-       ===================================================== */
-
-    .client-upload-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-height: 48px;
-        padding: 0 22px;
-        border-radius: 12px;
-        background: #D88B2A;
-        color: #FFFFFF;
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 600;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-    }
-
-
-    .client-upload-button:hover {
-        color: #FFFFFF;
-        text-decoration: none;
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-
-    .upload-icon {
-        font-size: 20px;
-        line-height: 1;
     }
 
 
@@ -704,8 +649,8 @@ else if (isStaffOrAdmin)
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
         border-radius: 18px;
+        box-sizing: border-box;
     }
-
 
     .client-search-form {
         display: flex;
@@ -713,7 +658,6 @@ else if (isStaffOrAdmin)
         gap: 14px;
         width: 100%;
     }
-
 
     .client-search-box {
         flex: 1;
@@ -725,20 +669,18 @@ else if (isStaffOrAdmin)
         background: #FFFFFF;
         border: 1px solid #D1D5DB;
         border-radius: 12px;
+        box-sizing: border-box;
     }
-
 
     .client-search-box:focus-within {
         border-color: #971B1B;
         box-shadow: 0 0 0 3px rgba(151, 27, 27, 0.08);
     }
 
-
     .search-icon {
         font-size: 22px;
         color: #6B7280;
     }
-
 
     .client-search-box input {
         width: 100%;
@@ -750,7 +692,6 @@ else if (isStaffOrAdmin)
         color: #1F2937;
         font-size: 15px;
     }
-
 
     .client-status-select {
         height: 48px;
@@ -764,7 +705,6 @@ else if (isStaffOrAdmin)
         outline: none;
     }
 
-
     .client-search-button {
         height: 48px;
         padding: 0 22px;
@@ -776,7 +716,6 @@ else if (isStaffOrAdmin)
         font-weight: 600;
         cursor: pointer;
     }
-
 
     .client-search-button:hover {
         opacity: 0.92;
@@ -791,11 +730,9 @@ else if (isStaffOrAdmin)
         width: 100%;
     }
 
-
     .client-section-heading {
         margin-bottom: 18px;
     }
-
 
     .client-section-heading h2 {
         margin: 0 0 6px;
@@ -803,7 +740,6 @@ else if (isStaffOrAdmin)
         font-weight: 700;
         color: #1F2937;
     }
-
 
     .client-section-heading p {
         margin: 0;
@@ -836,14 +772,18 @@ else if (isStaffOrAdmin)
         border: 1px solid #E5E7EB;
         border-radius: 18px;
         transition: all 0.2s ease;
+        box-sizing: border-box;
     }
-
 
     .client-design-card:hover {
         border-color: #D1D5DB;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
     }
 
+
+    /* =====================================================
+       CLIENT DESIGN ICON
+       ===================================================== */
 
     .client-design-icon {
         width: 52px;
@@ -859,11 +799,14 @@ else if (isStaffOrAdmin)
     }
 
 
+    /* =====================================================
+       CLIENT DESIGN MAIN
+       ===================================================== */
+
     .client-design-main {
         flex: 1;
         min-width: 0;
     }
-
 
     .client-design-title-row {
         display: flex;
@@ -871,7 +814,6 @@ else if (isStaffOrAdmin)
         justify-content: space-between;
         gap: 15px;
     }
-
 
     .client-design-title h3 {
         margin: 0;
@@ -881,13 +823,11 @@ else if (isStaffOrAdmin)
         word-break: break-word;
     }
 
-
     .client-project-name {
         margin: 5px 0 0;
         color: #6B7280;
         font-size: 14px;
     }
-
 
     .client-version {
         display: inline-flex;
@@ -904,14 +844,12 @@ else if (isStaffOrAdmin)
         white-space: nowrap;
     }
 
-
     .client-design-description {
         margin: 12px 0 10px;
         color: #6B7280;
         font-size: 14px;
         line-height: 1.5;
     }
-
 
     .client-design-details {
         display: flex;
@@ -923,6 +861,10 @@ else if (isStaffOrAdmin)
     }
 
 
+    /* =====================================================
+       CLIENT STATUS
+       ===================================================== */
+
     .client-status {
         display: inline-flex;
         align-items: center;
@@ -933,18 +875,20 @@ else if (isStaffOrAdmin)
         font-weight: 600;
     }
 
-
     .status-approved {
         background: #E8F5E9;
         color: #2E7D32;
     }
-
 
     .status-rejected {
         background: #FDECEC;
         color: #B42318;
     }
 
+    .status-changes {
+        background: #FFF4E5;
+        color: #B45309;
+    }
 
     .status-pending {
         background: #F8F5F2;
@@ -962,33 +906,32 @@ else if (isStaffOrAdmin)
         justify-content: flex-end;
         flex-wrap: wrap;
         gap: 8px;
-        max-width: 420px;
+        max-width: 430px;
     }
 
-
-    .client-action-form {
-        display: inline-flex;
-        margin: 0;
-    }
-
-
-    .client-preview-button {
+    .client-preview-button,
+    .client-edit-button,
+    .client-approve-button,
+    .client-reject-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-height: 42px;
-        padding: 0 18px;
-        border: 1px solid #D1D5DB;
+        padding: 0 16px;
         border-radius: 10px;
-        background: #FFFFFF;
-        color: #1F2937;
-        text-decoration: none;
         font-size: 14px;
         font-weight: 600;
         white-space: nowrap;
+        text-decoration: none;
         transition: all 0.2s ease;
+        box-sizing: border-box;
     }
 
+    .client-preview-button {
+        border: 1px solid #D1D5DB;
+        background: #FFFFFF;
+        color: #1F2937;
+    }
 
     .client-preview-button:hover {
         color: #971B1B;
@@ -996,44 +939,47 @@ else if (isStaffOrAdmin)
         text-decoration: none;
     }
 
+    .client-edit-button {
+        border: 1px solid #971B1B;
+        background: #971B1B;
+        color: #FFFFFF;
+    }
+
+    .client-edit-button:hover {
+        color: #FFFFFF;
+        border-color: #821717;
+        background: #821717;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    .design-action-form {
+        margin: 0;
+        padding: 0;
+    }
 
     .client-approve-button {
-        min-height: 42px;
-        padding: 0 15px;
         border: 1px solid #2E7D32;
-        border-radius: 10px;
-        background: #FFFFFF;
-        color: #2E7D32;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-
-    .client-approve-button:hover {
         background: #2E7D32;
         color: #FFFFFF;
+        cursor: pointer;
     }
 
+    .client-approve-button:hover {
+        background: #256B29;
+        border-color: #256B29;
+    }
 
     .client-reject-button {
-        min-height: 42px;
-        padding: 0 15px;
         border: 1px solid #B42318;
-        border-radius: 10px;
         background: #FFFFFF;
         color: #B42318;
-        font-size: 14px;
-        font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s ease;
     }
 
-
     .client-reject-button:hover {
-        background: #B42318;
-        color: #FFFFFF;
+        background: #FDECEC;
+        border-color: #B42318;
     }
 
 
@@ -1052,8 +998,8 @@ else if (isStaffOrAdmin)
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
         border-radius: 20px;
+        box-sizing: border-box;
     }
-
 
     .client-empty-icon {
         width: 70px;
@@ -1068,42 +1014,18 @@ else if (isStaffOrAdmin)
         font-size: 30px;
     }
 
-
     .client-empty-state h3 {
         margin: 0 0 8px;
         color: #1F2937;
         font-size: 21px;
     }
 
-
     .client-empty-state p {
         max-width: 480px;
-        margin: 0 0 22px;
+        margin: 0;
         color: #6B7280;
         font-size: 15px;
         line-height: 1.6;
-    }
-
-
-    .client-empty-upload-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 44px;
-        padding: 0 20px;
-        border-radius: 10px;
-        background: #D88B2A;
-        color: #FFFFFF;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-
-    .client-empty-upload-button:hover {
-        color: #FFFFFF;
-        text-decoration: none;
-        opacity: 0.9;
     }
 
 
@@ -1129,11 +1051,9 @@ else if (isStaffOrAdmin)
         margin-bottom: 28px;
     }
 
-
     .staff-design-heading {
         min-width: 0;
     }
-
 
     .staff-page-label {
         display: inline-block;
@@ -1144,7 +1064,6 @@ else if (isStaffOrAdmin)
         letter-spacing: 1.2px;
     }
 
-
     .staff-design-heading h1 {
         margin: 0 0 7px;
         color: #1F2937;
@@ -1152,7 +1071,6 @@ else if (isStaffOrAdmin)
         font-weight: 750;
         line-height: 1.15;
     }
-
 
     .staff-design-heading p {
         margin: 0;
@@ -1183,15 +1101,12 @@ else if (isStaffOrAdmin)
         transition: all 0.2s ease;
     }
 
-
     .staff-upload-button:hover {
         color: #FFFFFF;
         text-decoration: none;
         background: #C97E22;
         transform: translateY(-1px);
-        box-shadow: 0 5px 14px rgba(216, 139, 42, 0.20);
     }
-
 
     .staff-upload-icon {
         font-size: 20px;
@@ -1211,8 +1126,8 @@ else if (isStaffOrAdmin)
         border: 1px solid #E5E7EB;
         border-radius: 18px;
         box-shadow: 0 2px 8px rgba(31, 41, 55, 0.03);
+        box-sizing: border-box;
     }
-
 
     .staff-search-form {
         display: flex;
@@ -1220,7 +1135,6 @@ else if (isStaffOrAdmin)
         gap: 12px;
         width: 100%;
     }
-
 
     .staff-search-box {
         flex: 1;
@@ -1233,21 +1147,18 @@ else if (isStaffOrAdmin)
         border: 1px solid #D1D5DB;
         border-radius: 11px;
         background: #FFFFFF;
-        transition: all 0.2s ease;
+        box-sizing: border-box;
     }
-
 
     .staff-search-box:focus-within {
         border-color: #971B1B;
         box-shadow: 0 0 0 3px rgba(151, 27, 27, 0.07);
     }
 
-
     .staff-search-icon {
         color: #6B7280;
         font-size: 21px;
     }
-
 
     .staff-search-box input {
         width: 100%;
@@ -1258,7 +1169,6 @@ else if (isStaffOrAdmin)
         color: #1F2937;
         font-size: 14px;
     }
-
 
     .staff-status-select {
         width: 175px;
@@ -1271,7 +1181,6 @@ else if (isStaffOrAdmin)
         font-size: 14px;
         outline: none;
     }
-
 
     .staff-search-button,
     .staff-view-all-button {
@@ -1287,7 +1196,6 @@ else if (isStaffOrAdmin)
         white-space: nowrap;
     }
 
-
     .staff-search-button {
         border: none;
         background: #971B1B;
@@ -1295,18 +1203,15 @@ else if (isStaffOrAdmin)
         cursor: pointer;
     }
 
-
     .staff-search-button:hover {
         background: #821717;
     }
-
 
     .staff-view-all-button {
         border: 1px solid #D1D5DB;
         background: #FFFFFF;
         color: #374151;
     }
-
 
     .staff-view-all-button:hover {
         border-color: #971B1B;
@@ -1323,11 +1228,9 @@ else if (isStaffOrAdmin)
         width: 100%;
     }
 
-
     .staff-section-header {
         margin-bottom: 17px;
     }
-
 
     .staff-section-header h2 {
         margin: 0 0 5px;
@@ -1335,7 +1238,6 @@ else if (isStaffOrAdmin)
         font-size: 27px;
         font-weight: 700;
     }
-
 
     .staff-section-header p {
         margin: 0;
@@ -1370,8 +1272,8 @@ else if (isStaffOrAdmin)
         border-radius: 17px;
         box-shadow: 0 2px 7px rgba(31, 41, 55, 0.025);
         transition: all 0.2s ease;
+        box-sizing: border-box;
     }
-
 
     .staff-design-card:hover {
         border-color: #D7D9DD;
@@ -1407,7 +1309,6 @@ else if (isStaffOrAdmin)
         min-width: 0;
     }
 
-
     .staff-design-title-row {
         display: flex;
         align-items: flex-start;
@@ -1415,11 +1316,9 @@ else if (isStaffOrAdmin)
         gap: 20px;
     }
 
-
     .staff-design-title {
         min-width: 0;
     }
-
 
     .staff-design-title h3 {
         margin: 0;
@@ -1430,14 +1329,12 @@ else if (isStaffOrAdmin)
         word-break: break-word;
     }
 
-
     .staff-event-name {
         display: block;
         margin-top: 4px;
         color: #6B7280;
         font-size: 14px;
     }
-
 
     .staff-version {
         display: inline-flex;
@@ -1479,7 +1376,6 @@ else if (isStaffOrAdmin)
         gap: 13px;
     }
 
-
     .staff-meta-item {
         display: inline-flex;
         align-items: center;
@@ -1487,7 +1383,6 @@ else if (isStaffOrAdmin)
         color: #6B7280;
         font-size: 13px;
     }
-
 
     .meta-icon {
         color: #9CA3AF;
@@ -1510,7 +1405,6 @@ else if (isStaffOrAdmin)
         font-weight: 650;
     }
 
-
     .status-dot {
         width: 6px;
         height: 6px;
@@ -1518,24 +1412,20 @@ else if (isStaffOrAdmin)
         background: currentColor;
     }
 
-
     .staff-status-pending {
         background: #FFF7E8;
         color: #A16207;
     }
-
 
     .staff-status-approved {
         background: #ECFDF3;
         color: #16803A;
     }
 
-
     .staff-status-rejected {
         background: #FEF2F2;
         color: #B42318;
     }
-
 
     .staff-status-changes {
         background: #FFF4E5;
@@ -1552,7 +1442,6 @@ else if (isStaffOrAdmin)
         display: flex;
         align-items: center;
     }
-
 
     .staff-view-button {
         display: inline-flex;
@@ -1572,12 +1461,10 @@ else if (isStaffOrAdmin)
         transition: all 0.2s ease;
     }
 
-
     .staff-view-button span {
         color: #971B1B;
         font-size: 14px;
     }
-
 
     .staff-view-button:hover {
         border-color: #971B1B;
@@ -1602,8 +1489,8 @@ else if (isStaffOrAdmin)
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
         border-radius: 18px;
+        box-sizing: border-box;
     }
-
 
     .staff-empty-icon {
         width: 66px;
@@ -1618,13 +1505,11 @@ else if (isStaffOrAdmin)
         font-size: 28px;
     }
 
-
     .staff-empty-state h3 {
         margin: 0 0 7px;
         color: #1F2937;
         font-size: 20px;
     }
-
 
     .staff-empty-state p {
         max-width: 430px;
@@ -1633,7 +1518,6 @@ else if (isStaffOrAdmin)
         font-size: 14px;
         line-height: 1.6;
     }
-
 
     .staff-empty-button {
         display: inline-flex;
@@ -1649,7 +1533,6 @@ else if (isStaffOrAdmin)
         font-weight: 650;
     }
 
-
     .staff-empty-button:hover {
         color: #FFFFFF;
         text-decoration: none;
@@ -1658,7 +1541,7 @@ else if (isStaffOrAdmin)
 
 
     /* =====================================================
-       CLIENT RESPONSIVE
+       RESPONSIVE
        ===================================================== */
 
     @@media (max-width: 1000px) {
@@ -1668,31 +1551,21 @@ else if (isStaffOrAdmin)
             flex-direction: column;
         }
 
-
-        .client-upload-button {
-            width: auto;
-        }
-
-
         .client-search-form {
             flex-wrap: wrap;
         }
-
 
         .client-search-box {
             flex: 1 1 100%;
         }
 
-
         .client-status-select {
             flex: 1;
         }
 
-
         .client-design-card {
             align-items: flex-start;
         }
-
 
         .client-design-actions {
             max-width: 300px;
@@ -1704,21 +1577,17 @@ else if (isStaffOrAdmin)
             flex-direction: column;
         }
 
-
         .staff-search-form {
             flex-wrap: wrap;
         }
-
 
         .staff-search-box {
             flex: 1 1 100%;
         }
 
-
         .staff-status-select {
             flex: 1;
         }
-
 
         .staff-design-card {
             align-items: flex-start;
@@ -1738,21 +1607,23 @@ else if (isStaffOrAdmin)
             flex-direction: column;
         }
 
-
         .client-design-card {
             flex-wrap: wrap;
         }
-
 
         .client-design-actions {
             width: 100%;
             max-width: none;
         }
 
-
         .client-preview-button,
+        .client-edit-button,
         .client-approve-button,
         .client-reject-button {
+            flex: 1;
+        }
+
+        .design-action-form {
             flex: 1;
         }
 
@@ -1762,16 +1633,13 @@ else if (isStaffOrAdmin)
             flex-direction: column;
         }
 
-
         .staff-design-card {
             flex-wrap: wrap;
         }
 
-
         .staff-design-action {
             width: 100%;
         }
-
 
         .staff-view-button {
             width: 100%;
@@ -1790,22 +1658,14 @@ else if (isStaffOrAdmin)
             padding-top: 5px;
         }
 
-
         .client-design-heading h1 {
             font-size: 32px;
         }
-
-
-        .client-upload-button {
-            width: 100%;
-        }
-
 
         .client-search-form {
             flex-direction: column;
             align-items: stretch;
         }
-
 
         .client-search-box,
         .client-status-select,
@@ -1814,13 +1674,11 @@ else if (isStaffOrAdmin)
             flex: none;
         }
 
-
         .client-design-card {
             flex-direction: column;
             align-items: flex-start;
             padding: 18px;
         }
-
 
         .client-design-icon {
             width: 46px;
@@ -1828,16 +1686,13 @@ else if (isStaffOrAdmin)
             flex-basis: 46px;
         }
 
-
         .client-design-main {
             width: 100%;
         }
 
-
         .client-design-title-row {
             width: 100%;
         }
-
 
         .client-design-actions {
             width: 100%;
@@ -1845,19 +1700,17 @@ else if (isStaffOrAdmin)
             grid-template-columns: 1fr;
         }
 
-
-        .client-action-form {
-            width: 100%;
-        }
-
-
         .client-preview-button,
+        .client-edit-button,
         .client-approve-button,
         .client-reject-button {
             width: 100%;
             flex: none;
         }
 
+        .design-action-form {
+            width: 100%;
+        }
 
         .client-empty-state {
             min-height: 320px;
@@ -1869,22 +1722,18 @@ else if (isStaffOrAdmin)
             padding-top: 5px;
         }
 
-
         .staff-design-heading h1 {
             font-size: 32px;
         }
-
 
         .staff-upload-button {
             width: 100%;
         }
 
-
         .staff-search-form {
             flex-direction: column;
             align-items: stretch;
         }
-
 
         .staff-search-box,
         .staff-status-select,
@@ -1894,13 +1743,11 @@ else if (isStaffOrAdmin)
             flex: none;
         }
 
-
         .staff-design-card {
             flex-direction: column;
             align-items: flex-start;
             padding: 18px;
         }
-
 
         .staff-design-file-icon {
             width: 48px;
@@ -1908,26 +1755,21 @@ else if (isStaffOrAdmin)
             flex-basis: 48px;
         }
 
-
         .staff-design-content {
             width: 100%;
         }
-
 
         .staff-design-title-row {
             width: 100%;
         }
 
-
         .staff-design-action {
             width: 100%;
         }
 
-
         .staff-view-button {
             width: 100%;
         }
-
 
         .staff-empty-state {
             min-height: 300px;

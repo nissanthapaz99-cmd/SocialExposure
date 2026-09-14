@@ -13,6 +13,10 @@ public sealed class NotificationService
         _context = context;
     }
 
+    // =========================================
+    // QUEUE NOTIFICATION FOR ONE USER
+    // =========================================
+
     public async Task<bool> QueueForUserAsync(
         int userId,
         string title,
@@ -21,11 +25,23 @@ public sealed class NotificationService
         string? link = null)
     {
         if (!await _context.Users.AnyAsync(x => x.Id == userId))
+        {
             return false;
+        }
 
-        Queue(userId, title, message, type, link);
+        Queue(
+            userId,
+            title,
+            message,
+            type,
+            link);
+
         return true;
     }
+
+    // =========================================
+    // QUEUE NOTIFICATION FOR CLIENT BY EMAIL
+    // =========================================
 
     public async Task<bool> QueueForClientEmailAsync(
         string? email,
@@ -35,20 +51,38 @@ public sealed class NotificationService
         string? link = null)
     {
         if (string.IsNullOrWhiteSpace(email))
+        {
             return false;
+        }
 
-        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var normalizedEmail =
+            email.Trim().ToLowerInvariant();
+
         var userId = await _context.Users
-            .Where(x => x.Role == UserRoles.Client && x.Email.ToLower() == normalizedEmail)
+            .Where(x =>
+                x.Role == UserRoles.Client &&
+                x.Email.ToLower() == normalizedEmail)
             .Select(x => (int?)x.Id)
             .FirstOrDefaultAsync();
 
         if (!userId.HasValue)
+        {
             return false;
+        }
 
-        Queue(userId.Value, title, message, type, link);
+        Queue(
+            userId.Value,
+            title,
+            message,
+            type,
+            link);
+
         return true;
     }
+
+    // =========================================
+    // QUEUE NOTIFICATION FOR ALL USERS IN ROLE
+    // =========================================
 
     public async Task<int> QueueForRoleAsync(
         string role,
@@ -59,27 +93,83 @@ public sealed class NotificationService
         int? exceptUserId = null)
     {
         var userIds = await _context.Users
-            .Where(x => x.Role == role && x.IsActive && x.IsApproved &&
-                (!exceptUserId.HasValue || x.Id != exceptUserId.Value))
+            .Where(x =>
+                x.Role == role &&
+                x.IsActive &&
+                x.IsApproved &&
+                (!exceptUserId.HasValue ||
+                 x.Id != exceptUserId.Value))
             .Select(x => x.Id)
             .ToListAsync();
 
         foreach (var userId in userIds)
-            Queue(userId, title, message, type, link);
+        {
+            Queue(
+                userId,
+                title,
+                message,
+                type,
+                link);
+        }
 
         return userIds.Count;
     }
 
-    private void Queue(int userId, string title, string message, string type, string? link)
+    // =========================================
+    // QUEUE NOTIFICATION FOR EVENT STAFF
+    // =========================================
+
+    public async Task<int> QueueForEventStaffAsync(
+        int eventId,
+        string title,
+        string message,
+        string type,
+        string? link = null)
     {
-        _context.Notifications.Add(new Notification
+        var staffIds = await _context.EventStaff
+            .Where(es =>
+                es.EventId == eventId &&
+                es.Staff != null &&
+                es.Staff.IsActive &&
+                es.Staff.IsApproved &&
+                es.Staff.Role == UserRoles.Staff)
+            .Select(es => es.StaffId)
+            .Distinct()
+            .ToListAsync();
+
+        foreach (var staffId in staffIds)
         {
-            UserId = userId,
-            Title = title,
-            Message = message,
-            Type = type,
-            Link = link,
-            CreatedAt = DateTime.Now
-        });
+            Queue(
+                staffId,
+                title,
+                message,
+                type,
+                link);
+        }
+
+        return staffIds.Count;
+    }
+
+    // =========================================
+    // ADD NOTIFICATION TO DATABASE
+    // =========================================
+
+    private void Queue(
+        int userId,
+        string title,
+        string message,
+        string type,
+        string? link)
+    {
+        _context.Notifications.Add(
+            new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Type = type,
+                Link = link,
+                CreatedAt = DateTime.Now
+            });
     }
 }
