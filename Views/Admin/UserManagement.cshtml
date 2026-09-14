@@ -8,7 +8,7 @@
         <a class="action-button" asp-action="CreateUser">♙&nbsp; Add User</a>
     </form>
     <div class="admin-table-card"><div class="data-table-wrap"><table class="admin-table">
-        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Verified</th><th>Projects</th><th>Actions</th></tr></thead>
+        <thead><tr><th>User</th><th>Email</th><th>Company / Organisation</th><th>Role</th><th>Status</th><th>Verified</th><th>Projects</th><th>Actions</th></tr></thead>
         <tbody>
         @foreach (var user in Model)
         {
@@ -20,7 +20,9 @@
                 : (user.IsActive ? "Active" : "Suspended");
             <tr>
                 <td><div class="user-cell"><span class="mini-avatar">@initials</span><strong>@user.FullName</strong></div></td>
-                <td>@user.Email</td><td><span class="role-badge @user.Role.ToLowerInvariant()">@user.Role</span></td>
+                <td>@user.Email</td>
+                <td>@(string.IsNullOrWhiteSpace(user.CompanyName) ? "Not provided" : user.CompanyName)</td>
+                <td><span class="role-badge @user.Role.ToLowerInvariant()">@user.Role</span></td>
                 <td><span class="account-state @(!user.IsActive || !user.IsApproved ? "inactive" : "")">@status</span></td>
                 <td>@(user.IsVerified ? "Verified" : "Pending")</td><td>—</td>
                 <td><div class="table-actions">
@@ -39,7 +41,7 @@
                 </div></td>
             </tr>
         }
-        @if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><i>♙</i><h3>No matching users</h3><p>Try a different search or filter.</p></div></td></tr> }
+        @if (!Model.Any()) { <tr><td colspan="8"><div class="empty-state"><i>♙</i><h3>No matching users</h3><p>Try a different search or filter.</p></div></td></tr> }
         </tbody>
     </table></div></div>
 </section>
