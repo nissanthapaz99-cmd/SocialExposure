@@ -90,11 +90,11 @@ builder.Services
         };
     });
 
-// SQLite database
+// SQL Server database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(
+    options.UseSqlServer(
         builder.Configuration.GetConnectionString(
-            "DefaultConnection")));
+            "DefaultConnection"), sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 // Services
 builder.Services.AddScoped<OTPService>();
@@ -119,11 +119,11 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
 
     // Add/update required User profile columns.
-    EnsureUserProfileColumns(context);
+    // EnsureUserProfileColumns(context);
 
     // Add EventStaff table for multiple staff members
     // assigned to the same event.
-    EnsureEventStaffTable(context);
+    // EnsureEventStaffTable(context);
 
     if (app.Environment.IsDevelopment())
     {
